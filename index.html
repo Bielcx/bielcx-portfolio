@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- TODO: favicon. O do sopa-agency saiu junto com a marca dele. Colocar um
+         `public/favicon.png` (32x32) e reativar a linha abaixo. -->
+    <!-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" /> -->
+
+    <!-- Curto de propósito: é o que aparece na aba, e ali o espaço é de uns 20
+         caracteres antes de cortar. As palavras-chave ficam na `description`,
+         no JSON-LD e no `og:title` — que é o que o preview de link usa. -->
+    <title>Gabriel Cavalcanti</title>
+    <meta
+      name="description"
+      content="Desenvolvedor full stack. Sites, lojas virtuais, painéis e automação para empresas — do orçamento ao site no ar, falando direto com quem constrói."
+    />
+
+    <!-- TODO: trocar por domínio próprio quando existir. A URL precisa ser
+         absoluta e igual em todos os campos abaixo. -->
+    <link rel="canonical" href="https://gabriel-comercial.vercel.app/" />
+
+    <!-- Preview de link (WhatsApp, LinkedIn, Slack). Esses robôs não executam
+         JavaScript: o que eles mostram sai daqui, não da página renderizada.
+         TODO: gerar o `public/og.jpg` (1200x630) — sem ele o link cola sem
+         imagem. Um print do hero resolve; JPEG e não PNG, porque o WhatsApp
+         costuma desistir do preview acima de uns 300 KB. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Gabriel Cavalcanti" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content="https://gabriel-comercial.vercel.app/" />
+    <meta property="og:title" content="Gabriel Cavalcanti — desenvolvedor full stack" />
+    <meta
+      property="og:description"
+      content="Sites, lojas virtuais, painéis e automação para empresas. Do orçamento ao site no ar, falando direto com quem constrói."
+    />
+    <meta property="og:image" content="https://gabriel-comercial.vercel.app/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content="Gabriel Cavalcanti — desenvolvedor full stack" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Gabriel Cavalcanti",
+        "url": "https://gabriel-comercial.vercel.app/",
+        "jobTitle": "Desenvolvedor full stack",
+        "description": "Sites, lojas virtuais, painéis e automação para empresas.",
+        "email": "biel.cavalcanti1@hotmail.com",
+        "address": { "@type": "PostalAddress", "addressCountry": "BR" },
+        "sameAs": [
+          "https://github.com/Bielcx",
+          "https://www.linkedin.com/in/gabrielcavalcanti-dev"
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
