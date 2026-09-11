@@ -2,10 +2,16 @@
  * Copy do site inteiro. Componente nenhum tem texto embutido — nem
  * `aria-label`, nem placeholder. Para mudar qualquer palavra, é aqui.
  *
- * ESQUELETO: o texto abaixo é primeira versão, escrito para ter a forma certa
- * e dar o que ler na tela. Serve como rascunho para revisar, não como copy
- * final — principalmente os números (prazos, preços) e as respostas do FAQ,
- * que precisam bater com o que você realmente pratica.
+ * O que a página promete foi revisado contra o que é praticado de verdade, e
+ * as quatro decisões estão registradas onde cada uma mora:
+ *
+ *   1. nada de preview cravado em horas — ver `metodo.painel`
+ *   2. nenhum preço na página — ver o FAQ "Quanto custa"
+ *   3. automação entra como serviço com histórico, não como capacidade
+ *   4. o plano mensal existe e é citado duas vezes, de propósito
+ *
+ * Promessa que a página faz é promessa que o cliente cobra. Antes de mexer num
+ * prazo ou num "está incluso", confira se ainda é verdade.
  */
 
 import { email, waLink, web3Url } from './contact'
@@ -35,7 +41,7 @@ const nav = {
 const hero = {
   corner: [
     '// como funciona',
-    'conversa vira preview > preview vira site',
+    'conversa vira escopo > escopo vira site',
     'site vira dado > dado vira próxima versão',
     '// e o círculo se abre',
   ],
@@ -76,36 +82,50 @@ const metodo = {
   /** A terceira linha é a que fecha o argumento, e a única em tinta cheia. */
   notas: [
     'um interlocutor só · do orçamento ao no ar',
-    'preview funcionando antes de fechar',
+    'em projeto pequeno, algo funcionando já na primeira semana',
     'menos reunião. mais coisa pronta.',
   ],
+  /**
+   * O painel PROVA o argumento ao lado, em vez de só afirmá-lo — e por isso
+   * cada linha aqui é uma promessa que o cliente vai cobrar.
+   *
+   * Os carimbos eram relógio (`00:00`, `+02:40`, `mesmo dia`), herdados do
+   * site da agência, onde um time consegue cravar isso. Sozinho, não: o prazo
+   * depende do tamanho do projeto. Viraram etapas numeradas, que são
+   * verdadeiras em qualquer porte — o "primeira semana" continua dito, mas
+   * como nota ao lado e só para projeto pequeno.
+   *
+   * São TRÊS passos, e o layout foi calibrado para três. Acrescentar um quarto
+   * é conferir a altura do painel antes.
+   */
   painel: {
-    label: 'preview · primeira conversa',
+    label: 'como um projeto anda',
     status: 'no ar',
     steps: [
       {
-        stamp: '00:00',
-        stampCurto: '00:00',
+        stamp: '01',
+        stampCurto: '01',
         title: 'A conversa começa',
         titleCurto: 'A conversa começa',
         detail: 'Você conta o problema. Ninguém abre apresentação.',
         detailCurto: 'Ninguém abre apresentação.',
       },
       {
-        stamp: '+02:40',
-        stampCurto: '+02:40',
-        title: 'Um preview funcionando',
-        titleCurto: 'Preview funcionando',
-        detail: 'Da ideia a algo testável em poucas horas — no navegador, não no slide.',
-        detailCurto: 'Da ideia a algo testável em poucas horas.',
+        stamp: '02',
+        stampCurto: '02',
+        title: 'Escopo e preço fechados',
+        titleCurto: 'Escopo fechado',
+        detail: 'A proposta diz o que entra, quanto tempo leva e quanto custa — antes de começar.',
+        detailCurto: 'O que entra, o prazo e o preço. Antes de começar.',
       },
       {
-        stamp: 'no ar',
-        stampCurto: 'no ar',
-        title: 'Entregue',
-        titleCurto: 'Entregue',
-        detail: 'Domínio, hospedagem e certificado configurados. Você recebe o site funcionando.',
-        detailCurto: 'Domínio e hospedagem prontos.',
+        stamp: '03',
+        stampCurto: '03',
+        title: 'No ar',
+        titleCurto: 'No ar',
+        detail:
+          'Um link aberto para acompanhar a construção a qualquer hora, e no fim domínio, hospedagem e certificado configurados.',
+        detailCurto: 'Link para acompanhar, e domínio e hospedagem prontos.',
       },
     ],
   },
@@ -147,6 +167,14 @@ const services = {
       accent: 'cool',
       icon: 'shuffle',
       label: 'Sistemas e automação',
+      /**
+       * Esta faixa fala no presente e no mesmo tom da outra porque o serviço
+       * tem histórico com cliente pagante — atendimento no WhatsApp, agente de
+       * IA e planilha preenchida sozinha já foram entregues. Se um dia entrar
+       * aqui um serviço que ainda não foi vendido, ele vira frase de capacidade
+       * ("dá para"), não de portfólio: a faixa inteira perde a força quando uma
+       * linha é promessa e as outras são histórico.
+       */
       headline:
         'Olho a sua operação, acho onde o trabalho se repete e automatizo — no sistema que você já usa.',
       /**
@@ -240,19 +268,25 @@ const faq = {
       icon: 'compass',
       question: 'Como começa um projeto?',
       answer:
-        'Com uma conversa de uns 20 minutos no WhatsApp ou em call, para entender o que você precisa. Dali sai um preview funcionando e uma proposta com prazo e valor fechados. Você aprova antes de qualquer coisa ser cobrada.',
+        'Com uma conversa de uns 20 minutos no WhatsApp ou em call, para entender o que você precisa. Dali sai uma proposta com escopo, prazo e valor fechados. Você aprova antes de qualquer coisa ser cobrada, e em projeto pequeno costuma ver algo funcionando já na primeira semana.',
     },
     {
       icon: 'clock',
       question: 'Quanto tempo leva?',
       answer:
-        'Uma landing page costuma levar poucos dias. Um site institucional com painel de edição, cerca de uma a duas semanas. Sistema e automação dependem do tamanho da operação — o prazo sai fechado na proposta, nunca "a gente vê depois".',
+        'Depende do tamanho, e o prazo sai fechado na proposta — nunca "a gente vê depois". Uma landing page costuma levar poucos dias; um site com painel de edição, algumas semanas; sistema e automação dependem do tamanho da operação.',
     },
     {
+      /**
+       * Sem número, por decisão: preço na página filtra antes da conversa, e
+       * um projeto sob medida não tem preço de tabela. O que a resposta entrega
+       * no lugar é a garantia que o cliente realmente quer ouvir — que o valor
+       * não muda no meio. Se um dia entrar um "a partir de", ele entra aqui.
+       */
       icon: 'doc',
       question: 'Quanto custa?',
       answer:
-        'Por projeto, com valor fechado antes de começar: você sabe o preço final na proposta e ele não muda no meio. Quando a demanda é contínua, existe um valor mensal de manutenção e evolução.',
+        'Depende do escopo, e por isso o valor sai fechado na proposta, antes de começar: o preço que está lá é o preço final, e ele não muda no meio do projeto. Quando a demanda é contínua, existe também um valor mensal de manutenção e evolução.',
     },
     {
       icon: 'sparkle',
