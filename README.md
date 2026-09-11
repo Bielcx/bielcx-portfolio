@@ -4,7 +4,7 @@ Página única em português, fundo escuro, com um hero em WebGL que conduz a
 narrativa por scroll. Fala com quem contrata site, loja, painel e automação.
 
 É um de dois portfólios. O outro, de web3 e blockchain, vive em
-`Dev/portfolio` (Next.js) e entra aqui como um link no rodapé. O porquê da
+`Dev/portfolios/web3` (Next.js) e entra aqui como um link no rodapé. O porquê da
 divisão está no `AGENTS.md`.
 
 ## Stack

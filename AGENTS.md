@@ -1,4 +1,4 @@
-# gabriel-comercial
+# portfolios/comercial
 
 Portfólio **comercial** de Gabriel Cavalcanti — desenvolvedor full stack. Página
 única em português, fundo escuro, hero em WebGL conduzido por scroll.
@@ -9,8 +9,8 @@ Existem dois portfólios, e a divisão é de **público**, não de tecnologia:
 
 | | público | onde |
 |---|---|---|
-| **este** | cliente comercial — quem contrata site, loja, painel, automação | `C:\Users\bielc\Dev\gabriel-comercial` |
-| **web3** | dev e gente de cripto — quem já sabe o que é blockchain | `C:\Users\bielc\Dev\portfolio` (Next.js) |
+| **este** | cliente comercial — quem contrata site, loja, painel, automação | `Dev/portfolios/comercial` |
+| **web3** | dev e gente de cripto — quem já sabe o que é blockchain | `Dev/portfolios/web3` (Next.js) |
 
 O portfólio web3 converte bem com quem é do meio e afasta quem não é: a estética
 e o vocabulário (Hive, PRs on-chain, terminal) filtram o cliente comercial na
@@ -35,7 +35,7 @@ URLs absolutas a trocar quando o domínio existir estão marcadas com `TODO` no
 
 ## Origem do código
 
-Este projeto é um fork do `C:\Users\bielc\Dev\Sopa\sopa-agency`, o site da
+Este projeto é um fork do `Dev/Sopa/sopa-agency`, o site da
 agência do mesmo dono — a identidade visual é deliberadamente a mesma família.
 Herdou tokens, hero WebGL, Menu, seções e componentes; trocou a copy inteira.
 
