@@ -78,9 +78,18 @@ export function useHeroScroll() {
         return
       }
 
-      // toda a vida presa do hero: fixo do topo do track até faltar uma tela
-      // para o fim dele
-      const distance = track.offsetHeight - window.innerHeight
+      // Toda a vida presa do hero: fixo do topo do track até faltar uma tela
+      // para o fim dele.
+      //
+      // A "tela" é a altura do PRÓPRIO elemento preso, e não `window.innerHeight`.
+      // No celular os dois são números diferentes: o elemento usa `svh` (a tela
+      // sem a barra do navegador, que não muda), e o `innerHeight` cresce quando
+      // a barra recolhe. Lendo o `innerHeight`, este denominador encolhia no
+      // meio da rolagem e a velocidade do fade mudava sozinha — parte do
+      // "scroll esquisito no celular". Medindo o elemento, a conta usa a mesma
+      // régua do layout.
+      const preso = track.firstElementChild as HTMLElement | null
+      const distance = track.offsetHeight - (preso?.offsetHeight ?? window.innerHeight)
       const progress =
         distance > 0 ? clamp(-track.getBoundingClientRect().top / distance, 0, 1) : 0
 

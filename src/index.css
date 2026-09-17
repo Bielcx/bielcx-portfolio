@@ -114,16 +114,27 @@
 
 /* Utilitários próprios via `@utility` — assim aceitam variantes (md:, hover:…). */
 
-/* Altura da janela como ela está AGORA, com a barra do navegador ocupando o
-   que ocupa. `100vh` no celular mede a tela sem a barra e não muda nunca, mas
-   o `useHeroScroll` faz a conta com `window.innerHeight`, que é o valor
-   dinâmico — com os dois discordando, o card nascia mais alto que a tela e o
-   texto passava fora do centro. `dvh` é o mesmo número que o JS lê.
-   O `vh` fica de reserva para navegador sem `dvh` — o minificador descarta a
-   linha sozinho quando todos os alvos do build já suportam a unidade. */
+/* Altura da janela SEM a barra do navegador — a medida pequena, e a única que
+   NÃO muda enquanto se rola.
+   
+   Já foi `dvh`, a medida dinâmica, para bater com o `window.innerHeight` que os
+   hooks leem. O efeito colateral é que no celular o card PRESO cresce quando a
+   barra recolhe: ele é o elemento fixo da tela, e mudar de altura no meio da
+   rolagem empurra o conteúdo — era o "scroll esquisito" no celular.
+   
+   Com `svh` o layout não se mexe, e quem passou a se adaptar foi o JS: o
+   `useHeroScroll` mede o próprio elemento preso em vez de `window.innerHeight`.
+   Layout estável, conta certa.
+   
+   **Os três lugares que descrevem esta mesma tela têm de usar a MESMA unidade**:
+   este utilitário, o `h-[180svh]` do track do hero e o `-mt-[80svh]` da cortina
+   do `Metodo`. Misturar `vh` com `dvh` foi exatamente o bug.
+   
+   O `vh` fica de reserva para navegador sem `svh`; o minificador descarta a
+   linha quando todos os alvos do build já suportam a unidade. */
 @utility h-viewport {
   height: 100vh;
-  height: 100dvh;
+  height: 100svh;
 }
 
 /* Facho de luz atravessando um título — para ser usado numa CÓPIA do texto,

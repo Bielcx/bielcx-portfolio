@@ -47,9 +47,9 @@ export function Metodo() {
        * margem negativa a faz começar antes do fim do track dele, o `z-10` a
        * põe na frente e o fundo opaco cobre.
        *
-       * **Os 80vh decidem QUANDO este card aparece**, e são o único número que
+       * **Os 80svh decidem QUANDO este card aparece**, e são o único número que
        * controla isso: o card fica visível quando o track dele encosta no pé da
-       * tela, ou seja `altura do track do hero − 80vh − uma tela` de rolagem.
+       * tela, ou seja `altura do track do hero − 80svh − uma tela` de rolagem.
        * Com os 180vh de lá, isso dá ZERO: a aresta já está encostada no pé da
        * tela quando a página abre, e começa a subir no primeiro pixel de
        * rolagem. Aumentar mais faria a cortina aparecer JÁ COBRINDO um pedaço
@@ -84,7 +84,7 @@ export function Metodo() {
        * No celular não há palco preso: a tela é curta demais para prender e
        * ainda sobrar percurso.
        */
-      className="relative isolate z-10 -mt-[80vh] bg-frame md:h-[115vh]"
+      className="relative isolate z-10 -mt-[80svh] bg-frame md:h-[115svh]"
     >
       {/*
         O palco. As medidas laterais são as MESMAS que o hero usa quando o card

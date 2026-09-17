@@ -56,11 +56,11 @@ const WORDMARK_SIZE = "text-[clamp(40px,min(6.2vw,13vh),104px)]";
  * segura o quadro no intervalo entre o texto sair e a cortina cobrir.
  *
  * **O que FICOU, e não é decoração:** o track alto com `sticky`. Ele não é do
- * hero, é da página — quem depende dele é o `-mt-[80vh]` do `Metodo`, que sobe
+ * hero, é da página — quem depende dele é o `-mt-[80svh]` do `Metodo`, que sobe
  * como cortina por cima deste bloco preso. Com o hero numa tela normal, aquela
  * margem negativa cobriria 70% dele já no carregamento.
  *
- * Os 180vh vêm daí, e não do hero: o `Metodo` começa a 180−80 = 100vh do topo
+ * Os 180vh vêm daí, e não do hero: o `Metodo` começa a 180−80 = 100svh do topo
  * do track, ou seja a aresta dele já encosta no pé da tela no carregamento, e
  * o hero fica preso até 80vh. Mexeu aqui, confira o `-mt` de lá E o `FADE` do
  * `useHeroScroll` — os três descrevem a mesma travessia.
@@ -69,7 +69,7 @@ export function Hero() {
   const { trackRef, contentRef } = useHeroScroll();
 
   return (
-    <div ref={trackRef} id="topo" className="relative isolate h-[180vh] bg-frame">
+    <div ref={trackRef} id="topo" className="relative isolate h-[180svh] bg-frame">
       <div className="sticky top-0 flex h-viewport items-center bg-frame">
         <section className="relative flex h-full w-full items-center overflow-hidden bg-linear-[180deg,var(--color-hero-top)_0%,var(--color-hero-mid)_42%,var(--color-hero-bot)_78%] px-6 md:px-[8vw]">
           {/* REDE DE SEGURANÇA do fundo, e ela é permanente — não é um
