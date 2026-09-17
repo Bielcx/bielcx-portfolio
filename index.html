@@ -32,9 +32,18 @@
       content="Desenvolvedor full stack. Sites, lojas virtuais, painéis e automação para empresas — do orçamento ao site no ar, falando direto com quem constrói."
     />
 
-    <!-- TODO: trocar por domínio próprio quando existir. A URL precisa ser
-         absoluta e igual em todos os campos abaixo. -->
-    <link rel="canonical" href="https://gabriel-comercial.vercel.app/" />
+    <!-- A URL do deploy, absoluta, e ela aparece em SEIS lugares acoplados:
+         este `canonical`, o `og:url`, o `og:image`, o `url` do JSON-LD, o
+         `Sitemap:` do `public/robots.txt` e o `<loc>` do `public/sitemap.xml`.
+         Trocar num sem trocar nos outros é erro silencioso — o site continua
+         no ar e só o preview de link e a indexação quebram.
+
+         Ela já esteve em `gabriel-comercial.vercel.app`, que nunca existiu: o
+         `og:image` apontava para um 404 e o `canonical` mandava o Google para
+         um domínio inexistente.
+
+         TODO: trocar por domínio próprio quando existir. -->
+    <link rel="canonical" href="https://bielcx-portfolio.vercel.app/" />
 
     <!-- Preview de link (WhatsApp, LinkedIn, Slack). Esses robôs não executam
          JavaScript: o que eles mostram sai daqui, não da página renderizada.
@@ -47,13 +56,13 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Gabriel Cavalcanti" />
     <meta property="og:locale" content="pt_BR" />
-    <meta property="og:url" content="https://gabriel-comercial.vercel.app/" />
+    <meta property="og:url" content="https://bielcx-portfolio.vercel.app/" />
     <meta property="og:title" content="Gabriel Cavalcanti — desenvolvedor full stack" />
     <meta
       property="og:description"
       content="Sites, lojas virtuais, painéis e automação para empresas. Do orçamento ao site no ar, falando direto com quem constrói."
     />
-    <meta property="og:image" content="https://gabriel-comercial.vercel.app/og.jpg" />
+    <meta property="og:image" content="https://bielcx-portfolio.vercel.app/og.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/jpeg" />
@@ -65,7 +74,7 @@
         "@context": "https://schema.org",
         "@type": "Person",
         "name": "Gabriel Cavalcanti",
-        "url": "https://gabriel-comercial.vercel.app/",
+        "url": "https://bielcx-portfolio.vercel.app/",
         "jobTitle": "Desenvolvedor full stack",
         "description": "Sites, lojas virtuais, painéis e automação para empresas.",
         "email": "biel.cavalcanti1@hotmail.com",

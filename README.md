@@ -55,7 +55,8 @@ não precisam bater — a grade tem quatro de propósito, para não quebrar.
 - [ ] revisar a copy: os prazos e os preços são rascunho e precisam bater com o
       que é praticado de verdade antes de o site ir ao ar
 - [ ] a primeira tela não diz o que o site faz — hoje é só o nome e dois botões
-- [ ] domínio próprio, e trocar as URLs absolutas do `index.html`,
-      `public/robots.txt` e `public/sitemap.xml`. **Enquanto elas estiverem
-      erradas o preview de link não aparece**, porque o `og:image` é resolvido
-      contra a URL declarada ali.
+- [ ] domínio próprio. A URL do deploy aparece em **seis lugares acoplados**:
+      `canonical`, `og:url`, `og:image` e o `url` do JSON-LD no `index.html`,
+      mais o `Sitemap:` do `public/robots.txt` e o `<loc>` do
+      `public/sitemap.xml`. Trocar num sem trocar nos outros é erro silencioso —
+      o site fica no ar e só o preview de link e a indexação quebram.
