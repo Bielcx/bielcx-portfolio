@@ -19,8 +19,8 @@ import { useHeroScroll } from "../hooks/useHeroScroll";
 const WORDMARK_SIZE = "text-[clamp(40px,min(6.2vw,13vh),104px)]";
 
 /**
- * Hero centrada sobre o preto da página: nome, a linha que diz o que o site
- * faz, e os botões — um bloco só no meio da tela.
+ * Hero centrada sobre o preto da página: nome, botões e, fechando o bloco, a
+ * linha que diz o que o site faz.
  *
  * A linha é recente e conserta a falha mais cara que a página teve: por um
  * tempo a primeira tela mostrava só o nome e dois botões, sem nada respondendo
@@ -148,14 +148,6 @@ export function Hero() {
             </h1>
 
 
-            {/* A única linha acima da dobra que diz o que o site faz.
-                `max-w-[34ch]` a quebra em duas linhas curtas em vez de uma
-                faixa: ela mora embaixo de um nome que ocupa a largura toda, e
-                texto longo ali compete com ele em vez de explicá-lo. */}
-            <p className="mt-7 max-w-[34ch] text-[clamp(15px,1.5vw,19px)] leading-[1.5] text-ink/70">
-              {hero.subtitle}
-            </p>
-
             {/* Empilhados no celular, lado a lado a partir de `sm`. O `wrap` é
                 herança de quando eram três e fica porque custa zero. */}
             <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
@@ -197,6 +189,25 @@ export function Hero() {
                 <EthMark />
               </a>
             </div>
+
+            {/* A única linha acima da dobra que diz o que o site faz, no lugar
+                e no estilo do carimbo mono que morava aqui — mesmo mono, mesmo
+                caixa alta, mesmo espacejamento.
+
+                DUAS coisas do carimbo NÃO vieram junto, e as duas de
+                propósito:
+
+                1. **Não é `text-ink/45`.** Aquele tom valia para textura; isto
+                   é a frase que responde "serve para mim?", e texto pequeno
+                   abaixo de `/55` fica sob 4,5:1 de contraste — a regra está
+                   no `AGENTS.md`.
+                2. **Não é `hidden sm:block`.** O carimbo sumia no celular
+                   porque era enfeite. Esta linha sumir no celular seria
+                   exatamente o problema que ela existe para consertar, na tela
+                   em que ele é mais grave. */}
+            <p className="mt-10 max-w-[38ch] font-mono text-[11px] uppercase leading-[1.8] tracking-[0.08em] text-ink/60">
+              {hero.subtitle}
+            </p>
           </div>
         </section>
       </div>
