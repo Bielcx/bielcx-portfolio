@@ -72,6 +72,26 @@ export function Hero() {
     <div ref={trackRef} id="topo" className="relative isolate h-[180vh] bg-frame">
       <div className="sticky top-0 flex h-viewport items-center bg-frame">
         <section className="relative flex h-full w-full items-center overflow-hidden bg-linear-[180deg,var(--color-hero-top)_0%,var(--color-hero-mid)_42%,var(--color-hero-bot)_78%] px-6 md:px-[8vw]">
+          {/* REDE DE SEGURANÇA do fundo, e ela é permanente — não é um
+              "se falhar".
+
+              O `LightBeam` falha em silêncio quando não há WebGL2: avisa no
+              console e não desenha. Isso serve a uma faixa decorativa, e não
+              ao fundo da primeira tela inteira — sem ele o hero vira preto
+              chapado, e a sombra do nome, que só se lê como recorte contra a
+              luz atrás, some junto. Dois sintomas, uma causa, e nada acusa.
+
+              Não dá para detectar a falha em CSS, então este degradê fica
+              SEMPRE atrás do canvas: com os fios desenhando ele é
+              imperceptível; sem eles, o nome continua apoiado em alguma coisa.
+              É o mesmo raciocínio dos três degraus do `EthMark`, que existe
+              porque ícone sumido em botão é defeito que ninguém percebe. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(115%_50%_at_50%_60%,color-mix(in_srgb,var(--color-accent-cool)_10%,transparent),transparent_68%)]"
+            style={{ opacity: "var(--hw, 1)" }}
+          />
+
           {/* O campo atrás de tudo. Cobre a tela inteira: ele É o fundo, não
               um objeto dentro da cena. Desenha em alfa sobre o preto, então o
               `inset-0` é a única coisa que diz até onde ele vai.
