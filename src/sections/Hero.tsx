@@ -102,7 +102,15 @@ export function Hero() {
               inteiro, não um acréscimo. A opacidade do wrapper multiplica a do
               canvas, que tem o fade de entrada próprio; as duas convivem. */}
           <LightBeam
-            className="pointer-events-none absolute inset-0 z-[1] [opacity:var(--hw,1)]"
+            /* O `brightness` só abaixo de `sm`, e não é capricho: o mesmo
+               valor de opacidade que lê bem num monitor some numa tela de
+               celular — menor, com brilho automático e muitas vezes sol em
+               cima. Foi relatado como "o efeito não está atrás do nome", com o
+               WebGL funcionando (o losango 3D do botão girava). O filtro
+               multiplica o RGB, e como os fios são desenhados sobre preto, isso
+               é exatamente subir o sinal sem mexer no shader — que é string de
+               GLSL e valeria para as duas telas. */
+            className="pointer-events-none absolute inset-0 z-[1] [opacity:var(--hw,1)] max-sm:[filter:brightness(1.75)_saturate(1.1)]"
             frag={THREADS_FRAG}
           />
 
