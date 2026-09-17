@@ -57,15 +57,15 @@ export function WorkGrid() {
                   className="size-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
                 />
               ) : (
-                <span className="flex size-full items-center justify-center bg-hatch text-[10px] tracking-[0.08em] text-ink/25">
+                <span className="flex size-full items-center justify-center bg-hatch text-[10px] tracking-[0.08em] text-ink/50">
                   {new URL(work.href).hostname.replace('www.', '')}
                 </span>
               )}
             </div>
 
-            <p className="mt-2 flex items-center gap-1.5 text-[12px] text-ink/45 transition-colors group-hover:text-ink">
+            <p className="mt-2 flex items-center gap-1.5 text-[12px] text-ink/60 transition-colors group-hover:text-ink">
               {work.name}
-              <span aria-hidden className="text-[11px] text-ink/30 group-hover:text-(--accent)">
+              <span aria-hidden className="text-[11px] text-ink/50 group-hover:text-(--accent)">
                 ↗
               </span>
             </p>

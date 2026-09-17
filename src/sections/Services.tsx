@@ -1,10 +1,10 @@
 import type { CSSProperties } from 'react'
 
 import { Icon } from '../components/Icon'
-import { SectionHeading } from '../components/SectionHeading'
 import { ProcessSteps } from '../components/services/ProcessSteps'
 import { WorkGrid } from '../components/services/WorkGrid'
 import { services } from '../data/content'
+import { SectionHeading } from '../components/SectionHeading'
 import { useEnterProgress } from '../hooks/useEnterProgress'
 
 const ACCENTS = {
@@ -45,7 +45,7 @@ export function Services() {
        * da seção 02, que agora é quem vem logo depois dele. Aqui é fluxo
        * normal — o `Metodo` já cobriu o hero antes desta seção existir.
        */
-      className="relative bg-surface px-6 py-28 sm:px-10 md:py-40"
+      className="relative bg-frame px-6 py-28 sm:px-10 md:py-40"
     >
       {/*
         Parallax de entrada: o cabeçalho e as faixas sobem a partir de baixo em
@@ -59,12 +59,15 @@ export function Services() {
           className="will-change-transform"
           style={{ transform: 'translate3d(0, calc((1 - var(--enter, 1)) * 40px), 0)' }}
         >
-          <SectionHeading
-            eyebrow={services.eyebrow}
-            title={services.title}
-            description={services.description}
-            align="center"
-          />
+          {/* Rótulo + título. O `description` do `SectionHeading` fica de
+              fora: a linha de apoio que morava ali resumia os quatro serviços,
+              e as duas faixas logo abaixo já fazem isso melhor.
+
+              Não é só estética: sem o `h2` a seção ia do rótulo (um `<p>`)
+              direto para os `h3` das faixas, e o documento pulava um nível —
+              busca e leitor de tela liam a seção de serviços como subordinada
+              à anterior. */}
+          <SectionHeading eyebrow={services.eyebrow} title={services.title} align="center" />
         </div>
 
         <div
@@ -97,8 +100,11 @@ function ServiceBand({ card, index }: { card: Card; index: number }) {
         <p className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-(--accent)">
           <Icon name={card.icon} className="size-4" />
           {card.label}
-          <span className="text-ink/20">/</span>
-          <span className="text-ink/30">{String(index + 1).padStart(2, '0')}</span>
+          {/* Só a barra: é pontuação entre o rótulo e o contador, não texto
+              para ler, e por isso fica abaixo do piso de contraste dos
+              outros — ela separa, não informa. */}
+          <span className="text-ink/40">/</span>
+          <span className="text-ink/55">{String(index + 1).padStart(2, '0')}</span>
         </p>
 
         <h3 className="mt-5 max-w-lg font-serif text-[clamp(24px,2.9vw,36px)] leading-[1.2] text-ink-bright">
@@ -115,7 +121,7 @@ function ServiceBand({ card, index }: { card: Card; index: number }) {
                 <span className="size-1 shrink-0 rounded-full bg-(--accent)" />
                 {service.name}
               </p>
-              <p className="mt-1 pl-[18px] text-[12.5px] leading-relaxed text-ink/40">
+              <p className="mt-1 pl-[18px] text-[12.5px] leading-relaxed text-ink/60">
                 {service.detail}
               </p>
             </li>

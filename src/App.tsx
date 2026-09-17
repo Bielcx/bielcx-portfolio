@@ -1,5 +1,4 @@
 import { Menu } from './components/Menu'
-import { Faq } from './sections/Faq'
 import { Footer } from './sections/Footer'
 import { Hero } from './sections/Hero'
 import { Metodo } from './sections/Metodo'
@@ -12,7 +11,6 @@ export default function App() {
       <Hero />
       <Metodo />
       <Services />
-      <Faq />
       <Footer />
     </main>
   )

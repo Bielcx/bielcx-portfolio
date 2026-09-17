@@ -3,12 +3,17 @@
  * `aria-label`, nem placeholder. Para mudar qualquer palavra, é aqui.
  *
  * O que a página promete foi revisado contra o que é praticado de verdade, e
- * as quatro decisões estão registradas onde cada uma mora:
+ * as três decisões estão registradas onde cada uma mora:
  *
- *   1. nada de preview cravado em horas — ver `metodo.painel`
- *   2. nenhum preço na página — ver o FAQ "Quanto custa"
- *   3. automação entra como serviço com histórico, não como capacidade
- *   4. o plano mensal existe e é citado duas vezes, de propósito
+ *   1. automação entra como serviço com histórico, não como capacidade
+ *   2. o plano mensal existe e é citado duas vezes, de propósito
+ *
+ * A terceira — "nada de preview cravado em horas" — morava em `metodo.painel`,
+ * a linha do tempo que saiu junto com o painel-janela da seção 02. Com ela
+ * foram embora três promessas que a página não faz mais em lugar nenhum:
+ * escopo e preço fechados antes de começar, link aberto para acompanhar a
+ * construção, e domínio e hospedagem configurados no fim. Se voltarem, que
+ * voltem por escrito e conferidas.
  *
  * Promessa que a página faz é promessa que o cliente cobra. Antes de mexer num
  * prazo ou num "está incluso", confira se ainda é verdade.
@@ -33,7 +38,6 @@ const nav = {
   links: [
     { label: 'Início', href: '#topo' },
     { label: 'Serviços', href: '#servicos' },
-    { label: 'Perguntas frequentes', href: '#faq' },
     { label: 'Contato', href: '#contato' },
   ],
 } as const
@@ -46,19 +50,31 @@ const hero = {
     '// e o círculo se abre',
   ],
   /**
-   * ponytail: quatro letras, e não é escolha estética — o `WORDMARK_SIZE` do
-   * Hero é `clamp(96px, min(36vw,30vh), 380px)`, calibrado para palavra curta.
-   * "GABRIEL" nesse corpo vaza da tela no celular. O nome inteiro entra logo
-   * abaixo, no `label`. Trocar por palavra mais longa é recalibrar o clamp.
+   * O nome inteiro, numa linha só. O `WORDMARK_SIZE` do Hero é calibrado para
+   * o comprimento deste texto — trocar por nome mais longo é recalibrar o
+   * clamp de lá, senão ele vaza da tela no celular.
    */
-  wordmark: 'BIEL',
-  label: 'Gabriel Cavalcanti',
+  wordmark: 'Gabriel Cavalcanti',
   actions: {
     primary: 'Começar uma conversa',
-    secondary: 'Trabalhos no ar',
+    /**
+     * A porta para o outro portfólio. Também existe no rodapé (`footer.links`),
+     * e o rótulo é diferente de propósito: lá, no fim da página, "Web3 /
+     * blockchain" nomeia o assunto por extenso para quem o procura; aqui é só
+     * a palavra, porque quem ela interessa reconhece na hora e quem não é do
+     * meio não precisa parar para ler.
+     *
+     * Era "Portfólio web3" e encolheu a pedido. Quem diz que isto leva para
+     * FORA do site passou a ser a seta do `Hero.tsx`, não mais o rótulo — some
+     * a seta e o botão vira uma seção que não existe.
+     *
+     * Até jan/2026 este link existia só no rodapé, para o visitante comercial
+     * não tropeçar na palavra logo de cara. Subiu para a hero a pedido; se o
+     * site voltar a soar técnico demais na primeira tela, é o primeiro
+     * candidato a descer de volta.
+     */
+    web3: { label: 'Web3', href: web3Url },
   },
-  /** Dica no pé do hero: some junto com o resto do bloco inicial. */
-  scrollHint: 'Arraste para cima',
 }
 
 /**
@@ -85,57 +101,20 @@ const metodo = {
     'em projeto pequeno, algo funcionando já na primeira semana',
     'menos reunião. mais coisa pronta.',
   ],
-  /**
-   * O painel PROVA o argumento ao lado, em vez de só afirmá-lo — e por isso
-   * cada linha aqui é uma promessa que o cliente vai cobrar.
-   *
-   * Os carimbos eram relógio (`00:00`, `+02:40`, `mesmo dia`), herdados do
-   * site da agência, onde um time consegue cravar isso. Sozinho, não: o prazo
-   * depende do tamanho do projeto. Viraram etapas numeradas, que são
-   * verdadeiras em qualquer porte — o "primeira semana" continua dito, mas
-   * como nota ao lado e só para projeto pequeno.
-   *
-   * São TRÊS passos, e o layout foi calibrado para três. Acrescentar um quarto
-   * é conferir a altura do painel antes.
-   */
-  painel: {
-    label: 'como um projeto anda',
-    status: 'no ar',
-    steps: [
-      {
-        stamp: '01',
-        stampCurto: '01',
-        title: 'A conversa começa',
-        titleCurto: 'A conversa começa',
-        detail: 'Você conta o problema. Ninguém abre apresentação.',
-        detailCurto: 'Ninguém abre apresentação.',
-      },
-      {
-        stamp: '02',
-        stampCurto: '02',
-        title: 'Escopo e preço fechados',
-        titleCurto: 'Escopo fechado',
-        detail: 'A proposta diz o que entra, quanto tempo leva e quanto custa — antes de começar.',
-        detailCurto: 'O que entra, o prazo e o preço. Antes de começar.',
-      },
-      {
-        stamp: '03',
-        stampCurto: '03',
-        title: 'No ar',
-        titleCurto: 'No ar',
-        detail:
-          'Um link aberto para acompanhar a construção a qualquer hora, e no fim domínio, hospedagem e certificado configurados.',
-        detailCurto: 'Link para acompanhar, e domínio e hospedagem prontos.',
-      },
-    ],
-  },
 }
 
 const services = {
   eyebrow: 'serviços',
+  /**
+   * O título da seção. Já saiu uma vez, junto com uma linha de apoio que
+   * resumia os quatro serviços, e voltou — sem a linha de apoio: ela repetia o
+   * que as duas faixas logo abaixo dizem melhor, cada uma no seu contexto.
+   *
+   * Duas linhas, duas promessas, uma para cada faixa: a primeira é o que um
+   * site faz, a segunda é o que um sistema faz. A ordem espelha a ordem das
+   * faixas — trocar uma sem trocar a outra desencontra o anúncio da entrega.
+   */
   title: ['Site que vende.', 'Sistema que trabalha.'],
-  description:
-    'Da presença digital à operação do dia a dia: sites, lojas, painéis e automações que colocam o seu negócio no ar e tiram trabalho repetido da sua frente.',
   /**
    * Duas faixas de largura inteira, alternando o lado do painel visual. Cada
    * uma traz `accent` (a cor que corre pela faixa) e `visual` (qual painel vai
@@ -231,103 +210,56 @@ const services = {
    * cliente da dúvida de precisar ter alguma coisa pronta antes de chamar.
    */
   process: {
-    eyebrow: 'como entra',
-    steps: [
-      {
-        n: '01',
-        name: 'Conversa',
-        detail: 'Vinte minutos olhando a operação como ela é hoje — não como deveria ser.',
-      },
-      {
-        n: '02',
-        name: 'Revisão',
-        detail: 'Mapeio o que é refeito à mão, o que se perde no meio do caminho e o que atrasa.',
-      },
-      {
-        n: '03',
-        name: 'Proposta',
-        detail: 'O que automatizar primeiro, o que dá para medir e quanto custa. Escopo fechado.',
-      },
-      {
-        n: '04',
-        name: 'No ar',
-        detail: 'Construo, ligo no que já existe e acompanho depois que entra.',
-      },
-    ],
+    eyebrow: 'como funciona',
+    /**
+     * A rede do painel de automação: o que ENTRA à esquerda, a automação no
+     * meio, o que SAI à direita. Não é a lista de serviços (essa é a `services`
+     * acima) — é um desenho do que acontece, e os rótulos existem para quem
+     * olha o ícone e não sabe do que se trata.
+     *
+     * **Nenhum nome de ferramenta aqui, pela mesma razão da lista de serviços.**
+     * Este painel nasceu justamente no lugar de uma grade de logos: logo
+     * responde "com o que vocês trabalham", e a pergunta que vem antes é "serve
+     * para mim?". Uma parede de marcas que o cliente não reconhece responde que
+     * não. Por isso os ícones são genéricos — pessoa, mensagem, planilha — e
+     * não WhatsApp, Sheets e afins, mesmo que sejam exatamente esses os
+     * sistemas em que o trabalho entra. Quem nomeia as ferramentas é a `note`
+     * logo abaixo, em texto, onde elas soam como "funciona com o SEU" e não
+     * como requisito.
+     *
+     * Os `icon` têm de existir no `components/Icon.tsx`.
+     */
+    rede: {
+      entradas: [
+        { icon: 'users', label: 'cliente' },
+        { icon: 'mail', label: 'mensagem' },
+        { icon: 'doc', label: 'planilha' },
+      ],
+      nucleo: { icon: 'bolt', label: 'automação' },
+      saidas: [
+        { icon: 'check', label: 'resposta' },
+        { icon: 'clock', label: 'na hora' },
+        { icon: 'layers', label: 'registro' },
+      ],
+    },
     note: 'Funciona com o que a sua empresa já tem — WhatsApp, planilha, CRM, sistema feito em casa. Ou com o que ainda nem existe.',
   },
 } as const
 
-const faq = {
-  eyebrow: 'faq',
-  title: ['Perguntas', 'frequentes'],
-  description:
-    'O que costumam perguntar antes de fechar: como começa, quanto tempo leva, quanto custa e quem cuida do site depois que ele entra no ar.',
-  items: [
-    {
-      icon: 'compass',
-      question: 'Como começa um projeto?',
-      answer:
-        'Com uma conversa de uns 20 minutos no WhatsApp ou em call, para entender o que você precisa. Dali sai uma proposta com escopo, prazo e valor fechados. Você aprova antes de qualquer coisa ser cobrada, e em projeto pequeno costuma ver algo funcionando já na primeira semana.',
-    },
-    {
-      icon: 'clock',
-      question: 'Quanto tempo leva?',
-      answer:
-        'Depende do tamanho, e o prazo sai fechado na proposta — nunca "a gente vê depois". Uma landing page costuma levar poucos dias; um site com painel de edição, algumas semanas; sistema e automação dependem do tamanho da operação.',
-    },
-    {
-      /**
-       * Sem número, por decisão: preço na página filtra antes da conversa, e
-       * um projeto sob medida não tem preço de tabela. O que a resposta entrega
-       * no lugar é a garantia que o cliente realmente quer ouvir — que o valor
-       * não muda no meio. Se um dia entrar um "a partir de", ele entra aqui.
-       */
-      icon: 'doc',
-      question: 'Quanto custa?',
-      answer:
-        'Depende do escopo, e por isso o valor sai fechado na proposta, antes de começar: o preço que está lá é o preço final, e ele não muda no meio do projeto. Quando a demanda é contínua, existe também um valor mensal de manutenção e evolução.',
-    },
-    {
-      icon: 'sparkle',
-      question: 'Preciso ter logo e marca prontos?',
-      answer:
-        'Não. Se já existe, trabalho em cima do que está de pé. Se não existe, dá para começar com uma direção visual simples — cores, tipografia e um logotipo básico — e evoluir depois.',
-    },
-    {
-      icon: 'globe',
-      question: 'O domínio e a hospedagem estão inclusos?',
-      answer:
-        'A configuração está. O domínio é comprado no seu nome, com o seu cartão, e fica seu — mas eu cuido de apontar tudo e deixar no ar com certificado de segurança. Para site institucional, a hospedagem costuma sair de graça no plano que eu uso.',
-    },
-    {
-      icon: 'shuffle',
-      question: 'Quem cuida do site depois que ele entra no ar?',
-      answer:
-        'Você decide. Entrego o código e os acessos para o seu time assumir, ou sigo com um plano mensal de manutenção. Em nenhum dos dois casos o site fica preso comigo: o domínio, a hospedagem e o código são seus.',
-    },
-    {
-      icon: 'cube',
-      question: 'Você assume projeto que já está no meio do caminho?',
-      answer:
-        'Sim. Começo com uma leitura do código e do design que já existem e te digo com franqueza o que dá para aproveitar e o que precisa ser refeito. Daí sai um plano com prazo — às vezes tão curto quanto começar do zero.',
-    },
-    {
-      icon: 'users',
-      question: 'Como é o dia a dia durante o projeto?',
-      answer:
-        'Um canal direto no WhatsApp e um link do site em construção que você pode abrir a qualquer hora para ver como está. Sem intermediário e sem esperar reunião para saber onde o projeto está.',
-    },
-  ],
-} as const
 
 const footer = {
   title: ['Bom trabalho', 'continua rendendo'],
-  /** Quebras de linha na mão: cada item é uma linha do bloco centralizado. */
+  /**
+   * Quebras de linha na mão: cada item é uma linha do bloco centralizado.
+   *
+   * Eram três linhas e viraram duas, a pedido: "continuar funcionando,
+   * evoluindo e gerando resultado" são três jeitos de dizer a mesma coisa, e
+   * o cartão do rodapé encolheu junto. O verbo que sobrou é o do título logo
+   * acima — o bloco inteiro afirma uma coisa só, duas vezes.
+   */
   lede: [
     'A entrega não termina no lançamento. Sites, lojas e sistemas',
-    'feitos para continuar funcionando, evoluindo e gerando',
-    'resultado muito depois que entram no ar.',
+    'feitos para continuar rendendo muito depois de entrarem no ar.',
   ],
   cta: { label: 'Tirar um projeto do papel', href: whatsappUrl },
   /**
@@ -354,4 +286,4 @@ const footer = {
   legal: `© Gabriel Cavalcanti · ${new Date().getFullYear()}`,
 } as const
 
-export const pt = { nav, hero, metodo, services, faq, footer, whatsappUrl } as const
+export const pt = { nav, hero, metodo, services, footer, whatsappUrl } as const

@@ -27,28 +27,30 @@
      `bg-linear-` de três paradas — dá para voltar a um degradê sem tocar no
      `Hero.tsx`.
 
-     TRÊS COISAS FICARAM CALIBRADAS PARA O CINZA e não foram refeitas:
+     DUAS COISAS FICARAM CALIBRADAS PARA O CINZA e não foram refeitas:
 
      1. o card não se solta mais das bordas. O `--p` do scroll faz o padding
         crescer para o `--color-frame` aparecer por trás — e ele também é
         preto, então não há contraste que revele o movimento. O efeito continua
         rodando, só não se vê.
-     2. os alfas do `Starfield` foram subidos acima do realista porque as
-        estrelas sumiam no degradê cinza. No preto, isso agora é exagero.
-     3. o `--color-stroke` abaixo está em 0.42 pelo mesmo motivo. No preto,
-        idem.
+     2. o `--color-stroke` abaixo está em 0.42 porque o contorno do nome sumia
+        no degradê cinza. No preto, isso agora é exagero.
 
-     Os três pedem recalibração para baixo, e o 1 é decisão de design, não de
-     número. */
+     O 2 pede recalibração para baixo; o 1 é decisão de design, não de número.
+
+     Era uma lista de três: o campo de estrelas tinha os alfas subidos pela
+     mesma razão, e saiu do site. */
   --color-hero-top: #000000;
   --color-hero-mid: #000000;
   --color-hero-bot: #000000;
   --color-frame: #000000;
   --color-ink: #e9e7e4;
   --color-ink-bright: #f2f0ee;
-  --color-surface: #0c0d0e;
   --color-surface-raised: #17181a;
-  --color-card: #131416;
+  /* Preto, como o resto da página. Era #131416, um cinza que fazia os dois
+     painéis de serviço (os trabalhos e o processo) flutuarem como caixas sobre
+     o fundo. Quem os delimita agora é só a borda de 0.08. */
+  --color-card: #000000;
 
   /* acentos por card na seção de serviços */
   --color-accent-warm: #f0863c;
@@ -70,9 +72,6 @@
   /* corpo, botões e rótulos */
   --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
-  /* varredura de luz que atravessa o H1 do hero */
-  --animate-shine: shine 9s linear infinite;
-
   @keyframes shine {
     from {
       background-position: 190% 0;
@@ -82,18 +81,7 @@
     }
   }
 
-  /* fio pontilhado da dica de scroll, subindo — o mesmo sentido do gesto que
-     o texto pede, e do conteúdo que vem de baixo */
-  --animate-dot-drift: dot-drift 1.8s linear infinite;
-
-  @keyframes dot-drift {
-    from {
-      background-position: center 7px;
-    }
-    to {
-      background-position: center 0;
-    }
-  }
+  
 
   
   /* pulso lento da cópia que "acende" a palavra gigante do hero */
@@ -138,13 +126,6 @@
   height: 100dvh;
 }
 
-/* Mesma medida, como piso: a seção ocupa a tela inteira e cresce se o conteúdo
-   pedir. É o que faz o rodapé fechar a página como uma cena, não como sobra. */
-@utility min-h-viewport {
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
 /* Facho de luz atravessando um título — para ser usado numa CÓPIA do texto,
    sobreposta ao original.
 
@@ -187,20 +168,6 @@
   }
 }
 
-
-/* Fio de pontos na vertical, subindo devagar — a direção é a dica. Herda a cor
-   de quem o usa, então basta um `text-*` para calibrar. */
-@utility line-dots {
-  background-image: radial-gradient(circle at center, currentColor 1px, transparent 1.2px);
-  background-size: 3px 7px;
-  background-repeat: repeat-y;
-  animation: dot-drift 1.8s linear infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
 /* Hachura diagonal dos tiles vazios da grade de stack. */
 @utility bg-hatch {
   background-image: repeating-linear-gradient(
@@ -235,9 +202,148 @@
   transform: translate3d(0, calc((1 - var(--t)) * var(--r, 56px)), 0);
 }
 
-/** O trilho entre duas paradas cresce de cima para baixo, no mesmo compasso. */
-@utility enter-grow {
-  --t: clamp(0, (var(--enter, 1) - var(--d, 0)) * 2.2, 1);
-  transform: scaleY(var(--t));
-  transform-origin: top;
+/**
+ * A linha do tempo do painel da seção 02 se traçando, em loop.
+ *
+ * Infinita e por keyframes, ao contrário do resto dos efeitos desta página, que
+ * são dirigidos por scroll — é a mesma exceção que o pulso antigo tinha, e pela
+ * mesma razão: o painel precisa dizer que está VIVO enquanto a pessoa lê, e um
+ * efeito de scroll não diz isso a quem parou de rolar. Foi essa a tentativa
+ * anterior: amarrar o traçado ao `--enter`. Não funcionou, e o motivo é
+ * mensurável — com o track de 115vh o `sticky` prende em progress 0.887, e o
+ * `easeOutCubic` do `useStageProgress` já entregou `--enter` ≈ 0.999 nesse
+ * ponto. O traçado inteiro acontecia enquanto o card ainda subia, e quem parava
+ * no painel via a linha pronta e parada.
+ *
+ * Quem conduz é `--linha` (0 → 1), uma propriedade REGISTRADA — sem o
+ * `@property` ela seria um token de texto e não interpolaria. Está no `<ol>` e
+ * desce por herança; cada parada lê a mesma variável e decide o seu estado com
+ * `--d` (quando entra) e `--v` (com que rapidez). Uma variável só é o que faz o
+ * reset do loop ser simultâneo em todo mundo: com uma animação por elemento e
+ * atrasos diferentes, cada trecho reiniciava na sua hora e o ciclo virava
+ * bagunça.
+ *
+ * `--fade` é o apagar do fim do ciclo, e existe para o reset não ser um corte
+ * seco. Vai junto no mesmo keyframe porque também precisa ser simultâneo.
+ */
+@property --linha {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@property --fade {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+/**
+ * Acende a faixa de luz no alto da seção 02: cheia enquanto a seção chega,
+ * apagada quando ela assenta. É a CHEGADA, e não um efeito permanente.
+ *
+ * O `0.85` é onde a subida termina, medido; o `3.3` é o que mantém a faixa em 1
+ * até quase lá, em vez de ir esmaecendo o caminho todo.
+ *
+ * No `sopa-agency`, de onde isto veio, a faixa era a costura com o hero: o
+ * feixe de lá se rasgava ao meio e a metade de baixo encontrava esta luz. Aqui
+ * o hero não tem feixe, então ela é a luz própria da seção — mesma paleta do
+ * feixe (frio à esquerda, quente à direita, branco no meio), sem a passagem de
+ * bastão. É por isso que o comentário no `Metodo.tsx` fala de um feixe que este
+ * site não tem.
+ */
+@utility beam-dock {
+  opacity: clamp(0, (0.85 - var(--enter, 1)) * 3.3, 1);
+}
+
+/**
+ * O losango do Ethereum girando no próprio eixo, no botão do portfólio web3.
+ *
+ * `rotateY`, e não `rotate`: girar no plano faria um losango dar voltas, que
+ * lê como "carregando". Em torno do eixo vertical ele vira de perfil e volta,
+ * e é a MOEDA girando — que é o que a pessoa reconhece. A `perspective` mora
+ * no pai (o botão), senão a rotação achata e vira só um losango encolhendo.
+ *
+ * 4s porque o ícone é a única coisa em movimento numa tela parada: mais rápido
+ * vira aviso piscando, e o botão não é urgente — é um convite lateral.
+ *
+ * Infinito e por keyframes, como o `linha-traca`: não conta nada sobre a
+ * posição da página, só diz que há outro site ali.
+ */
+@keyframes eth-spin {
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+@utility eth-spin {
+  animation: eth-spin 4s linear infinite;
+  transform-style: preserve-3d;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/**
+ * Halo do losango do Ethereum, no botão do portfólio web3.
+ *
+ * O ícone é o único do site com cor própria, e a 18px dentro de um botão de
+ * contorno apagado essa cor quase não aparece — ele lê como mais um traço da
+ * borda. O halo devolve o destaque sem aumentar o ícone nem clarear o botão,
+ * que são as duas coisas que o fariam competir com o CTA ao lado.
+ *
+ * `drop-shadow` e não `box-shadow`: um recorta a SILHUETA (o alfa do canvas
+ * WebGL, os paths do SVG) e o outro desenharia um retângulo brilhante em volta
+ * da caixa do ícone. São duas sombras empilhadas porque uma só não faz as duas
+ * coisas: a de 3px é o contorno aceso, a de 10px é a luz espalhada.
+ *
+ * Vale nos TRÊS degraus do `EthMark` — o octaedro raymarcado, o SVG parado e o
+ * SVG girando —, porque é filtro sobre o que o elemento desenhou, seja lá o
+ * que for.
+ */
+/**
+ * O nó acendendo quando o pulso chega nele. É o que liga os fios entre si: sem
+ * isso a luz morre na borda de cada nó e reaparece do outro lado, e a rede lê
+ * como seis fios piscando em paralelo em vez de um circuito.
+ *
+ * **O pico fica em 0%/100%, e o que o põe na hora certa é o atraso.** Cada nó
+ * recebe um `animation-delay` calculado pela posição horizontal dele (`fase`,
+ * no `ProcessSteps.tsx`): o nó acende no instante em que a frente de luz passa
+ * pelo x dele. Pico nas duas pontas do keyframe deixa a subida e a descida
+ * simétricas em volta desse instante.
+ *
+ * O pico já esteve em 5%, com repouso em 0% e 11%, e ali estava fora de fase: o
+ * nó acendia depois da chegada e apagava antes da próxima, então o brilho lia
+ * como piscada solta. Foi encontrado renderizando o ciclo em cinco instantes
+ * lado a lado — em nenhum deles um nó estava aceso, que é o tamanho da janela
+ * que o pico tinha.
+ *
+ * O repouso repete os valores que a classe do elemento já define: a animação
+ * não pode deixar um estado diferente para trás.
+ */
+@keyframes beam-bead {
+  0%,
+  100% {
+    border-color: var(--accent);
+    box-shadow: 0 0 14px -2px var(--accent);
+  }
+  9%,
+  91% {
+    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    box-shadow: none;
+  }
+}
+
+@utility beam-bead {
+  animation: beam-bead 4.8s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility eth-glow {
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--color-accent-cool) 65%, transparent))
+    drop-shadow(0 0 10px color-mix(in srgb, var(--color-accent-cool) 28%, transparent));
 }

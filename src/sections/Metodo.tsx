@@ -1,15 +1,21 @@
 import type { CSSProperties } from 'react'
 
+import { DriftWall } from '../components/metodo/DriftWall'
 import { metodo } from '../data/content'
 import { useStageProgress } from '../hooks/useStageProgress'
 
 /**
  * Seção 02 — "Mostramos antes de explicar".
  *
- * Duas colunas: a afirmação à esquerda, e à direita um painel que a PROVA — uma
- * linha do tempo de três paradas, do começo da conversa ao projeto no ar. O
- * vazio da tela é preenchido por um objeto, não por mais texto, que era o
- * defeito da narrativa que morava aqui antes.
+ * Duas colunas: a afirmação à esquerda, e à direita uma parede de trabalhos
+ * derivando em 3D (`DriftWall`) que a PROVA. O vazio da tela é preenchido por
+ * um objeto, não por mais texto, que era o defeito da narrativa que morava
+ * aqui antes.
+ *
+ * Ali já esteve um painel-janela com uma linha do tempo de três paradas, do
+ * começo da conversa ao projeto no ar — argumento desenhado. A parede troca
+ * desenho por prova: são os quatro trabalhos de verdade, os mesmos da seção
+ * 03. Saiu a pedido, com a copy dele (`metodo.painel`) junto.
  *
  * As cores desta seção são hexadecimais soltos e não tokens do `@theme`: são
  * nove tons de cinza que só existem aqui, e nove tokens de uso único poluiriam
@@ -41,23 +47,96 @@ export function Metodo() {
        * margem negativa a faz começar antes do fim do track dele, o `z-10` a
        * põe na frente e o fundo opaco cobre.
        *
-       * **Os 70vh são o `CURTAIN` do `useHeroScroll` vistos daqui** — a mesma
-       * sobreposição, escrita nos dois lugares. Mudar um sem o outro faz o
-       * progresso do hero terminar em hora diferente da que esta seção chega.
+       * **Os 80vh decidem QUANDO este card aparece**, e são o único número que
+       * controla isso: o card fica visível quando o track dele encosta no pé da
+       * tela, ou seja `altura do track do hero − 80vh − uma tela` de rolagem.
+       * Com os 180vh de lá, isso dá ZERO: a aresta já está encostada no pé da
+       * tela quando a página abre, e começa a subir no primeiro pixel de
+       * rolagem. Aumentar mais faria a cortina aparecer JÁ COBRINDO um pedaço
+       * da tela no carregamento.
+       *
+       * Eram 70vh, e a cortina levava 10vh de rolagem só para encostar. Isso
+       * somado ao fade do hero — que apaga texto E fundo — deixava a tela preta
+       * e parada esperando a cortina chegar. Subiu para 80vh junto com o atraso
+       * do `FADE` no `useHeroScroll`: a cortina sai antes e o hero fica mais
+       * tempo, e os dois se cruzam no meio da tela em vez de haver um vão entre
+       * um e outro.
+       *
+       * **Estes dois números são um par.** Mexeu aqui, refaça a conta de lá, e
+       * vice-versa — o sintoma de desencontrar é ou o preto de volta, ou a
+       * cortina cortando o nome ainda aceso.
        *
        * A aresta de cima é um fio claro, e não a sombra escura que o `Services`
        * usava: a sombra funcionava quando o card do hero era um degradê cinza,
        * e hoje é preto sobre preto — sem o fio, a cortina sobe invisível.
        *
-       * A altura do track é o ritmo: 190vh dão uma tela de palco preso mais
-       * ~90vh de percurso, do qual o último terço é folga com tudo no lugar (o
-       * `hold` do hook). Menos que isso e o conteúdo assenta no mesmo instante
-       * em que os serviços começam a cobrir. No celular não há palco preso —
-       * a tela é curta demais para prender e ainda sobrar percurso.
+       * **A altura do track é o que sobra de scroll preso depois que o card
+       * enche a tela**, e é o número que evita rolagem em falso. 115vh dão uma
+       * tela de card mais ~135px de palco preso, e é aí que o conteúdo termina
+       * de assentar: o scroll devolve algo até o fim.
+       *
+       * Foram 190vh (585px parados) e 135vh (315px). Nos dois a rolagem em
+       * falso foi sentida. O engano da primeira vez foi achar que o `hold` do
+       * hook resolvia: com o `easeOutCubic`, o grosso do movimento já acontece
+       * enquanto o card SOBE, então quando ele prende quase não resta o que
+       * animar — palco comprido é palco morto, e não só a folga do fim.
+       *
+       * No celular não há palco preso: a tela é curta demais para prender e
+       * ainda sobrar percurso.
        */
-      className="relative isolate z-10 -mt-[70vh] border-t border-white/10 bg-frame shadow-[0_-24px_60px_-20px_rgba(79,155,240,0.10)] md:h-[190vh]"
+      className="relative isolate z-10 -mt-[80vh] bg-frame md:h-[115vh]"
     >
-      <div className="flex items-center overflow-hidden px-6 py-14 md:sticky md:top-0 md:h-viewport md:px-[clamp(56px,7vw,100px)] md:py-[88px]">
+      {/*
+        O palco. As medidas laterais são as MESMAS que o hero usa quando o card
+        dele termina de fechar: 16/20px no celular e 64/56px daí para cima. Os
+        números estão escritos aqui e lá, e não num token, porque no hero eles
+        são multiplicados pelo `--p` a cada frame — ali são uma conta, aqui um
+        valor parado.
+
+        **Não há mais card aqui.** Eram um retângulo de 40px de raio, borda de
+        1px, degradê e sombra azul — o mesmo objeto do hero subindo no lugar
+        dele. Ele saiu: preto sobre preto, o que a borda desenhava era a
+        moldura, não o objeto, e a seção lia como um slide dentro da página em
+        vez de a página continuando. Com ele foram embora o `overflow-hidden`,
+        o fio de 2px da aresta e o halo que descia dela; o `items-center` era
+        do card e virou do palco.
+
+        **E não há mais campo de estrelas atrás.** Ele ocupava a seção inteira,
+        num invólucro com `overflow-hidden` que existia só para cortá-lo — o
+        canvas tinha `w-screen`, e `100vw` conta a barra de rolagem. Saiu do
+        site todo, e o que separa esta seção da anterior passou a ser só a
+        costura de luz do topo e o vazio.
+
+        **E não há luz colorida saindo do conteúdo.** Houve uma tentativa: o
+        halo do card reancorado no topo do bloco, subindo. Não funciona, e o
+        motivo é que o halo nunca teve forma própria — quem a dava era o fio de
+        2px de cor cheia na aresta, e o halo só punha o brilho atrás dele. Sem o
+        fio sobra um borrão colorido de 1240px atravessando o alto da seção.
+        Devolver o fio resolveria o borrão e traria de volta uma divisória
+        horizontal, que é o que o card tinha de errado.
+      */}
+      <div className="relative flex px-4 py-5 md:sticky md:top-0 md:h-viewport md:items-center md:px-16 md:py-14">
+        {/*
+          A luz que marca a chegada da seção: ocupa o alto do palco e some para
+          cima. O `beam-dock` a apaga conforme a seção assenta — ela é a
+          CHEGADA, e não o efeito permanente da seção.
+
+          **Ela é branca, e não mais um degradê frio-para-quente.** A cor
+          vinha do `sopa-agency`, onde esta faixa é a costura com um feixe de
+          luz do hero que tem aberração cromática — ali o azul e o laranja
+          continuavam o feixe. Este hero não tem feixe: tem o ferrofluido, que
+          desenha em branco puro. A aresta que sobe por cima dele é a mesma luz
+          que ele emite, então é branca, e o degradê só controla a intensidade
+          — apagada nas pontas, cheia no meio.
+
+          Sem ela e sem o campo de estrelas que saiu, esta seção encostaria na
+          anterior sem nada entre as duas.
+        */}
+        <span
+          aria-hidden
+          className="beam-dock pointer-events-none absolute inset-x-4 top-0 h-5 bg-linear-[90deg,transparent,rgba(255,255,255,0.10)_22%,rgba(255,255,255,0.26)_50%,rgba(255,255,255,0.10)_78%,transparent] blur-[12px] [mask-image:linear-gradient(0deg,#000_0%,transparent_100%)] md:inset-x-16 md:h-14"
+        />
+
         <div
           /*
            * O bloco inteiro sobe 18vh enquanto o quadro está parado, e por cima
@@ -65,14 +144,16 @@ export function Metodo() {
            * camadas de movimento: esta é a que faz a composição ENTRAR no
            * quadro, e a de cima é a que dá profundidade entre as partes.
            */
-          className="mx-auto w-full max-w-[1240px] will-change-transform"
-          style={{ transform: 'translate3d(0, calc((1 - var(--enter, 1)) * 18vh), 0)' }}
+          className="relative mx-auto w-full max-w-[1240px] will-change-transform"
+          style={{
+            transform: 'translate3d(0, calc((1 - var(--enter, 1)) * 18vh), 0)',
+          }}
         >
           <div className="flex flex-col gap-7 md:grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:items-center md:gap-14 lg:gap-24">
             {/* `contents` no celular: os filhos viram itens do flex de fora,
-                e aí o `order-last` do rodapé mono consegue jogá-lo para depois
-                do painel — que é a ordem do desenho. No desktop a coluna volta
-                a existir e o rodapé volta para o lugar dele. */}
+                  e aí o `order-last` do rodapé mono consegue jogá-lo para depois
+                  do painel — que é a ordem do desenho. No desktop a coluna volta
+                  a existir e o rodapé volta para o lugar dele. */}
             <div className="contents md:flex md:flex-col md:gap-[34px]">
               <p
                 className="enter-rise font-mono text-[11px] uppercase tracking-[0.18em] text-accent-warm md:text-[13px]"
@@ -89,7 +170,7 @@ export function Metodo() {
               </h2>
 
               {/* Os dois parágrafos vão ao DOM e o CSS escolhe: media query não
-                  troca texto, e um listener de resize seria caro para isso. */}
+                    troca texto, e um listener de resize seria caro para isso. */}
               <p
                 className="enter-rise max-w-[460px] text-[17px] leading-[1.55] text-ink/70 [text-wrap:pretty] md:text-[21px] md:leading-[1.6]"
                 style={{ '--d': 0.1, '--r': '56px' } as CSSProperties}
@@ -117,102 +198,25 @@ export function Metodo() {
               </div>
             </div>
 
-            <Painel />
+            {/* A parede é um laço sem fim: sem caixa de altura definida, o
+                plano inclinado não teria contra o que ser recortado.
+
+                No desktop essa altura NÃO é um número — o `self-stretch` faz a
+                célula ocupar a linha inteira do grid, e a linha é a altura da
+                coluna de texto ao lado. Ou seja a parede se alinha sozinha com
+                o bloco da esquerda, e continua alinhada quando a copy mudar de
+                tamanho. O `items-center` do grid vale para a outra célula.
+
+                No celular não há grid, e aí vale o `clamp`. */}
+            <div
+              className="enter-rise md:self-stretch"
+              style={{ '--d': 0.14, '--r': '128px' } as CSSProperties}
+            >
+              <DriftWall className="h-[clamp(320px,52vh,560px)] rounded-xl md:h-full" />
+            </div>
           </div>
         </div>
       </div>
     </section>
-  )
-}
-
-/** Tom do ponto e do trilho de cada parada — o `+02:40` é o clímax e leva halo. */
-const PARADAS = [
-  { ponto: 'var(--color-accent-cool)', trilho: 'var(--color-accent-cool), var(--color-accent-mint)' },
-  { ponto: 'var(--color-accent-mint)', trilho: 'var(--color-accent-mint), #2a2927' },
-  { ponto: '#000000', trilho: '' },
-]
-
-function Painel() {
-  return (
-    <div
-      className="enter-rise overflow-hidden rounded-xl border border-[#1c1b19] bg-[#050505] md:shadow-[0_40px_120px_rgba(79,155,240,0.07)]"
-      style={{ '--d': 0.14, '--r': '128px' } as CSSProperties}
-    >
-      {/* Barra de chrome: o painel se apresenta como uma janela, e é isso que
-          faz a linha do tempo ler como algo que ACONTECEU, não como um
-          diagrama. Nada aqui é clicável. */}
-      <div className="flex items-center gap-3.5 border-b border-[#171614] px-4 py-3 md:px-5 md:py-4">
-        <div className="hidden gap-[7px] md:flex" aria-hidden>
-          {[0, 1, 2].map((i) => (
-            <span key={i} className="size-2 rounded-full bg-[#2a2927]" />
-          ))}
-        </div>
-
-        <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.1em] text-accent-mint md:order-2 md:ml-auto md:text-[11px]">
-          <span className="size-1.5 rounded-full bg-accent-mint" />
-          {metodo.painel.status}
-        </span>
-
-        <span className="ml-auto font-mono text-[10px] tracking-[0.1em] text-[#514e4b] md:order-1 md:ml-0 md:text-[11px]">
-          {metodo.painel.label}
-        </span>
-      </div>
-
-      <ol className="flex flex-col gap-[22px] px-5 py-6 md:gap-0 md:px-12 md:py-[52px]">
-        {metodo.painel.steps.map((step, i) => {
-          const ultimo = i === metodo.painel.steps.length - 1
-          const { ponto, trilho } = PARADAS[i]
-
-          return (
-            <li
-              key={step.stamp}
-              className="enter-rise flex items-start gap-3.5 md:grid md:grid-cols-[minmax(0,96px)_20px_minmax(0,1fr)] md:gap-0"
-              style={{ '--d': 0.34 + i * 0.08, '--r': '28px' } as CSSProperties}
-            >
-              <span className="w-16 shrink-0 pt-px font-mono text-[11px] tracking-[0.1em] text-[#6f6b67] md:w-auto md:pt-0.5 md:text-[12px]">
-                <span className="md:hidden">{step.stampCurto}</span>
-                <span className="hidden md:inline">{step.stamp}</span>
-              </span>
-
-              {/* O trilho é só do desktop: em 390px ele encosta no texto e vira
-                  risco, e o carimbo à esquerda já dá a sequência. */}
-              <span className="hidden flex-col items-center self-stretch md:flex" aria-hidden>
-                <span
-                  className="mt-[5px] size-[9px] shrink-0 rounded-full"
-                  style={{
-                    background: ponto,
-                    border: ultimo ? '1px solid #3a3835' : undefined,
-                    boxShadow: i === 1 ? '0 0 0 5px rgba(116,214,180,.12)' : undefined,
-                  }}
-                />
-                {!ultimo && (
-                  <span
-                    className="enter-grow w-px flex-1"
-                    style={{ backgroundImage: `linear-gradient(${trilho})` }}
-                  />
-                )}
-              </span>
-
-              <div className={`flex flex-col gap-1 md:gap-2 md:pl-6 ${ultimo ? '' : 'md:pb-10'}`}>
-                <p
-                  className={`font-display text-[19px] font-medium tracking-[-0.02em] md:text-[26px] ${
-                    // no celular o destaque migra do ponto (que não existe lá)
-                    // para o próprio título
-                    i === 1 ? 'text-accent-mint md:text-ink-bright' : 'text-ink-bright'
-                  }`}
-                >
-                  <span className="md:hidden">{step.titleCurto}</span>
-                  <span className="hidden md:inline">{step.title}</span>
-                </p>
-                <p className="text-[15px] leading-[1.45] text-[#8d8985] md:text-[17px] md:leading-[1.5]">
-                  <span className="md:hidden">{step.detailCurto}</span>
-                  <span className="hidden md:inline">{step.detail}</span>
-                </p>
-              </div>
-            </li>
-          )
-        })}
-      </ol>
-    </div>
   )
 }

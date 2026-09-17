@@ -1,11 +1,12 @@
 # Gabriel Cavalcanti — portfólio comercial
 
-Página única em português, fundo escuro, com um hero em WebGL que conduz a
-narrativa por scroll. Fala com quem contrata site, loja, painel e automação.
+Página única em português, fundo preto, com três fundos WebGL escritos à mão e
+nenhuma biblioteca de animação. Fala com quem contrata site, loja, painel e
+automação.
 
-É um de dois portfólios. O outro, de web3 e blockchain, vive em
-`Dev/portfolios/web3` (Next.js) e entra aqui como um link no rodapé. O porquê da
-divisão está no `AGENTS.md`.
+É um de dois portfólios. O outro, de web3 e blockchain, é um projeto Next.js
+separado e entra aqui em dois lugares: um botão na hero e um link no rodapé. O
+porquê da divisão está no `AGENTS.md` — e ela é de PÚBLICO, não de tecnologia.
 
 ## Stack
 
@@ -16,7 +17,7 @@ divisão está no `AGENTS.md`.
 | TypeScript | tipos em tudo |
 | Tailwind CSS v4 | estilo, via `@tailwindcss/vite` (sem arquivo de config — o tema mora no `@theme` do `src/index.css`) |
 | oxlint | lint |
-| WebGL2 | o feixe de luz do hero e do rodapé, sem biblioteca |
+| WebGL2 | os fios do hero, as ondas do rodapé e o losango 3D do botão — shaders à mão, sem `ogl` nem `three` |
 
 Sem roteador, sem CMS, sem backend: tudo é estático e o conteúdo vem de um
 módulo TypeScript.
@@ -44,10 +45,17 @@ Para publicar um trabalho na grade, salve a imagem em
 `src/assets/trabalhos/<slug>.png` usando o `slug` que está em `services.works`.
 Um `.mp4` de mesmo slug faz o trabalho aparecer em movimento.
 
+A parede de trabalhos da seção 02 usa os mesmos arquivos, mas tem lista própria
+(`TRABALHOS`, no `components/metodo/DriftWall.tsx`): lá cada trabalho aparece em
+recortes, e acrescentar um é uma linha. A grade e a parede são curadas à mão e
+não precisam bater — a grade tem quatro de propósito, para não quebrar.
+
 ## O que falta
 
-- [ ] revisar a copy: os prazos, os preços e as respostas do FAQ são rascunho
-- [ ] prints ou clipes dos quatro trabalhos (hoje aparecem como placeholder)
-- [ ] `public/favicon.png` e `public/og.jpg` — ver os `TODO` no `index.html`
+- [ ] revisar a copy: os prazos e os preços são rascunho e precisam bater com o
+      que é praticado de verdade antes de o site ir ao ar
+- [ ] a primeira tela não diz o que o site faz — hoje é só o nome e dois botões
 - [ ] domínio próprio, e trocar as URLs absolutas do `index.html`,
-      `public/robots.txt` e `public/sitemap.xml`
+      `public/robots.txt` e `public/sitemap.xml`. **Enquanto elas estiverem
+      erradas o preview de link não aparece**, porque o `og:image` é resolvido
+      contra a URL declarada ali.

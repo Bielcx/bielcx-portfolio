@@ -6,14 +6,27 @@
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#000000" />
 
-    <!-- TODO: favicon. O do sopa-agency saiu junto com a marca dele. Colocar um
-         `public/favicon.png` (32x32) e reativar a linha abaixo. -->
-    <!-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" /> -->
+    <!-- O mesmo do portfólio web3 (`web3/app/icon.png`): 128x128, o retrato
+         recortado em círculo. Os dois sites são a mesma pessoa, e na aba é o
+         rosto que identifica isso mais rápido que qualquer letra. Trocou lá,
+         troque aqui — são dois repositórios, e o arquivo é copiado à mão. -->
+    <link rel="icon" type="image/png" sizes="128x128" href="/favicon.png" />
 
-    <!-- Curto de propósito: é o que aparece na aba, e ali o espaço é de uns 20
-         caracteres antes de cortar. As palavras-chave ficam na `description`,
-         no JSON-LD e no `og:title` — que é o que o preview de link usa. -->
-    <title>Gabriel Cavalcanti</title>
+    <!-- O `title` é o TEXTO CLICÁVEL do resultado de busca, e não só o rótulo
+         da aba — foi só "Gabriel Cavalcanti" por um tempo, medindo os ~20
+         caracteres da aba quando na busca cabem uns 60.
+
+         O que vem depois do nome é "desenvolvedor full stack", e NÃO uma versão
+         com palavra-chave ("desenvolvedor de sites e automação"), que chegou a
+         estar aqui. A razão é que este site é divulgado por LINK, não por busca
+         orgânica: quem chega vem de uma conversa, e o que o título precisa ser é
+         igual ao `og:title`, ao `jobTitle` do JSON-LD e à primeira linha da
+         seção 02. Um portfólio pessoal sem conteúdo recorrente não disputa
+         "criar site" no Google; disputa parecer a mesma pessoa em todo lugar.
+
+         As palavras que alguém buscaria estão na `description`, que é o texto
+         embaixo do título no resultado. -->
+    <title>Gabriel Cavalcanti — desenvolvedor full stack</title>
     <meta
       name="description"
       content="Desenvolvedor full stack. Sites, lojas virtuais, painéis e automação para empresas — do orçamento ao site no ar, falando direto com quem constrói."
@@ -25,9 +38,12 @@
 
     <!-- Preview de link (WhatsApp, LinkedIn, Slack). Esses robôs não executam
          JavaScript: o que eles mostram sai daqui, não da página renderizada.
-         TODO: gerar o `public/og.jpg` (1200x630) — sem ele o link cola sem
-         imagem. Um print do hero resolve; JPEG e não PNG, porque o WhatsApp
-         costuma desistir do preview acima de uns 300 KB. -->
+
+         `public/og.jpg` é um print do hero em 1200x630, gerado à mão. JPEG e
+         não PNG porque o WhatsApp costuma desistir do preview acima de uns
+         300 KB — houve aqui um `OGimage.png` de 318 KB que NUNCA foi usado,
+         porque o nome não batia com o que esta linha pede: o preview colava
+         vazio e nada acusava. **O nome do arquivo e esta URL são um par.** -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Gabriel Cavalcanti" />
     <meta property="og:locale" content="pt_BR" />

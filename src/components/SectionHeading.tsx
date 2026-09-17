@@ -16,7 +16,7 @@ export function SectionHeading({
 
   return (
     <div className={centered ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'}>
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink/35">{eyebrow}</p>
+      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink/55">{eyebrow}</p>
       <h2 className="mt-5 font-display text-[clamp(28px,4.5vw,52px)] font-medium leading-[1.08] tracking-[-0.01em] text-ink-bright">
         {lines.map((line) => (
           <span key={line} className="block">

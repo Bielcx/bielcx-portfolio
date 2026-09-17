@@ -13,4 +13,4 @@
 
 import { pt } from './content.pt'
 
-export const { nav, hero, metodo, services, faq, footer, whatsappUrl } = pt
+export const { nav, hero, metodo, services, footer, whatsappUrl } = pt
