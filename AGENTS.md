@@ -30,15 +30,33 @@ a mistura dos dois que criou o problema que este repositório resolve.
 
 ### Domínio
 
-Hoje os dois estão em `*.vercel.app`, que **não aceita subdomínio aninhado** —
-cada projeto ganha um nome plano. O plano, quando houver domínio próprio:
+Este site atende em **`gabriel.doabridge.com`**, e o web3 em
+`gabrielcavalcanti.vercel.app`.
 
-- raiz (`dominio.com`) → este site
-- `web3.dominio.com` → o portfólio Next.js
+O subdomínio é do domínio da bridge (`doabridge.com`), e foi escolhido por ser
+de graça: o domínio já é do dono e o DNS está na Cloudflare. **O acoplamento é
+o preço** — se a bridge sair do ar ou o domínio mudar de dono, todo link já
+divulgado morre junto. Domínio próprio é a primeira compra quando houver
+orçamento.
 
-Até lá, quem define a porta de entrada é qual link é divulgado, não a URL. As
-URLs absolutas a trocar quando o domínio existir estão marcadas com `TODO` no
-`index.html`, e mais em `public/robots.txt` e `public/sitemap.xml`.
+O `bielcx-portfolio.vercel.app` continua servindo a mesma página, e é por isso
+que o `canonical` aponta para o subdomínio: com dois endereços servindo o mesmo
+conteúdo, ele é quem diz qual é o oficial.
+
+**A URL aparece em SEIS lugares acoplados**: `canonical`, `og:url`, `og:image` e
+o `url` do JSON-LD no `index.html`, o `Sitemap:` do `public/robots.txt` e o
+`<loc>` do `public/sitemap.xml`. Trocar num sem trocar nos outros não derruba o
+site — quebra só o preview de link e a indexação, em silêncio. Já aconteceu
+duas vezes.
+
+**Armadilha de DNS, se um dia mexer nisso:** o `doabridge.com` está na
+Cloudflare, e o registro do subdomínio tem de ficar com **proxy desligado**
+(nuvem cinza). Com a nuvem laranja a Vercel enxerga os IPs da Cloudflare, não
+valida o domínio nem emite certificado, e fica em *Invalid Configuration* com o
+registro aparentemente correto.
+
+Quando houver domínio próprio, o plano continua o mesmo: raiz para este site,
+`web3.dominio.com` para o Next.js.
 
 ## Origem do código
 

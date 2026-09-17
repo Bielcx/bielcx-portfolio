@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bielcx-portfolio.vercel.app/sitemap.xml
+Sitemap: https://gabriel.doabridge.com/sitemap.xml
