@@ -43,18 +43,34 @@ const nav = {
 } as const
 
 const hero = {
-  corner: [
-    '// como funciona',
-    'conversa vira escopo > escopo vira site',
-    'site vira dado > dado vira próxima versão',
-    '// e o círculo se abre',
-  ],
   /**
    * O nome inteiro, numa linha só. O `WORDMARK_SIZE` do Hero é calibrado para
    * o comprimento deste texto — trocar por nome mais longo é recalibrar o
    * clamp de lá, senão ele vaza da tela no celular.
    */
   wordmark: 'Gabriel Cavalcanti',
+  /**
+   * A linha que diz O QUE o site faz, e a única coisa acima da dobra que
+   * responde "serve para mim?".
+   *
+   * **Ela não repete a seção 02 de propósito.** Cada bloco tem um papel: aqui é
+   * O QUE, na seção 02 é COMO ("você fala direto com quem constrói") e na 03 é
+   * o detalhe, nas duas faixas. Já houve aqui um subtítulo que terminava
+   * justamente em "você fala direto com quem constrói" — a MESMA frase do `h2`
+   * de baixo —, e foi removido por isso. Repetir de novo é desfazer a correção.
+   *
+   * A frase cobre as duas faixas da seção 03 numa linha só, e entrega a
+   * automação, que é o serviço mais difícil de explicar: "sistema que faz o
+   * trabalho repetido sozinho" é o que o cliente reconhece, "automação" é o que
+   * ele procuraria no Google.
+   *
+   * No lugar dela morava um carimbo em mono — `// como funciona`, `conversa
+   * vira escopo > escopo vira site` — que saiu junto. Aquilo era `aria-hidden`,
+   * tinha 11px e falava em vocabulário de dev: exatamente o filtro que o
+   * portfólio web3 usa para afastar quem não é do meio, na primeira tela do
+   * site que existe para receber esse público.
+   */
+  subtitle: 'Do site ao sistema que faz o trabalho repetido sozinho.',
   actions: {
     primary: 'Começar uma conversa',
     /**

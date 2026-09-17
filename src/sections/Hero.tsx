@@ -19,8 +19,13 @@ import { useHeroScroll } from "../hooks/useHeroScroll";
 const WORDMARK_SIZE = "text-[clamp(40px,min(6.2vw,13vh),104px)]";
 
 /**
- * Hero centrada sobre o preto da página: nome, botões e o carimbo mono, um
- * bloco só no meio da tela.
+ * Hero centrada sobre o preto da página: nome, a linha que diz o que o site
+ * faz, e os botões — um bloco só no meio da tela.
+ *
+ * A linha é recente e conserta a falha mais cara que a página teve: por um
+ * tempo a primeira tela mostrava só o nome e dois botões, sem nada respondendo
+ * "serve para mim?" antes do primeiro scroll. Ela ocupa o lugar de um carimbo
+ * em mono que saiu junto — ver a nota do `subtitle` no `content.pt.ts`.
  *
  * Atrás dela, os fios do `threadsShaders.ts` — um leque de senóides que aperta
  * atrás do nome, nas cores do rodapé e em opacidade baixa. **A opacidade é o
@@ -143,9 +148,17 @@ export function Hero() {
             </h1>
 
 
+            {/* A única linha acima da dobra que diz o que o site faz.
+                `max-w-[34ch]` a quebra em duas linhas curtas em vez de uma
+                faixa: ela mora embaixo de um nome que ocupa a largura toda, e
+                texto longo ali compete com ele em vez de explicá-lo. */}
+            <p className="mt-7 max-w-[34ch] text-[clamp(15px,1.5vw,19px)] leading-[1.5] text-ink/70">
+              {hero.subtitle}
+            </p>
+
             {/* Empilhados no celular, lado a lado a partir de `sm`. O `wrap` é
                 herança de quando eram três e fica porque custa zero. */}
-            <div className="mt-9 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
               <SpecularButton
                 href={whatsappUrl}
                 target="_blank"
@@ -184,21 +197,7 @@ export function Hero() {
                 <EthMark />
               </a>
             </div>
-
-            {/* O bloco do canto virou rodapé do texto. Ele era um carimbo
-                solto no alto à esquerda do card; embaixo do bloco ele fecha a
-                composição em vez de disputar com ela. Só de `sm` para cima: no
-                celular a coluna já vai até o pé da tela. */}
-            <div
-              className="mt-12 hidden font-mono text-[11px] uppercase leading-[1.8] tracking-[0.08em] text-ink/45 sm:block"
-              aria-hidden="true"
-            >
-              {hero.corner.map((line) => (
-                <div key={line}>{line}</div>
-              ))}
-            </div>
           </div>
-
         </section>
       </div>
     </div>
