@@ -176,30 +176,56 @@ export function ProcessSteps() {
               permite um só para os seis. As quatro paradas são as do Magic UI,
               com as cores daqui: some, acende no frio, vira menta, some. */}
           <defs>
-            <linearGradient id="fluxo" gradientUnits="userSpaceOnUse" y1="0" y2="0">
-              <stop stopColor="var(--accent)" stopOpacity="0" />
-              <stop offset="18%" stopColor="var(--accent)" stopOpacity="0.9" />
-              <stop offset="45%" stopColor="var(--color-accent-mint)" />
-              <stop offset="100%" stopColor="var(--color-accent-mint)" stopOpacity="0" />
-              {parado ? null : (
-                <>
-                  <animate
-                    attributeName="x1"
-                    from={-COMETA}
-                    to={VB_W}
-                    dur={`${CICLO}s`}
-                    repeatCount="indefinite"
-                  />
-                  <animate
-                    attributeName="x2"
-                    from={0}
-                    to={CURSO}
-                    dur={`${CICLO}s`}
-                    repeatCount="indefinite"
-                  />
-                </>
-              )}
+            {/* A COR do pulso: um degradê parado, frio à esquerda e menta à
+                direita, atravessando o quadro. Ele não se move — quem se move é
+                a máscara. O efeito é o cometa entrar azul pelos nós de entrada
+                e sair menta pelos de saída, que é a viagem que o painel conta. */}
+            <linearGradient id="tom" gradientUnits="userSpaceOnUse" x1="0" x2={VB_W} y1="0" y2="0">
+              <stop stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--color-accent-mint)" />
             </linearGradient>
+
+            {/* A borda macia do cometa: opaco no miolo, transparente nas duas
+                pontas. É o que dava as quatro paradas do gradiente do Magic UI,
+                agora no alfa da máscara em vez de na cor. */}
+            <linearGradient id="borda">
+              <stop stopColor="#fff" stopOpacity="0" />
+              <stop offset="22%" stopColor="#fff" />
+              <stop offset="78%" stopColor="#fff" />
+              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+            </linearGradient>
+
+            {/* A JANELA QUE ANDA, e a razão de existir desta versão.
+                
+                Antes quem se movia era o gradiente, animado por SMIL. Funciona,
+                mas SMIL corre na linha do tempo do DOCUMENTO e o brilho dos nós
+                é animação CSS, que começa quando o React monta: duas linhas do
+                tempo, defasadas pelo tempo de boot. No desktop isso desencontra;
+                no celular, onde o boot é mais lento, desencontra mais — era o
+                "não sincroniza" e o "não funciona no mobile", com uma causa só.
+                
+                Uma máscara com `transform` em CSS resolve porque passa a correr
+                no MESMO relógio do `beam-bead` dos nós. Sincronia por
+                construção, e não por dois números que se perseguem. */}
+            <mask id="onda" maskUnits="userSpaceOnUse" x="0" y="0" width={VB_W} height={VB_H}>
+              <rect
+                className={parado ? undefined : 'onda-corre'}
+                /* O curso vem daqui, e não do CSS, para não existir o mesmo
+                   número em dois arquivos: o `fase()` que acende os nós usa
+                   exatamente `COMETA` e `CURSO`, e se o keyframe tivesse cópias
+                   deles a sincronia quebraria em silêncio na primeira vez que
+                   alguém mexesse num só. */
+                style={
+                  {
+                    '--onda-de': `${-COMETA}px`,
+                    '--onda-ate': `${VB_W}px`,
+                  } as CSSProperties
+                }
+                width={COMETA}
+                height={VB_H}
+                fill="url(#borda)"
+              />
+            </mask>
           </defs>
 
           {fios.map((d) => (
@@ -228,7 +254,8 @@ export function ProcessSteps() {
                   key={mult}
                   d={d}
                   fill="none"
-                  stroke="url(#fluxo)"
+                  stroke="url(#tom)"
+                  mask="url(#onda)"
                   strokeWidth={ESPESSURA * mult}
                   strokeLinecap="round"
                   opacity={alfa}
@@ -237,7 +264,8 @@ export function ProcessSteps() {
               <path
                 d={d}
                 fill="none"
-                stroke="url(#fluxo)"
+                stroke="url(#tom)"
+                mask="url(#onda)"
                 strokeWidth={ESPESSURA}
                 strokeLinecap="round"
               />

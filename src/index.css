@@ -322,6 +322,39 @@
  * O repouso repete os valores que a classe do elemento já define: a animação
  * não pode deixar um estado diferente para trás.
  */
+/**
+ * A janela do cometa atravessando a rede do painel de automação.
+ *
+ * O `translate` vai de menos o comprimento dela até a largura do quadro, em
+ * unidades do `viewBox`. Os valores NÃO moram aqui: chegam em `--onda-de` e
+ * `--onda-ate`, escritos pelo `ProcessSteps.tsx` a partir das mesmas
+ * constantes que o `fase()` usa para acender os nós. Copiá-los para cá
+ * quebraria a sincronia em silêncio na primeira vez que alguém mexesse num
+ * lado só.
+ *
+ * Isto já foi SMIL (`<animate>` nas coordenadas do gradiente). Trocou porque
+ * SMIL corre na linha do tempo do DOCUMENTO e o `beam-bead` dos nós é animação
+ * CSS, que começa quando o React monta: as duas se afastavam pelo tempo de
+ * boot, e o brilho dos nós deixava de bater com a passagem da luz. Em CSS, o
+ * mesmo relógio serve aos dois.
+ */
+@keyframes onda-corre {
+  from {
+    transform: translateX(var(--onda-de));
+  }
+  to {
+    transform: translateX(var(--onda-ate));
+  }
+}
+
+@utility onda-corre {
+  animation: onda-corre 4.8s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 @keyframes beam-bead {
   0%,
   100% {
