@@ -32,14 +32,35 @@ export function useEnterProgress(range = 0.6) {
     let raf = 0
     let visible = true
 
+    /**
+     * Medidas em cache. A justificativa longa está no `useHeroScroll`: ler
+     * layout a cada quadro logo DEPOIS de escrever estilo força um recálculo
+     * síncrono, e com três hooks fazendo isso dá até três layouts forçados por
+     * quadro. Nada medido aqui muda enquanto se rola — só em `resize`.
+     */
+    let viewport = 0
+    let topoNoDocumento = 0
+    const medir = () => {
+      viewport = window.innerHeight
+      topoNoDocumento = el.getBoundingClientRect().top + window.scrollY
+    }
+    medir()
+    window.addEventListener('resize', medir)
+    /* O `resize` não basta: a posição no documento também muda quando algo
+       ACIMA deste elemento muda de tamanho — fonte que carrega tarde, imagem
+       que chega. Sem isto o valor em cache ficaria velho e o efeito dispararia
+       na posição errada, em silêncio. Observar o `body` cobre os dois casos e
+       dispara raramente. */
+    const observador = new ResizeObserver(medir)
+    observador.observe(document.body)
+
     const tick = () => {
       if (!visible) {
         raf = 0
         return
       }
 
-      const viewport = window.innerHeight
-      const { top } = el.getBoundingClientRect()
+      const top = topoNoDocumento - window.scrollY
       const progress = clamp((viewport - top) / (viewport * range), 0, 1)
       el.style.setProperty('--enter', easeOutCubic(progress).toFixed(4))
 
@@ -61,6 +82,8 @@ export function useEnterProgress(range = 0.6) {
     return () => {
       cancelAnimationFrame(raf)
       visibility.disconnect()
+      window.removeEventListener('resize', medir)
+      observador.disconnect()
     }
   }, [range])
 

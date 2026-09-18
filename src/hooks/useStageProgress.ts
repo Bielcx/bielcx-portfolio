@@ -47,17 +47,41 @@ export function useStageProgress(hold = 0.15) {
     let raf = 0
     let visible = true
 
+    /**
+     * Medidas em cache. A justificativa longa está no `useHeroScroll`: ler
+     * layout a cada quadro logo DEPOIS de escrever estilo força um recálculo
+     * síncrono, e com três hooks fazendo isso dá até três layouts forçados por
+     * quadro. Nada medido aqui muda enquanto se rola — só em `resize`.
+     */
+    let percurso = 0
+    let topoNoDocumento = 0
+    let viewport = 0
+    const medir = () => {
+      viewport = window.innerHeight
+      // o que o track ainda rola DEPOIS de prender: a altura dele menos a tela
+      // que o `sticky` ocupa, menos a folga do fim
+      const preso = (track.offsetHeight - viewport) * (1 - hold)
+      // o piso protege a divisão: no celular não há palco preso e `preso` sai
+      // negativo, o que é só o caso degenerado de um percurso sem a parte de
+      // dentro do quadro
+      percurso = Math.max(viewport * 0.5, viewport + preso)
+      topoNoDocumento = track.getBoundingClientRect().top + window.scrollY
+    }
+    medir()
+    window.addEventListener('resize', medir)
+    /* O `resize` não basta: a posição no documento também muda quando algo
+       ACIMA deste elemento muda de tamanho — fonte que carrega tarde, imagem
+       que chega. Sem isto o valor em cache ficaria velho e o efeito dispararia
+       na posição errada, em silêncio. Observar o `body` cobre os dois casos e
+       dispara raramente. */
+    const observador = new ResizeObserver(medir)
+    observador.observe(document.body)
+
     const tick = () => {
       if (!visible) {
         raf = 0
         return
       }
-
-      const viewport = window.innerHeight
-      // o que o track ainda rola DEPOIS de prender: a altura dele menos a tela
-      // que o `sticky` ocupa, menos a folga do fim
-      const preso = (track.offsetHeight - viewport) * (1 - hold)
-      const { top } = track.getBoundingClientRect()
 
       // O percurso começa quando o topo do track encosta no pé da tela e
       // termina lá dentro, com o quadro já preso. Contar só a partir do
@@ -66,10 +90,7 @@ export function useStageProgress(hold = 0.15) {
       // problema anterior, de o conteúdo andar junto com a página. Pegando os
       // dois trechos, o conteúdo aparece subindo enquanto o quadro chega e
       // termina de assentar depois que ele para — que é a leitura certa.
-      // o piso protege a divisão: no celular não há palco preso e `preso` sai
-      // negativo, o que é só o caso degenerado de um percurso sem a parte de
-      // dentro do quadro
-      const percurso = Math.max(viewport * 0.5, viewport + preso)
+      const top = topoNoDocumento - window.scrollY
       const progress = clamp((viewport - top) / percurso, 0, 1)
       track.style.setProperty('--enter', easeOutCubic(progress).toFixed(4))
 
@@ -91,6 +112,8 @@ export function useStageProgress(hold = 0.15) {
     return () => {
       cancelAnimationFrame(raf)
       visibility.disconnect()
+      window.removeEventListener('resize', medir)
+      observador.disconnect()
     }
   }, [hold])
 

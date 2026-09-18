@@ -72,26 +72,52 @@ export function useHeroScroll() {
     let raf = 0
     let visible = true
 
+    /**
+     * MEDIDAS EM CACHE, e esta é a diferença entre rolar liso e rolar travado.
+     *
+     * Nada aqui muda enquanto se rola: o track é `180svh`, o elemento preso é
+     * `100svh`, e `svh` não acompanha a barra do navegador. Mesmo assim isto
+     * era lido a cada quadro — e o loop ESCREVE `--hw` logo depois. Escrita
+     * invalida o estilo, então a leitura do quadro seguinte força um recálculo
+     * de layout síncrono. Com três hooks fazendo o mesmo, dá até três layouts
+     * forçados por quadro, numa página que ainda tem três canvas WebGL e um
+     * plano 3D com dezenas de blocos.
+     *
+     * Medindo uma vez e refazendo só no `resize`, sobra por quadro a única
+     * leitura que precisa ser fresca: a posição de rolagem.
+     */
+    let distance = 0
+    let topoNoDocumento = 0
+    const medir = () => {
+      const preso = track.firstElementChild as HTMLElement | null
+      // a "tela" é a altura do PRÓPRIO elemento preso, e não `window.innerHeight`:
+      // no celular os dois são números diferentes, e o layout usa o primeiro
+      distance = track.offsetHeight - (preso?.offsetHeight ?? window.innerHeight)
+      // o topo do track em relação ao DOCUMENTO. O track não é sticky, então
+      // este número é estável — e com ele o loop troca `getBoundingClientRect()`,
+      // que força layout, por `scrollY`, que não força
+      topoNoDocumento = track.getBoundingClientRect().top + window.scrollY
+    }
+    medir()
+    window.addEventListener('resize', medir)
+    /* O `resize` não basta: a posição no documento também muda quando algo
+       ACIMA deste elemento muda de tamanho — fonte que carrega tarde, imagem
+       que chega. Sem isto o valor em cache ficaria velho e o efeito dispararia
+       na posição errada, em silêncio. Observar o `body` cobre os dois casos e
+       dispara raramente. */
+    const observador = new ResizeObserver(medir)
+    observador.observe(document.body)
+
     const tick = () => {
       if (!visible) {
         raf = 0
         return
       }
 
-      // Toda a vida presa do hero: fixo do topo do track até faltar uma tela
-      // para o fim dele.
-      //
-      // A "tela" é a altura do PRÓPRIO elemento preso, e não `window.innerHeight`.
-      // No celular os dois são números diferentes: o elemento usa `svh` (a tela
-      // sem a barra do navegador, que não muda), e o `innerHeight` cresce quando
-      // a barra recolhe. Lendo o `innerHeight`, este denominador encolhia no
-      // meio da rolagem e a velocidade do fade mudava sozinha — parte do
-      // "scroll esquisito no celular". Medindo o elemento, a conta usa a mesma
-      // régua do layout.
-      const preso = track.firstElementChild as HTMLElement | null
-      const distance = track.offsetHeight - (preso?.offsetHeight ?? window.innerHeight)
-      const progress =
-        distance > 0 ? clamp(-track.getBoundingClientRect().top / distance, 0, 1) : 0
+      // Onde o track está agora, sem tocar no layout: `top` do
+      // `getBoundingClientRect` é o topo no documento menos o quanto já rolou.
+      const top = topoNoDocumento - window.scrollY
+      const progress = distance > 0 ? clamp(-top / distance, 0, 1) : 0
 
       const fade = 1 - clamp((progress - FADE.start) / FADE.length, 0, 1)
       track.style.setProperty('--hw', fade.toFixed(3))
@@ -121,6 +147,8 @@ export function useHeroScroll() {
     return () => {
       cancelAnimationFrame(raf)
       visibility.disconnect()
+      window.removeEventListener('resize', medir)
+      observador.disconnect()
     }
   }, [])
 
