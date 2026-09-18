@@ -151,19 +151,30 @@
    A cor original fica onde está: quem está por baixo é o próprio título, então
    nada apaga, nada muda de tom, e com movimento reduzido a cópia some.
 
-   O facho é estreito e tem franja quente de um lado e fria do outro. Sobre a
-   letra clara, branco em cima de quase-branco não teria para onde subir — quem
-   se vê é a cor passando, não o brilho. É a mesma aberração cromática que o
-   shader do feixe faz logo atrás, então a luz que atravessa as letras é lida
-   como sendo a de lá. */
+   O facho é estreito e COLORIDO porque, sobre letra clara, branco em cima de
+   quase-branco não teria para onde subir — quem se vê é a cor passando, não o
+   brilho.
+
+   A cor é o `--color-accent-cool`, a MESMA que o shader do losango do Ethereum
+   desenha (`vec3(0.31, 0.61, 0.94)` no `ethShaders.ts`, que é este token).
+   Ficam sendo a única cor da primeira tela, e a mesma nos dois lugares.
+
+   Já foram DUAS: franja quente de um lado e fria do outro, imitando a
+   aberração cromática do feixe de luz que passava atrás. Aquele feixe não
+   existe mais em lugar nenhum do site, então a imitação tinha perdido o
+   referente — e o laranja era a única coisa quente de uma página que não tem
+   mais nada quente fora da seção 03.
+
+   O miolo continua quase branco de propósito: é ele que faz o facho ler como
+   LUZ atravessando, e não como tinta azul passando por cima. */
 @utility text-shine {
   background-image: linear-gradient(
     100deg,
-    rgba(255, 255, 255, 0) 43%,
-    rgba(255, 188, 130, 0.5) 47.5%,
+    color-mix(in srgb, var(--color-accent-cool) 0%, transparent) 43%,
+    color-mix(in srgb, var(--color-accent-cool) 65%, transparent) 47.5%,
     rgba(255, 255, 255, 0.95) 50%,
-    rgba(150, 200, 255, 0.5) 52.5%,
-    rgba(255, 255, 255, 0) 57%
+    color-mix(in srgb, var(--color-accent-cool) 65%, transparent) 52.5%,
+    color-mix(in srgb, var(--color-accent-cool) 0%, transparent) 57%
   );
   background-size: 280% 100%;
   background-position: 190% 0;
