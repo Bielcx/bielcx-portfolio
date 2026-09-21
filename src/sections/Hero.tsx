@@ -170,11 +170,14 @@ const PALCO =
  * é o que o design pede; o `text-shine` e o `breathe` do `index.css` saíram
  * junto, sem chamador. Está tudo no git.
  *
- * **A saída para a seção 02 é uma cortina, não um corte.** As luzes, os cabos
- * e os cards ficam acesos e a seção 02 sobe por cima deles; só o bloco de
- * texto apaga, e apaga no instante em que a aresta da cortina chega nele. Ver
- * o `FADE` do `useHeroScroll` — os números são uma conta contra essa aresta,
- * não gosto.
+ * **A saída para a seção 02 acontece em dois tempos.** Primeiro o bloco de
+ * texto (`--hw`), no instante em que a aresta da cortina chega nele; depois a
+ * cena — luzes, fios e cards (`--hs`) —, enquanto a cortina sobe por cima.
+ * Apagar tudo junto deixava meia tela de preto parado esperando a cortina, que
+ * também é preta até prender; não apagar a cena deixava a chapa opaca cortando
+ * quatro cards acesos no ar, e com o nome já fora era isso que lia como
+ * defeito. Ver o `FADE` e o `CENA` do `useHeroScroll`: os números são uma
+ * conta contra a aresta, não gosto.
  *
  * **O que FICOU, e não é decoração:** o track alto com `sticky` e o `--hw`.
  * Eles não são do hero, são da página — quem depende deles é o `-mt-[80svh]`
@@ -223,6 +226,7 @@ export function Hero() {
               duas juntas empastelam o miolo onde o nome mora. */}
           <span
             aria-hidden
+            style={{ opacity: 'var(--hs, 1)' }}
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(58%_48%_at_16%_116%,rgba(84,116,168,0.34),transparent_70%),radial-gradient(58%_48%_at_84%_116%,rgba(122,154,92,0.26),transparent_70%)]"
           />
 
@@ -231,13 +235,26 @@ export function Hero() {
               separados. */}
           <span
             aria-hidden
+            style={{ opacity: 'var(--hs, 1)' }}
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_34%_at_50%_112%,rgba(170,200,245,0.10),transparent_72%)]"
           />
 
           {/* O palco, com os fios e os cards dentro — os dois na mesma grade,
               que é o que os mantém plugados. Some inteiro abaixo de 820px:
               sem os cards não há o que os fios liguem. */}
-          <div className={`${PALCO} pointer-events-none max-[820px]:hidden`}>
+          {/* A cena não só apaga: ela SOBE enquanto apaga. Parada, o que se via
+              era uma aresta reta comendo quatro cards acesos de baixo para
+              cima — a cortina cortando, não a hero saindo. Subindo, os cards
+              saem de quadro por cima e a cortina só encontra o que já foi
+              embora. É o mesmo par (deslocamento + fade) que o bloco de texto
+              usa com o `--hw`, e pela mesma razão. */}
+          <div
+            style={{
+              opacity: 'var(--hs, 1)',
+              transform: 'translate3d(0, calc((1 - var(--hs, 1)) * -16vh), 0)',
+            }}
+            className={`${PALCO} pointer-events-none will-change-[opacity,transform] max-[820px]:hidden`}
+          >
             <Cables />
 
             {hero.provas.map((prova) => (
@@ -383,6 +400,7 @@ export function Hero() {
               centrado: ele pertence à BORDA do quadro, não à coluna. */}
           <div
             aria-hidden
+            style={{ opacity: 'var(--hs, 1)' }}
             className="role-desce pointer-events-none absolute inset-x-0 bottom-[26px] flex flex-col items-center gap-2"
           >
             <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#7d7a76]">

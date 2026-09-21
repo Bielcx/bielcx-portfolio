@@ -34,6 +34,27 @@ const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 const FADE = { start: 0.44, length: 0.24 }
 
 /**
+ * A CENA — luzes, fios e cards — sai DEPOIS do nome, em `--hs`.
+ *
+ * Ela já saiu junto (e abria meia tela de preto parado, porque a cortina
+ * também é preta até prender) e já ficou acesa até o fim, que é o erro
+ * oposto e o que se via por último: a cortina é uma chapa opaca subindo, e
+ * passar por cima de quatro cards acesos os corta ao meio no ar. Com o nome
+ * sumindo e o resto não, o que a tela mostra é meia hero sendo fatiada — lê
+ * como defeito, não como transição.
+ *
+ * Saindo entre 0.62 e 0.98 do percurso preso, a cena apaga ENQUANTO a
+ * cortina cobre: quando o fade termina, a aresta já está a um quinto do topo
+ * da tela, então o que resta aceso é uma faixa fina, e não uma cena inteira
+ * com uma linha reta atravessando.
+ *
+ * Os dois fades são um par com o `-mt-[80svh]` do `Metodo`: o do nome fecha
+ * quando a aresta chega nas letras, o da cena fecha quando ela já cobriu o
+ * grosso da tela. Mexeu num, confira os outros dois.
+ */
+const CENA = { start: 0.62, length: 0.36 }
+
+/**
  * A saída do hero, publicada em `--hw` (1 → 0) no track.
  *
  * **Por que existe:** a seção 02 sobe como cortina opaca por cima do hero
@@ -43,12 +64,13 @@ const FADE = { start: 0.44, length: 0.24 }
  * do topo dela atravessando o nome. Lê como emenda de página, não como
  * transição. Com o fade, o bloco se despede antes de a aresta chegar nele.
  *
- * **O fundo NÃO apaga junto.** Quem lê `--hw` é só o bloco de texto; as duas
- * luzes, os cabos e os cards ficam acesos e são cobertos pela cortina. Já foi
- * dos dois outros jeitos: com o campo aceso (o hero antigo), depois com a cena
- * inteira apagando — e este último abria meia tela de preto parado esperando a
- * cortina, porque ela também é preta até prender e mostrar o conteúdo dela.
- * Ver a conta no `FADE` acima; os números são um par com o `-mt` de lá.
+ * **São DOIS fades, e é isso que evita os dois erros opostos.** O `--hw` leva
+ * o bloco de texto quando a aresta da cortina chega nele; o `--hs` leva a cena
+ * (luzes, fios e cards) depois, enquanto a cortina cobre. Apagando tudo junto
+ * sobrava meia tela de preto parado — a cortina também é preta até prender;
+ * não apagando a cena, ela era fatiada no ar por uma chapa opaca subindo. Ver
+ * as contas no `FADE` e no `CENA` acima; os três números são um par com o
+ * `-mt` do `Metodo`.
  *
  * **O que este hook já foi:** a coreografia inteira do hero antigo — `--p`
  * para o card fechar as bordas com lerp, e DOIS tempos de fade (`--hc` para a
@@ -71,6 +93,7 @@ export function useHeroScroll() {
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       track.style.setProperty('--hw', '1')
+      track.style.setProperty('--hs', '1')
       return
     }
 
@@ -126,6 +149,10 @@ export function useHeroScroll() {
 
       const fade = 1 - clamp((progress - FADE.start) / FADE.length, 0, 1)
       track.style.setProperty('--hw', fade.toFixed(3))
+      track.style.setProperty(
+        '--hs',
+        (1 - clamp((progress - CENA.start) / CENA.length, 0, 1)).toFixed(3),
+      )
 
       // depois de sumir, para de interceptar cliques nos botões — há um trecho
       // em que o bloco já está invisível e a cortina ainda não o cobriu

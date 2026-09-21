@@ -16,12 +16,21 @@
  * que vem o degradê, e é por isso que ele acompanha a forma da onda em vez de
  * ser um gradiente por cima dela.
  *
- * **As cores são as do site, não as da demo.** Lá o padrão é roxo com rosa
- * (`#5227FF`/`#FF9FFC`), que não existe em lugar nenhum daqui. O horizonte é o
- * preto da página, para a onda nascer do fundo em vez de flutuar sobre ele, e
- * o corpo e a crista são os dois acentos que o tema já tem — o frio e a menta.
- * O quente fica de fora: ele é da primeira faixa da seção 03, e trazê-lo para
- * o rodapé o transformaria em cor de página.
+ * **As cores são as da HERO, e essa é a segunda escolha.** Lá o padrão da demo
+ * é roxo com rosa (`#5227FF`/`#FF9FFC`), que não existe em lugar nenhum daqui;
+ * a primeira troca pôs o par antigo do tema (o frio `#4f9bf0` e a menta
+ * `#74d6b4`), e a hero nova mudou o assunto: ela é azul (`accent-sky`) para
+ * automação e sage (`accent-sage`) para landing page, e essas duas cores
+ * atravessam a página inteira — cabos, cards, pontos e barra.
+ *
+ * Com o par velho, o rodapé era a única coisa do site falando outra língua, e
+ * numa página que se lê de ponta a ponta isso lê como duas peças de projetos
+ * diferentes. Agora a primeira e a última tela dizem a mesma coisa: a onda
+ * nasce azul e quebra em sage.
+ *
+ * O horizonte continua preto, para a onda nascer do fundo em vez de flutuar
+ * sobre ele. O quente fica de fora: ele é da primeira faixa da seção 03, e
+ * trazê-lo para o rodapé o transformaria em cor de página.
  *
  * **O que ficou de fora do original:** o mouse (`uMouse`, `uParallax`), que
  * girava a câmera com o ponteiro. O casco do `LightBeam` não tem uniform de
@@ -37,10 +46,10 @@
 
 /** Cor do fundo distante. Preto: a onda nasce da página. */
 const HORIZONTE = "vec3(0.0, 0.0, 0.0)";
-/** Corpo da onda — `--color-accent-cool`, #4f9bf0. */
-const ONDA = "vec3(0.310, 0.608, 0.941)";
-/** Crista — `--color-accent-mint`, #74d6b4. */
-const CRISTA = "vec3(0.455, 0.839, 0.706)";
+/** Corpo da onda — `--color-accent-sky`, #a8c7fa, o azul da automação. */
+const ONDA = "vec3(0.659, 0.780, 0.980)";
+/** Crista — `--color-accent-sage`, #b6c98f, o sage da landing page. */
+const CRISTA = "vec3(0.714, 0.788, 0.561)";
 
 const VELOCIDADE = "0.4";
 const AMPLITUDE = "2.5";
@@ -81,7 +90,12 @@ const ASPECTO_MAX = "1.7";
  * fecho de uma página preta: no valor cheio a onda vira a coisa mais clara do
  * site e engole o "Bom trabalho continua rendendo" que mora por cima dela.
  */
-const BRILHO = "0.55";
+/**
+ * Caiu de 0.55 para 0.46 junto com as cores: o `a8c7fa` e o `b6c98f` sao bem
+ * mais claros que o par que estava aqui (`4f9bf0`/`74d6b4`), e no brilho
+ * antigo a crista estourava para quase branco.
+ */
+const BRILHO = "0.46";
 const OPACIDADE = "1.0";
 const GRAO = "0.05";
 
@@ -153,7 +167,13 @@ void main(){
 
   // quanto mais longe o raio andou, mais a cor vira horizonte: e o degrade
   float t = clamp(${NEVOA} / max(dist, 0.001), 0.0, 1.0);
-  vec3 corpo = mix(${ONDA}, ${CRISTA}, clamp(pos.z * 0.08 + 0.5, 0.0, 1.0));
+  // A TRANSICAO E CURTA DE PROPOSITO (0.08 -> 0.2, com smoothstep no lugar do
+  // clamp linear). Com o par antigo — frio e menta, duas cores vizinhas — um
+  // degrade longo ficava bem; com o azul e o sage da hero, que estao em lados
+  // opostos do circulo, a faixa do meio vira caqui e o rodape inteiro lia como
+  // uma cor so, oliva. Curta, cada metade da onda tem a sua cor e a mistura
+  // acontece na crista, que e onde ela parece luz e nao tinta suja.
+  vec3 corpo = mix(${ONDA}, ${CRISTA}, smoothstep(0.0, 1.0, pos.z * 0.16 + 0.26));
   vec3 col = clamp(mix(${HORIZONTE}, corpo, t) * ${BRILHO}, 0.0, 1.0);
 
   float a = clamp(t, 0.0, 1.0) * ${OPACIDADE};

@@ -211,7 +211,7 @@ continua por cima dela. Três coisas quebram em silêncio se forem mexidas:
 - **O `pt-12` do cabeçalho é a ilhota** e o `pb-7` dos chips é a barra de
   gesto. São respiro de aparelho, não espaçamento à toa.
 
-A largura de 320px é um TETO: os balões foram escritos para caber em linha de
+A largura de 272px é um TETO: os balões foram escritos para caber em linha de
 celular, então alargar a moldura é reescrever a conversa. O halo por trás não é
 enfeite — o aparelho é preto como a página, e sem ele some no fundo.
 
@@ -388,10 +388,19 @@ volta a ser nome e dois botões, que é o problema que esta hero resolve. Entre
 propriedade `scale` do Tailwind v4, que COMPÕE com o `transform` do keyframe;
 um `transform: scale()` ali seria apagado pela animação no primeiro quadro.
 
-**O hero sai inteiro no scroll.** O `--hw` do `useHeroScroll` apaga a CENA
-inteira — fundo, cabos, cards e nome — num `opacity` só na `<section>`. O fade
-existe porque a seção 02 sobe como cortina opaca por cima do hero preso, e sem
-ele a aresta corta o nome ao meio.
+**O hero sai em DOIS TEMPOS, e os dois existem por um erro oposto.** O `--hw`
+leva o bloco de texto quando a aresta da cortina chega nele; o `--hs` leva a
+cena — luzes, fios e cards — depois, e ela SOBE 16vh enquanto apaga.
+
+- apagando tudo junto (e cedo), sobrava meia tela de preto parado esperando a
+  cortina, que também é preta até prender e mostrar o conteúdo dela;
+- não apagando a cena, a chapa opaca subia cortando quatro cards acesos no ar
+  — com o nome já fora, era isso que lia como defeito;
+- apagando a cena sem movimento, ela ainda era "comida" pela aresta: o que
+  conserta é ela sair de quadro por cima, e a cortina encontrar o vazio.
+
+Os três números (`FADE`, `CENA` e o `-mt-[80svh]` do `Metodo`) são um par só.
+Mexeu num, refaça a conta dos outros.
 
 **O nome da hero é `font-display` (Bricolage Grotesque), a mesma do h2 da seção
 02**, em duas linhas — e a quebra é da copy (`hero.wordmark` é um array), não
