@@ -30,17 +30,24 @@
  * comentário — a primeira fecha a string e o erro sai como sintaxe TypeScript.
  */
 
-/** Verde ácido do portal, na borda. */
-const VERDE = 'vec3(0.592, 0.839, 0.310)';
-/** Menta do tema, no corpo do anel — o que amarra o efeito ao resto do site. */
-const MENTA = 'vec3(0.455, 0.839, 0.706)';
 /**
- * O fundo do site de destino: o `--surface` do tema escuro dele, `#141413`.
+ * As DUAS cores são as do losango do Ethereum, medidas do `ethShaders.ts`: o
+ * portal nasce do botão que tem o losango dentro, então ele carrega a cor de
+ * quem o abriu em vez de uma paleta própria. Antes eram o verde ácido e a
+ * menta do tema.
+ */
+/** O realce do losango (`vec3(0.75, 0.88, 1.0)`), na borda. */
+const AZUL_CLARO = 'vec3(0.750, 0.880, 1.000)';
+/** A cor de base do losango — o `--color-accent-cool`, `#4f9bf0`. */
+const AZUL = 'vec3(0.310, 0.608, 0.941)';
+/**
+ * O fundo do site de destino: o `--surface` do tema escuro dele, hoje `#000`.
  *
- * Não é gosto, é medida — e foi corrigida uma vez: o `#111111` que estava aqui
- * veio de um `background-color` solto no HTML servido, e não do fundo que a
- * página de fato pinta. Três pontos de diferença que ninguém vê, mas a régua
- * deste valor é o outro site, então ela tem de apontar para o lugar certo.
+ * Não é gosto, é medida — e já foi corrigida duas vezes: primeiro do `#111111`
+ * (que vinha de um `background-color` solto no HTML servido, não do fundo que a
+ * página pinta) para o `#141413`, e depois para o preto, quando o portfólio de
+ * lá trocou de paleta. A régua deste valor é o outro site, então toda vez que o
+ * fundo de lá mudar, este número muda junto — senão a emenda aparece.
  *
  * **O tema claro do outro lado não entra nesta conta.** Ele existe (o web3 tem
  * claro e escuro em `localStorage`), e daqui não há como saber qual está
@@ -48,7 +55,7 @@ const MENTA = 'vec3(0.455, 0.839, 0.706)';
  * chega no claro vê o disco escuro encolher e revelar o papel — a decisão está
  * escrita também no `portalShader.ts` de lá.
  */
-const DESTINO = 'vec3(0.078, 0.078, 0.075)';
+const DESTINO = 'vec3(0.000, 0.000, 0.000)';
 
 export const PORTAL_FRAG = `#version 300 es
 precision highp float;
@@ -109,7 +116,7 @@ void main(){
   float fio = fbm(vec2(ang * 5.0 - uT * 1.6, r * 6.0));
   anel *= 0.55 + 0.75 * fio;
 
-  vec3 cor = mix(${MENTA}, ${VERDE}, clamp(fio * 1.2, 0.0, 1.0));
+  vec3 cor = mix(${AZUL}, ${AZUL_CLARO}, clamp(fio * 1.2, 0.0, 1.0));
 
   // DENTRO: a cor do site que vai entrar, com o verde sangrando da borda para
   // dentro. E o que faz a tela ja estar na cor do destino quando ele carrega.
