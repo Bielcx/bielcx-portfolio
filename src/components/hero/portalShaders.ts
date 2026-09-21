@@ -13,15 +13,18 @@
  * tempo: quem manda no `uB` é o `Portal.tsx`, que também decide a hora de
  * navegar.
  *
- * **O miolo é `#111111`, e isso não é escolha de cor.** É o fundo que o site
- * de destino pinta no primeiro quadro (medido no HTML dele). Quando o portal
- * enche a tela, o que está em quadro já é a cor da página que vai entrar — a
- * emenda entre os dois sites cai em escuro sobre escuro, que é o mesmo
- * raciocínio da cortina do `Metodo`.
+ * **O miolo é a cor de fundo do site de destino, e isso não é escolha de cor.**
+ * Quando o portal enche a tela, o que está em quadro já é a cor da página que
+ * vai entrar — a emenda entre os dois sites cai em escuro sobre escuro, que é
+ * o mesmo raciocínio da cortina do `Metodo`. O valor e a régua dele estão na
+ * constante `DESTINO`, abaixo.
  *
  * **As duas origens são diferentes**, então não há transição nativa entre os
  * documentos (`@view-transition` só funciona same-origin). A passagem é uma
- * ilusão em duas metades: esta, e um dia a chegada, do outro lado.
+ * ilusão em duas metades combinadas à mão: esta, e a chegada, que vive no
+ * `components/portalShader.ts` do repositório do web3 — o MESMO desenho tocado
+ * ao contrário. Mexeu na forma aqui, copie para lá: a emenda só funciona se as
+ * duas metades combinarem.
  *
  * O GLSL mora numa template string: NENHUMA crase abaixo daqui, nem em
  * comentário — a primeira fecha a string e o erro sai como sintaxe TypeScript.
