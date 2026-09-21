@@ -1,8 +1,8 @@
 # portfolios/comercial
 
 Portfólio **comercial** de Gabriel Cavalcanti — desenvolvedor full stack. Página
-única em português, fundo escuro, hero alinhada à esquerda sobre um campo
-WebGL animado.
+única em português, fundo escuro, hero centrada sobre um canvas de automação —
+o nome como nó, quatro cards de resultado plugados nele por cabos animados.
 
 ## Por que este repositório existe
 
@@ -164,19 +164,83 @@ percebe. Por isso o `EthMark` testa o WebGL2 num canvas descartável, uma vez.
 `rotateY` sem perspectiva num ancestral achata o giro do SVG. O caminho 3D não
 a usa — a projeção é do shader.
 
-**O facho do painel de automação é CSS, não o `AnimatedBeam` do Magic UI.**
-Aquele componente desenha um SVG entre dois `ref` quaisquer, com bézier,
-`ResizeObserver` e uma dependência de animação (`motion`). Aqui os dois pontos
-— "Conversa" e "No ar" — estão na mesma coluna vertical: a curva entre eles é
-uma reta, e o que sobra do componente é um degradê andando. São as utilidades
-`beam-run` e `beam-bead` do `index.css`.
+**O painel da faixa de automação é o `AgentDemo`: uma conversa que funciona.**
+A linha "Agente de IA" é a mais difícil de vender por escrito — quem lê imagina
+um menu de robô —, então o painel deixa o visitante conversar com um, no lugar
+do cliente DELE. Os quatro chips provam o que separa um agente de um menu: a
+linha de passo ("consultando a agenda") mostra que ele consulta algo antes de
+responder, a resposta é frase e não opção numerada, e a última pergunta cai no
+caso em que ele chama uma pessoa.
 
-Os três trechos de fio e as quatro bolinhas são elementos separados; o que os
-encadeia num percurso só é o ATRASO (`ATRASO` no `ProcessSteps.tsx`, 1,2s por
-passo) casado com os 6s do ciclo, de que a parte acesa ocupa 20% — ou seja
-1,2s. **Os dois números andam juntos**: mexeu num, mexa no outro, senão o facho
-some antes de a bolinha acender. O resto do ciclo é pausa, de propósito: sem
-ela o painel pisca sem parar ao lado do texto que se veio ler.
+**As respostas são roteiro, escritas à mão em `services.agente`, e a nota do
+rodapé do painel diz isso** — sem ela é propaganda enganosa. Modelo de verdade
+aqui é função serverless, chave de API, custo por visita e campo de texto
+aberto para desconhecido, num site que não tem backend. Se um dia virar
+modelo, o que muda é de onde `resposta` vem. **Sem campo de texto livre, de
+propósito**: campo aberto convida a testar o que o roteiro não responde, e o
+que o visitante leva embora é a falha.
+
+O negócio é inventado. Nome de cliente real ali é promessa de que aquele agente
+está no ar, e promessa que a página faz o cliente cobra.
+
+**Toda resposta responde primeiro, com dado concreto, e só então oferece o
+passo seguinte** — inclusive a que ele não resolve, que diz o que sabe antes de
+chamar uma pessoa. A abertura já foi um cartão de visita ("sou o atendimento
+do Estúdio Vélo, vejo horário, preço e agendo") logo depois de "vocês têm aula
+hoje?": o cliente perguntou uma coisa e ouviu outra, que é o robô de menu que
+este painel existe para desmentir. Resposta nova que não caiba nessa ordem está
+errada.
+
+**A moldura de iPhone é porte do Magic UI**, como o `LightBeam` e o
+`DriftWall` são portes do React Bits — SVG, sem dependência e sem imagem. Ela
+existe para a conversa ler como o WhatsApp DO CLIENTE do visitante, que é onde
+o serviço roda, sem pôr o logo do WhatsApp numa faixa que proíbe logo de
+ferramenta.
+
+**O original só sabe pôr `src` ou `videoSrc` na tela**, e a nossa tela é HTML
+vivo — botão, rolagem, `aria-live`. As duas props saíram e a máscara dele
+mudou de função: o `furo` vaza o retângulo da tela do corpo do aparelho e a
+conversa aparece por baixo; a ilhota fica fora do grupo mascarado e por isso
+continua por cima dela. Três coisas quebram em silêncio se forem mexidas:
+
+- **`pointer-events-none` no SVG.** Ele cobre o aparelho inteiro, furo
+  incluído — sem isso os chips não recebem clique, e nada no visual acusa.
+- **A tela é posicionada em % das constantes do desenho** (`LARGURA`,
+  `TELA_X`…), nunca em pixel, e o raio vai em `X% / Y%`: com um valor só o
+  canto sai oval, porque a tela não é quadrada.
+- **O `pt-12` do cabeçalho é a ilhota** e o `pb-7` dos chips é a barra de
+  gesto. São respiro de aparelho, não espaçamento à toa.
+
+A largura de 320px é um TETO: os balões foram escritos para caber em linha de
+celular, então alargar a moldura é reescrever a conversa. O halo por trás não é
+enfeite — o aparelho é preto como a página, e sem ele some no fundo.
+
+**Dentro do furo a paleta é a do WhatsApp no escuro** (`ZAP`, no componente), e
+é a única coisa do site fora dos tokens do tema. É deliberado: o que está na
+tela não é o site, é OUTRO aplicativo aberto no telefone do cliente — pintado
+com o preto e o azul da página, o mockup vira mais um painel do portfólio. O
+verde não vaza para fora do furo, e continua não havendo logo nem a palavra
+WhatsApp na faixa; quem nomeia o canal é a nota em texto, embaixo do aparelho.
+
+Duas coisas fazem a tela parar de parecer maquete, e as duas foram descobertas
+olhando: **a conversa cresce de baixo para cima** (`min-h-full` + `justify-end`
+no miolo do log) e **já começa em andamento**, com o oi do cliente e a resposta
+do agente. Com um balão só no alto sobravam uns 400px de vazio, e aplicativo de
+mensagem nenhum se parece com isso. O tique duplo é desenhado à mão pelo
+`Tique`: o `check` do `Icon` é um certo dentro de um círculo, e dois círculos
+sobrepostos viram um diagrama de Venn no canto do balão.
+
+**A moldura de painel saiu do `Services.tsx` e foi para o `WorkGrid`.** O
+wrapper das faixas era `rounded-2xl border bg-card` para os dois painéis, e em
+volta de um celular isso é moldura dentro de moldura. Quem precisa de borda
+agora a traz; painel novo que precise dela, idem.
+
+Antes disto o painel era o `ProcessSteps`: uma rede de nós — entradas, núcleo,
+saídas — com um cometa de luz correndo pelos fios, que DESENHAVA a automação em
+vez de demonstrá-la. Saiu inteiro, com a copy `services.process` e as
+utilidades `onda-corre` e `beam-bead`, que eram só dele. Está no git. Antes da
+rede houve ainda uma sequência de quatro passos com um facho descendo, que é o
+que esta nota descrevia até aqui.
 
 **Nada de three.js.** Ele foi considerado e recusado para este losango: ~120 KB
 gzip contra os 77 KB do site inteiro, para desenhar um ícone de 18px que o
@@ -213,27 +277,112 @@ Continua havendo `--color-surface-raised`, que é de botão e não de seção.
 do site inteiro a pedido. O `sopa-agency`, de onde esta base veio, ainda o tem
 — não o traga de volta ao sincronizar com ele.
 
-**A hero é centrada e não tem fundo.** Ela já foi alinhada à esquerda sobre um
-campo WebGL — filamentos, depois o ferrofluido —, e os dois saíram a pedido. O
-alinhamento à esquerda saiu junto porque existia para deixar a metade direita
-livre para o campo; sem campo, ele não tinha motivo.
+**A hero é um CANVAS DE AUTOMAÇÃO: o nome é o nó central e quatro cards de
+resultado ficam plugados nele por cabos com pulsos correndo dentro.** Veio de
+um handoff de design em HTML, recriado componente a componente e com os valores
+exatos dele (cores, curvas, keyframes). O motivo é comercial: a hero anterior
+era nome, dois botões e uma linha, e nada nela dava MOTIVO para rolar. Aqui as
+duas frentes aparecem em dois segundos — dois cards em `sky` (automação) e dois
+em `sage` (landing page), que é como a primeira tela diz que são dois serviços
+sem escrever isso.
 
-**O hero sai inteiro no scroll.** O `--hw` do `useHeroScroll` apaga o bloco de
-texto E o canvas dos fios, os dois no mesmo valor — o canvas recebe
-`[opacity:var(--hw,1)]` na `className`, porque o `LightBeam` não aceita `style`.
-O fade existe porque a seção 02 sobe como cortina opaca por cima do hero preso,
-e sem ele a aresta corta o nome ao meio.
+**OS NÚMEROS DOS CARDS SÃO RASCUNHO DO DESIGN e não podem ir ao ar assim.**
+"18h por semana", "142 tarefas hoje", "7 dias", "4,8% de conversão" e o "3
+rodaram enquanto você lia" saíram do protótipo, que diz por escrito que são
+placeholders. Promessa que a primeira tela faz é a que o cliente cobra na
+reunião, e esta faz quatro. A nota está por extenso em `hero.provas`.
 
-**O efeito colateral, decidido a pedido:** com o fundo apagando junto, o quadro
-fica PRETO E PARADO entre o texto sair e a cortina cobrir. Manter o campo aceso
-naquele intervalo era o que evitava isso, e foi trocado de propósito. Se um dia
-incomodar, a saída é atrasar o `FADE` do hook — não tirá-lo.
+**O fundo é só LUZ.** Preto sólido com duas radiais nascendo abaixo da borda
+de baixo (`116%`): azul à esquerda (automação) e sage à direita (landing), as
+mesmas cores dos cards, mais um véu frio que costura as duas num clarão só.
+Nascer do rodapé é o que puxa o olho para baixo, que é para onde esta hero
+existe para mandar. A primeira versão do handoff tinha uma grade quadriculada
+de 56px no lugar; a segunda a tirou, e se ela voltar é NO LUGAR das luzes —
+juntas, empastelam o miolo onde o nome mora.
+
+As camadas, de baixo para cima: preto, luzes, véu frio, cabos (SVG), cards,
+vinheta e o bloco central. **A vinheta é o que faz os cabos SAÍREM do nome**:
+os quatro terminam por volta de 50% da largura, atrás das letras, e se
+chegassem acesos até lá o desenho leria como linhas passando POR CIMA do nome.
+Ela foi aberta de 34%×38% para 44%×48% e o centro desceu para 52% justamente
+para apagar o tracejado antes das letras e em volta dos botões. O
+`text-shadow` não substitui isso: ele recorta o glifo, mas não escurece o vão
+entre uma letra e outra, que é por onde o tracejado passa. A sombra do nome
+tem três raios pelo mesmo motivo — 26px cola na letra, 70px (o do handoff) é o
+corpo, 130px é o escurecimento largo.
+
+Aumentar mais o alcance da vinheta começa a comer os cards nos cantos; é o
+teto desse número.
+
+**Os dois botões são o mesmo do rodapé** (`SpecularButton` com a classe do
+"Tirar um projeto do papel"), e isso contraria o handoff, que os desenha como
+retângulo chapado. Foi decisão do dono, com duas diferenças para o rodapé:
+
+- **fundo transparente**, e não `bg-surface-raised`: sobre as duas luzes do
+  fundo, superfície própria vira um retângulo cinza flutuando na frente do
+  clarão. Quem desenha o botão aqui é a borda e o contorno especular;
+- **`idleGlow` (prop nova do `SpecularButton`, padrão 0)**: o contorno nasce
+  aceso no estado "mouse começando a chegar" em vez de esperar o ponteiro
+  entrar na `proximity`. É piso, não soma — de perto o brilho continua indo a
+  1. No rodapé o piso segue zero: lá o botão chega no fim da leitura e acender
+  na aproximação é o convite; na hero ele é a primeira coisa que se olha, e
+  apagado é um retângulo de borda fina. É também o que o celular passa a ver,
+  onde não há ponteiro e a varredura já rodava sobre brilho zero.
+
+O preço são dois contextos WebGL a mais na primeira tela — quatro com o
+losango e o rodapé; se pesar em celular fraco, o primeiro a virar `<a>` chapado
+é o Web3, que é saída e não CTA.
+
+**Cabos e cards vivem no MESMO palco, e o card não tem posição própria: ele
+pendura na ponta do cabo.** É a correção de um desalinhamento que era
+estrutural — os cabos moravam na grade do SVG (1240×700, escalada por `slice`)
+e os cards em `%` da tela, duas grades que coincidem numa proporção de janela
+e se afastam em todas as outras. O sintoma era o cabo chegando no vazio ao
+lado do card.
+
+Hoje o `PALCO` é uma caixa com a proporção exata do `viewBox`, e daí sai tudo:
+o SVG encaixa nela sem distorcer e uma coordenada do desenho vira porcentagem
+do palco por uma conta só (`ancora`). Cada card recebe essa porcentagem e
+encosta nela pelo canto que olha para o centro (`canto`, com 10px de folga).
+Mexer num cabo move o card junto, de graça.
+
+Dois números mandam nisso e não são estilo:
+
+- **O palco usa `min()`, não `max()`.** Com `max()` ele COBRE a tela como o
+  `slice` do handoff — e numa janela alta (1200×1000) fica meia tela mais
+  largo que a viewport, levando os cards plugados para fora da borda. Com
+  `min()` ele CABE: a cena encolhe e se aproxima do nome, ao preço de margem
+  preta nas laterais em monitor ultralargo.
+- **O palco assume que a seção ocupa a viewport inteira** (os `vw`/`svh` dos
+  tamanhos). É o que o `h-viewport` do pai garante hoje; se a hero ganhar
+  margem um dia, estes viram unidades de container (`cqw`/`cqh`), senão o
+  palco descola da seção e o alinhamento erra de novo — em silêncio.
+
+**Abaixo de 820px os cabos e os cards somem** e entra uma grade 2×2 com os
+mesmos quatro ganchos (`curto`, na copy). Sem ela a primeira tela do celular
+volta a ser nome e dois botões, que é o problema que esta hero resolve. Entre
+820 e 1100 os cards encostam nas bordas e encolhem com `scale-[0.86]` — a
+propriedade `scale` do Tailwind v4, que COMPÕE com o `transform` do keyframe;
+um `transform: scale()` ali seria apagado pela animação no primeiro quadro.
+
+**O hero sai inteiro no scroll.** O `--hw` do `useHeroScroll` apaga a CENA
+inteira — fundo, cabos, cards e nome — num `opacity` só na `<section>`. O fade
+existe porque a seção 02 sobe como cortina opaca por cima do hero preso, e sem
+ele a aresta corta o nome ao meio.
 
 **O nome da hero é `font-display` (Bricolage Grotesque), a mesma do h2 da seção
-02.** Era `font-serif` (Instrument Serif) e a troca não é só de família: a
-Bricolage é bem mais larga, e o `WORDMARK_SIZE` caiu de `9.5vw` para `7vw` junto
-(e depois para `6.2vw`, quando o nome passou a quebrar em duas linhas num bloco
-alinhado à esquerda). Trocar a fonte do nome é sempre remedir o clamp.
+02**, em duas linhas — e a quebra é da copy (`hero.wordmark` é um array), não
+do navegador. A ÚLTIMA LETRA da última linha sai no azul do acento, e quem
+fatia é o `Hero.tsx`: um `<span>` no meio de uma string de conteúdo é marcação
+disfarçada de texto. O `WORDMARK_SIZE` é `clamp(44px,8.4vw,96px)`, do design;
+já foi `9.5vw` com a Instrument Serif numa linha só, `7vw` e `6.2vw` com a
+Bricolage. Trocar a fonte do nome é sempre remedir o clamp.
+
+**O que a hero antiga levou embora:** o campo de fios WebGL
+(`threadsShaders.ts`, apagado — o `LightBeam` continua no rodapé e no losango),
+as três camadas do nome (sombra, contorno respirando e o facho) e, com elas, o
+`text-shine`, o `breathe` e os tokens `--color-stroke*` do `index.css`. O nome
+de hoje é uma camada só com sombra preta larga. Está tudo no git.
 
 **Ícone de marca é preenchido; o resto é traço.** O `Icon` decide pelo conjunto
 `FILLED` — `whatsapp`, `ethereum`, `github` e `linkedin`. Eram dois e cabiam numa
@@ -313,23 +462,14 @@ um pinta um retângulo escuro. Vale para o ferrofluido do hero e para as ondas
 do rodapé, que ainda por cima têm o preto da página como cor de horizonte. Tema
 claro é reescrever shader, não trocar token.
 
-**O card do hero é preto, e o `--color-stroke` ficou calibrado para o cinza que
-ele era:** está em 0.42 porque foi subido para o contorno do nome vencer o
-degradê, e no preto de hoje isso é exagero. A lista está por extenso no
-`index.css`, e o outro item dela — o card "soltando das bordas" com o `--p` do
-scroll — deixou de existir junto com a coreografia da hero antiga. Não é bug a
-consertar de surpresa, é decisão pendente.
-
 ## Armadilhas conhecidas
 
 **O corpo do nome no hero é calibrado ao comprimento dele.** O `WORDMARK_SIZE`
-é `clamp(40px, min(6.2vw,13vh), 104px)`, calculado para "Gabriel Cavalcanti" em
-DUAS linhas dentro do bloco de `max-w-[58ch]` alinhado à esquerda. Já foi `9.5vw`
-com a Instrument Serif numa linha só, e `7vw` com a Bricolage — o número anda com
-a fonte, com o comprimento do nome E com a largura do bloco. Não há mais
-`whitespace-nowrap` segurando uma linha só, então o sintoma de descalibragem
-mudou: em vez de vazar da tela, o nome quebra em três linhas e come a altura dos
-botões. Mexeu num dos três, meça de novo.
+é `clamp(44px, 8.4vw, 96px)`, do handoff, e vale para "Cavalcanti" — a maior das
+duas linhas de `hero.wordmark` — na Bricolage. O número anda com a fonte E com o
+comprimento da linha; o sintoma de descalibragem não é mais vazar da tela, é o
+nome comer a altura de que os botões e a grade 2×2 do celular precisam embaixo.
+Mexeu num dos dois, meça de novo.
 
 **Translate no Tailwind v4 compõe com `transform` inline.** Os utilitários de
 translate usam a propriedade CSS `translate`, que soma ao `transform` em vez de
@@ -346,14 +486,14 @@ contexto.
 sentidos — nada de estado acumulado que só avança.
 
 **O `LightBeam` virou casco genérico, e o feixe é só um dos shaders.** A prop
-`frag` é OBRIGATÓRIO — não há shader padrão. São três na página: o
-`THREADS_FRAG` no hero, o `WAVES_FRAG` no rodapé (os dois portes do React Bits,
-sem `ogl`) e o `ETH_FRAG` no botão do hero. Dá para contar os contextos no log
-do headless.
+`frag` é OBRIGATÓRIO — não há shader padrão. São DOIS na página: o
+`WAVES_FRAG` no rodapé (porte do React Bits, sem `ogl`) e o `ETH_FRAG` no
+losango do botão da hero. Dá para contar os contextos no log do headless.
 
-Já existiram outros três, guardados "como caminho de volta": o `BEAM_FRAG`
-(feixe do rodapé antigo, que era o valor padrão desta prop), o `NEURO_FRAG` e o
-`FERROFLUID_FRAG` (os dois primeiros fundos do hero). Saíram todos numa
+Já existiram outros quatro, guardados "como caminho de volta": o `BEAM_FRAG`
+(feixe do rodapé antigo, que era o valor padrão desta prop), o `NEURO_FRAG`, o
+`FERROFLUID_FRAG` (os dois primeiros fundos do hero) e o `THREADS_FRAG` (o
+terceiro deles, o leque de fios, que saiu com a hero nova). Saíram todos numa
 limpeza, junto com o `ScrambleText` — cinco módulos sem chamador acumulados em
 sessões diferentes viram um segundo site fantasma dentro do repositório. O
 histórico deles está no git; **guardar caminho de volta é o que o git faz.** Contexto, resize, observers e recuperação de contexto perdido são os

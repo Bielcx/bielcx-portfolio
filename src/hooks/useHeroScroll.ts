@@ -6,28 +6,32 @@ const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
  * Trecho do track em que o bloco do hero se despede: `start` é onde começa a
  * apagar e `length` quanto dura, os dois em fração do percurso preso.
  *
- * Os números não são gosto, são uma conta contra a cortina — e a conta mudou
- * quando o fundo animado passou a apagar junto com o texto.
+ * Os números não são gosto, são uma conta contra a ARESTA DA CORTINA — e a
+ * conta é sobre onde ela está na TELA, não sobre quanto já se rolou.
  *
- * O track do hero tem 180vh e o `sticky` prende por 80vh, que é o percurso
- * deste progresso. O `Metodo` começa a 100vh do topo do track (`180 − 80` do
- * `-mt-[80vh]` dele), ou seja a aresta dele já está no pé da tela quando a
- * página abre, e sobe 1vh a cada 1vh de rolagem: com `S` vh rolados ela está
- * a `100 − S` do topo, e o progresso vale `S / 80`.
+ * O track do hero tem 180svh e o `sticky` prende por 80svh, que é o percurso
+ * deste progresso. O `Metodo` começa a 100svh do topo do track (`180 − 80` do
+ * `-mt-[80svh]` dele): a aresta dele está no pé da tela quando a página abre e
+ * sobe 1px por px rolado, então com `S` px rolados ela está a `tela − S` do
+ * topo. O nome mora no meio da tela, ou seja a aresta o alcança em
+ * `S ≈ 0,55 × tela` — com uma tela de 860px, por volta de 470px de rolagem,
+ * que é 0,68 do percurso preso.
  *
- * Terminando o fade em 0.56 (`0.30 + 0.26`), o texto acaba de sair com
- * S = 45vh, quando a cortina já está a 55vh do topo — subindo pela metade de
- * baixo da tela. **É isto que fecha o buraco preto:** antes o fade terminava
- * em 0.34 (S = 27vh) com a cortina ainda a 83vh, e como o fundo apaga junto,
- * sobrava meia tela de preto parado esperando.
+ * Daí o par: **o fade termina em 0,68**, com a aresta chegando no nome, e
+ * começa em 0,44 para ter uma boa distância de despedida. Antes terminava em
+ * 0,56 — e o problema não era o corte, era o vazio: com a cena inteira
+ * apagando junto, dos 385px (fim do fade) aos 860px (quando o `Metodo` prende
+ * e mostra o conteúdo dele) a tela ficava PRETA, quase 500px de rolagem sem
+ * nada em quadro. Hoje só o texto apaga; luzes, cabos e cards ficam acesos e
+ * a cortina os cobre, que é o que uma cortina faz.
  *
- * Atrasar mais traz de volta o problema oposto, que é o motivo de este fade
- * existir: a cortina cruza o nome ainda aceso e o corta ao meio.
+ * Terminar mais tarde traz de volta o motivo de o fade existir: a aresta cruza
+ * o nome ainda aceso e o corta na horizontal.
  *
- * **Mexeu no `-mt-[80vh]` do `Metodo` ou na altura de um dos dois tracks,
+ * **Mexeu no `-mt-[80svh]` do `Metodo` ou na altura de um dos dois tracks,
  * refaça a conta.** Os dois erros são silenciosos.
  */
-const FADE = { start: 0.3, length: 0.26 }
+const FADE = { start: 0.44, length: 0.24 }
 
 /**
  * A saída do hero, publicada em `--hw` (1 → 0) no track.
@@ -39,11 +43,12 @@ const FADE = { start: 0.3, length: 0.26 }
  * do topo dela atravessando o nome. Lê como emenda de página, não como
  * transição. Com o fade, o bloco se despede antes de a aresta chegar nele.
  *
- * **O fundo apaga junto**, a pedido: quem lê `--hw` é o bloco de texto E o
- * canvas dos fios, no `Hero.tsx`. Já foi o contrário — o campo ficava aceso
- * justamente para o quadro não esvaziar —, e a troca abriu um intervalo de
- * preto parado que foi fechado adiantando a cortina e atrasando este fade.
- * Ver a conta no `FADE` acima; os dois números são um par com o `-mt` de lá.
+ * **O fundo NÃO apaga junto.** Quem lê `--hw` é só o bloco de texto; as duas
+ * luzes, os cabos e os cards ficam acesos e são cobertos pela cortina. Já foi
+ * dos dois outros jeitos: com o campo aceso (o hero antigo), depois com a cena
+ * inteira apagando — e este último abria meia tela de preto parado esperando a
+ * cortina, porque ela também é preta até prender e mostrar o conteúdo dela.
+ * Ver a conta no `FADE` acima; os números são um par com o `-mt` de lá.
  *
  * **O que este hook já foi:** a coreografia inteira do hero antigo — `--p`
  * para o card fechar as bordas com lerp, e DOIS tempos de fade (`--hc` para a

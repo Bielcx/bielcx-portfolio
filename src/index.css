@@ -27,19 +27,10 @@
      `bg-linear-` de três paradas — dá para voltar a um degradê sem tocar no
      `Hero.tsx`.
 
-     DUAS COISAS FICARAM CALIBRADAS PARA O CINZA e não foram refeitas:
-
-     1. o card não se solta mais das bordas. O `--p` do scroll faz o padding
-        crescer para o `--color-frame` aparecer por trás — e ele também é
-        preto, então não há contraste que revele o movimento. O efeito continua
-        rodando, só não se vê.
-     2. o `--color-stroke` abaixo está em 0.42 porque o contorno do nome sumia
-        no degradê cinza. No preto, isso agora é exagero.
-
-     O 2 pede recalibração para baixo; o 1 é decisão de design, não de número.
-
-     Era uma lista de três: o campo de estrelas tinha os alfas subidos pela
-     mesma razão, e saiu do site. */
+     A lista de coisas "calibradas para o cinza" que ficavam aqui acabou: o
+     campo de estrelas saiu do site, o `--color-stroke` do contorno do nome
+     saiu com a hero antiga, e o `--p` (o card soltando das bordas) não existe
+     mais. Os três estão no git. */
   --color-hero-top: #000000;
   --color-hero-mid: #000000;
   --color-hero-bot: #000000;
@@ -52,17 +43,21 @@
      o fundo. Quem os delimita agora é só a borda de 0.08. */
   --color-card: #000000;
 
+  /* A PALETA DA HERO NOVA — o canvas de automação.
+     O `sky` é o azul dos cabos e cards de automação, e é mais claro que o
+     `accent-cool` de propósito: ele pinta traço de 1,5px e texto de 9px sobre
+     preto, onde o `4f9bf0` some. O `sage` é a cor da outra frente (landing), e
+     é o que permite ler de relance que são DOIS serviços e não um. */
+  --color-accent-sky: #a8c7fa;
+  --color-accent-sage: #b6c98f;
+  /* superfície e borda dos cards flutuantes da hero */
+  --color-hero-card: #0d0f13;
+  --color-hero-line: #22252b;
+
   /* acentos por card na seção de serviços */
   --color-accent-warm: #f0863c;
   --color-accent-cool: #4f9bf0;
   --color-accent-mint: #74d6b4;
-
-  /* contorno da palavra gigante do hero. O 0.42 é mais forte do que parece
-     necessário no papel, e existia porque o fio corria sobre o degradê cinza
-     do card. O card virou preto: este número está alto para o fundo de hoje,
-     e é um dos três apontados acima. */
-  --color-stroke: rgba(225, 222, 218, 0.42);
-  --color-stroke-glow: rgba(225, 222, 218, 0.75);
 
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   /* títulos de seção e navegação */
@@ -72,30 +67,6 @@
   /* corpo, botões e rótulos */
   --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
-  @keyframes shine {
-    from {
-      background-position: 190% 0;
-    }
-    to {
-      background-position: -90% 0;
-    }
-  }
-
-  
-
-  
-  /* pulso lento da cópia que "acende" a palavra gigante do hero */
-  --animate-breathe: breathe 7s ease-in-out infinite;
-
-  @keyframes breathe {
-    0%,
-    100% {
-      opacity: 0;
-    }
-    50% {
-      opacity: 0.6;
-    }
-  }
 }
 
 @layer base {
@@ -135,59 +106,6 @@
 @utility h-viewport {
   height: 100vh;
   height: 100svh;
-}
-
-/* Facho de luz atravessando um título — para ser usado numa CÓPIA do texto,
-   sobreposta ao original.
-
-   O texto recorta um degradê que é transparente nas pontas e branco no meio
-   (`background-clip: text`), então a cópia só pinta onde o facho está passando
-   e deixa ver o texto de verdade por baixo no resto do tempo.
-
-   No hero isso vale dobrado: a palavra é só contorno, com o miolo vazio, então
-   o que o facho preenche é o vão das letras — a luz não passa por cima delas,
-   passa por DENTRO.
-
-   A cor original fica onde está: quem está por baixo é o próprio título, então
-   nada apaga, nada muda de tom, e com movimento reduzido a cópia some.
-
-   O facho é estreito e COLORIDO porque, sobre letra clara, branco em cima de
-   quase-branco não teria para onde subir — quem se vê é a cor passando, não o
-   brilho.
-
-   A cor é o `--color-accent-cool`, a MESMA que o shader do losango do Ethereum
-   desenha (`vec3(0.31, 0.61, 0.94)` no `ethShaders.ts`, que é este token).
-   Ficam sendo a única cor da primeira tela, e a mesma nos dois lugares.
-
-   Já foram DUAS: franja quente de um lado e fria do outro, imitando a
-   aberração cromática do feixe de luz que passava atrás. Aquele feixe não
-   existe mais em lugar nenhum do site, então a imitação tinha perdido o
-   referente — e o laranja era a única coisa quente de uma página que não tem
-   mais nada quente fora da seção 03.
-
-   O miolo continua quase branco de propósito: é ele que faz o facho ler como
-   LUZ atravessando, e não como tinta azul passando por cima. */
-@utility text-shine {
-  background-image: linear-gradient(
-    100deg,
-    color-mix(in srgb, var(--color-accent-cool) 0%, transparent) 43%,
-    color-mix(in srgb, var(--color-accent-cool) 65%, transparent) 47.5%,
-    rgba(255, 255, 255, 0.95) 50%,
-    color-mix(in srgb, var(--color-accent-cool) 65%, transparent) 52.5%,
-    color-mix(in srgb, var(--color-accent-cool) 0%, transparent) 57%
-  );
-  background-size: 280% 100%;
-  background-position: 190% 0;
-  background-repeat: no-repeat;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shine 9s linear infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    background-image: none;
-    animation: none;
-  }
 }
 
 /* Hachura diagonal dos tiles vazios da grade de stack. */
@@ -324,81 +242,86 @@
  * SVG girando —, porque é filtro sobre o que o elemento desenhou, seja lá o
  * que for.
  */
-/**
- * O nó acendendo quando o pulso chega nele. É o que liga os fios entre si: sem
- * isso a luz morre na borda de cada nó e reaparece do outro lado, e a rede lê
- * como seis fios piscando em paralelo em vez de um circuito.
- *
- * **O pico fica em 0%/100%, e o que o põe na hora certa é o atraso.** Cada nó
- * recebe um `animation-delay` calculado pela posição horizontal dele (`fase`,
- * no `ProcessSteps.tsx`): o nó acende no instante em que a frente de luz passa
- * pelo x dele. Pico nas duas pontas do keyframe deixa a subida e a descida
- * simétricas em volta desse instante.
- *
- * O pico já esteve em 5%, com repouso em 0% e 11%, e ali estava fora de fase: o
- * nó acendia depois da chegada e apagava antes da próxima, então o brilho lia
- * como piscada solta. Foi encontrado renderizando o ciclo em cinco instantes
- * lado a lado — em nenhum deles um nó estava aceso, que é o tamanho da janela
- * que o pico tinha.
- *
- * O repouso repete os valores que a classe do elemento já define: a animação
- * não pode deixar um estado diferente para trás.
- */
-/**
- * A janela do cometa atravessando a rede do painel de automação.
- *
- * O `translate` vai de menos o comprimento dela até a largura do quadro, em
- * unidades do `viewBox`. Os valores NÃO moram aqui: chegam em `--onda-de` e
- * `--onda-ate`, escritos pelo `ProcessSteps.tsx` a partir das mesmas
- * constantes que o `fase()` usa para acender os nós. Copiá-los para cá
- * quebraria a sincronia em silêncio na primeira vez que alguém mexesse num
- * lado só.
- *
- * Isto já foi SMIL (`<animate>` nas coordenadas do gradiente). Trocou porque
- * SMIL corre na linha do tempo do DOCUMENTO e o `beam-bead` dos nós é animação
- * CSS, que começa quando o React monta: as duas se afastavam pelo tempo de
- * boot, e o brilho dos nós deixava de bater com a passagem da luz. Em CSS, o
- * mesmo relógio serve aos dois.
- */
-@keyframes onda-corre {
-  from {
-    transform: translateX(var(--onda-de));
-  }
-  to {
-    transform: translateX(var(--onda-ate));
-  }
-}
-
-@utility onda-corre {
-  animation: onda-corre 4.8s linear infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
-@keyframes beam-bead {
-  0%,
-  100% {
-    border-color: var(--accent);
-    box-shadow: 0 0 14px -2px var(--accent);
-  }
-  9%,
-  91% {
-    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-    box-shadow: none;
-  }
-}
-
-@utility beam-bead {
-  animation: beam-bead 4.8s linear infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
 @utility eth-glow {
   filter: drop-shadow(0 0 3px color-mix(in srgb, var(--color-accent-cool) 65%, transparent))
     drop-shadow(0 0 10px color-mix(in srgb, var(--color-accent-cool) 28%, transparent));
+}
+
+/**
+ * AS TRÊS ANIMAÇÕES CSS DA HERO, todas contínuas e nenhuma disparada por
+ * interação — o canvas de automação tem de parecer LIGADO, não esperando
+ * clique. Cada uma traz o seu `prefers-reduced-motion`, como o resto do
+ * arquivo: quem pediu menos movimento vê o mesmo quadro, parado.
+ *
+ * A duração e o atraso de cada peça vêm do call site (`[animation-duration:…]`),
+ * e é o que impede os quatro cards de baterem no mesmo compasso — em fase, o
+ * painel inteiro pulsa junto e lê como um GIF.
+ *
+ * Os fios e os pulsos que corriam dentro deles saíram daqui: viraram geometria
+ * recalculada a cada quadro no `Cables.tsx`, porque o que ondula é a curva, e
+ * isso não é animação de propriedade. Foram-se com eles o `cabo-anda`
+ * (tracejado) e o `pulso-viaja` (`offset-path`).
+ */
+
+/* O card boiando. O `--r` é a inclinação dele, e precisa entrar DENTRO do
+   keyframe: `transform` é uma propriedade só, então um `rotate` na classe
+   seria apagado pela animação no primeiro quadro. */
+@keyframes flutua {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(var(--r, 0deg));
+  }
+}
+
+@utility flutua {
+  animation: flutua 10s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* O ponto do cabeçalho do card, respirando. */
+@keyframes no-pulsa {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@utility no-pulsa {
+  animation: no-pulsa 2.6s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* O indicador de rolagem. */
+@keyframes role-desce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translateY(7px);
+    opacity: 0.8;
+  }
+}
+
+@utility role-desce {
+  animation: role-desce 2.4s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }

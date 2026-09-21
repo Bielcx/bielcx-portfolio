@@ -1,244 +1,440 @@
-import { SpecularButton } from "../components/SpecularButton";
-import { EthMark } from "../components/hero/EthMark";
-import { LightBeam } from "../components/hero/LightBeam";
-import { THREADS_FRAG } from "../components/hero/threadsShaders";
-import { hero, whatsappUrl } from "../data/content";
-import { useHeroScroll } from "../hooks/useHeroScroll";
+import { SpecularButton } from '../components/SpecularButton'
+import { Cables, ancora } from '../components/hero/Cables'
+import { EthMark } from '../components/hero/EthMark'
+import { hero, whatsappUrl } from '../data/content'
+import { useHeroScroll } from '../hooks/useHeroScroll'
+
+/**
+ * OS DOIS BOTÕES SÃO O MESMO DO RODAPÉ — o `SpecularButton` com a classe do
+ * "Tirar um projeto do papel" —, e isso contraria o handoff, que os desenha
+ * como retângulo chapado (`#141518` com borda `#2a2b30`). Foi decisão do dono,
+ * e o fundo é TRANSPARENTE: sobre as duas luzes do fundo, qualquer cor própria
+ * vira um retângulo cinza flutuando na frente do clarão. Quem desenha o botão
+ * aqui é a borda e o contorno especular, não a superfície.
+ *
+ * O preço são dois contextos WebGL a mais na primeira tela, que sobem para
+ * quatro com o losango e o rodapé. Se um dia pesar em celular fraco, o
+ * primeiro a virar `<a>` chapado é o Web3, que é saída e não CTA.
+ */
+const BOTAO =
+  'rounded-xl border border-white/8 bg-transparent px-5 py-2.5 text-[13px] text-ink hover:border-white/25'
+
+/**
+ * O brilho de base do contorno, com o ponteiro longe — o estado "mouse
+ * começando a chegar", ligado desde o primeiro quadro em vez de esperar
+ * alguém passar perto. No rodapé o piso continua sendo zero: lá o botão chega
+ * no fim da leitura, e acender na aproximação é o convite; aqui ele é a
+ * primeira coisa que se olha, e apagado vira um retângulo de borda fina.
+ */
+const IDLE_GLOW = 0.32
 
 /**
  * Corpo do nome. Amarra o tamanho à MENOR das duas medidas da tela: o `vw` é o
  * que faz dele um retrato de largura inteira e manda no celular, e o `vh` é o
- * teto que o impede de comer a altura de que os botões precisam em volta.
+ * teto que o impede de comer a altura de que os botões e os quatro cards
+ * precisam em volta.
  *
- * O `6.2vw` é calibrado para "Gabriel Cavalcanti" em DUAS linhas na Bricolage
- * Grotesque, dentro de um bloco que ocupa ~60% da largura — é menor que o
- * `7vw` de quando o nome era uma linha só centralizada no card inteiro. O
- * número anda com a fonte E com o `max-w` do bloco: mexeu num, meça de novo.
- * Nada avisa quando vaza.
+ * Os `8.4vw` são do design e valem para "Cavalcanti" — a maior das duas linhas
+ * de `hero.wordmark` — na Bricolage Grotesque. O número anda com a fonte E com
+ * o comprimento da linha: mexeu num, meça de novo. Nada avisa quando vaza.
  */
-const WORDMARK_SIZE = "text-[clamp(40px,min(6.2vw,13vh),104px)]";
+const WORDMARK_SIZE = 'text-[clamp(44px,8.4vw,96px)]'
 
 /**
- * Hero centrada sobre o preto da página: nome, botões e, fechando o bloco, a
- * linha que diz o que o site faz.
+ * As cores das duas frentes de trabalho. `sky` é automação, `sage` é landing
+ * page — dois cards de cada, que é como a primeira tela diz que há DOIS
+ * serviços sem escrever isso em lugar nenhum.
+ */
+const TONS = {
+  sky: {
+    ponto: 'bg-accent-sky',
+    label: 'text-[#8fa4c4]',
+    unidade: 'text-[#9fb4d4]',
+  },
+  sage: {
+    ponto: 'bg-accent-sage',
+    label: 'text-[#9aab84]',
+    unidade: 'text-accent-sage',
+  },
+} as const
+
+/**
+ * ONDE CADA CARD FICA — e a regra é: **o card não tem posição própria, ele
+ * pendura na PONTA DO CABO.**
  *
- * A linha é recente e conserta a falha mais cara que a página teve: por um
- * tempo a primeira tela mostrava só o nome e dois botões, sem nada respondendo
- * "serve para mim?" antes do primeiro scroll. Ela ocupa o lugar de um carimbo
- * em mono que saiu junto — ver a nota do `subtitle` no `content.pt.ts`.
+ * Antes cada um tinha `left/top` em % da tela enquanto os cabos viviam na
+ * grade do SVG (1240×700, escalada por `slice`). São duas grades diferentes:
+ * elas coincidem numa proporção de janela e se afastam em todas as outras, e
+ * o sintoma é o cabo chegando no vazio ao lado do card. Agora os dois moram
+ * no mesmo palco (ver `PALCO`), e o canto do card é o ponto onde o cabo
+ * começa — por construção, em qualquer tela.
  *
- * Atrás dela, os fios do `threadsShaders.ts` — um leque de senóides que aperta
- * atrás do nome, nas cores do rodapé e em opacidade baixa. **A opacidade é o
- * ponto do efeito**: o nó dos fios cai em cima das letras, e o número está
- * comentado lá com a medição. Quem separa a letra do fio é a sombra preta da
- * cópia de baixo do nome, não a opacidade.
+ * `canto` diz QUAL canto encosta na ponta: o card fica do lado de fora, então
+ * o de cima-esquerda pendura pelo canto inferior direito, e assim por diante.
+ * O recuo de 10px é a folga para o traço não entrar por baixo da borda.
  *
- * O fundo apaga junto com o texto, no mesmo `--hw`: o hero sai inteiro. Já foi
- * o contrário — o campo ficava aceso para o quadro não ficar preto e parado
- * entre o texto sair e a cortina da seção 02 cobrir —, e a troca foi pedida.
+ * **As durações e os atrasos são todos diferentes de propósito.** Em fase, os
+ * quatro cards sobem e descem juntos e o quadro inteiro lê como um GIF; fora
+ * de fase, lê como quatro coisas acontecendo sozinhas.
  *
- * O fundo já foi outros dois — um campo de filamentos e um ferrofluido —, os
- * dois removidos a pedido e depois APAGADOS do repositório: quem guarda caminho
- * de volta é o git. O que mudou com eles e não voltou atrás é o alinhamento: o
- * bloco era encostado à esquerda para deixar a metade direita livre para o
- * campo, e hoje é centrado. Estes fios foram escolhidos para um bloco no meio,
- * não ao lado.
+ * O `scale-[0.86]` abaixo de 1100px usa a propriedade `scale` do Tailwind v4,
+ * que COMPÕE com o `transform` do keyframe — um `transform: scale()` ali
+ * seria apagado pela animação no primeiro quadro. O `translate` do canto pela
+ * mesma razão: é propriedade própria, não `transform`.
+ */
+const CARDS: Record<
+  string,
+  { largura: string; giro: string; canto: string; duracao: string; atraso: string }
+> = {
+  automacao: {
+    largura: 'w-[232px]',
+    giro: '[--r:-6deg]',
+    canto: '[translate:calc(-100%-10px)_calc(-100%-10px)]',
+    duracao: '[animation-duration:10s]',
+    atraso: '[animation-delay:0s]',
+  },
+  rodando: {
+    largura: 'w-[246px]',
+    giro: '[--r:5deg]',
+    canto: '[translate:calc(-100%-10px)_10px]',
+    duracao: '[animation-duration:12s]',
+    atraso: '[animation-delay:1.2s]',
+  },
+  landing: {
+    largura: 'w-[238px]',
+    giro: '[--r:7deg]',
+    canto: '[translate:10px_calc(-100%-10px)]',
+    duracao: '[animation-duration:9s]',
+    atraso: '[animation-delay:0.6s]',
+  },
+  atendimento: {
+    largura: 'w-[250px]',
+    giro: '[--r:-5deg]',
+    canto: '[translate:10px_10px]',
+    duracao: '[animation-duration:11s]',
+    atraso: '[animation-delay:1.6s]',
+  },
+}
+
+/**
+ * O PALCO: a caixa que cabos e cards dividem.
  *
- * **O bloco de texto se despede antes de a seção 02 passar por cima dele.**
- * Quem faz isso é o `useHeroScroll`, que publica `--hw` (1→0) no track — e é
- * só o que sobrou daquele hook: o card que fechava as bordas não existe mais,
- * e o fade em dois tempos (moldura, depois o nome) também não, porque esta
- * composição é um bloco só. Nome e botões saem juntos.
+ * Tem exatamente a proporção do `viewBox` (1240×700). Com a caixa na
+ * proporção do desenho, o `preserveAspectRatio` padrão encaixa sem distorcer,
+ * e uma coordenada do SVG vira uma porcentagem do palco por uma conta só
+ * (`ancora`).
  *
- * Sem isso a cortina do `Metodo` corta o bloco na horizontal, e como os dois
- * são pretos o que se vê é a costura de luz dela atravessando o nome — emenda
- * de página, não transição. O ferrofluido do fundo fica aceso: é ele que
- * segura o quadro no intervalo entre o texto sair e a cortina cobrir.
+ * **O `min()` é o que segura os cards dentro da tela**, e substituiu o `max()`
+ * que imitava o `slice` do handoff. Cobrindo, numa janela alta (1200×1000) o
+ * palco fica meia tela mais largo que a viewport e leva os cards junto: eles
+ * continuam plugados no cabo, e os dois saem pela borda. Cabendo, o palco
+ * encolhe e a cena inteira se aproxima do nome — que é o que se quer numa
+ * tela estreita. O preço é margem preta nas laterais em monitor ultralargo,
+ * onde os cards deixam de encostar na borda.
  *
- * **O que FICOU, e não é decoração:** o track alto com `sticky`. Ele não é do
- * hero, é da página — quem depende dele é o `-mt-[80svh]` do `Metodo`, que sobe
- * como cortina por cima deste bloco preso. Com o hero numa tela normal, aquela
- * margem negativa cobriria 70% dele já no carregamento.
+ * **Isto assume que a seção ocupa a viewport inteira** (`100vw` × `100svh`),
+ * que é o que o `h-viewport` do pai garante. Se um dia a hero ganhar margem,
+ * estes `vw`/`svh` viram unidades de container (`cqw`/`cqh`) — sem isso o
+ * palco descola da seção e o alinhamento volta a errar em silêncio.
+ */
+const PALCO =
+  'absolute left-1/2 top-1/2 h-[min(56.452vw,100svh)] w-[min(100vw,177.143svh)] -translate-x-1/2 -translate-y-1/2'
+
+/**
+ * Hero — o canvas de automação.
  *
- * Os 180vh vêm daí, e não do hero: o `Metodo` começa a 180−80 = 100svh do topo
- * do track, ou seja a aresta dele já encosta no pé da tela no carregamento, e
- * o hero fica preso até 80vh. Mexeu aqui, confira o `-mt` de lá E o `FADE` do
- * `useHeroScroll` — os três descrevem a mesma travessia.
+ * O nome é o nó central e quatro cards de resultado ficam plugados nele por
+ * fios ondulando, com um pulso correndo dentro de cada um. O tracejado do
+ * handoff virou filamento a pedido, para a linha ler como os fios do hero
+ * antigo — o porquê de não ser o shader daquele efeito está no `Cables.tsx`. A cena existe por um motivo comercial e
+ * não estético: a hero anterior mostrava nome, dois botões e uma linha, e
+ * nada dela dava MOTIVO para rolar a página. Aqui os dois serviços — automação
+ * e landing page — aparecem em dois segundos, cada um com a sua cor e o seu
+ * número.
+ *
+ * **Os números são rascunho do design e não podem ir ao ar sem conferência.**
+ * A nota está por extenso em `hero.provas`, no `content.pt.ts`.
+ *
+ * As camadas, de baixo para cima: preto sólido, duas luzes nascendo do
+ * rodapé (azul à esquerda, sage à direita), o véu frio que as costura, os
+ * cabos (SVG), os cards, a vinheta que escurece o miolo e o bloco central. A
+ * vinheta não é enfeite: sem ela o nome cai em cima dos cabos e do clarão, e
+ * o `text-shadow` sozinho não dá conta de recortá-lo.
+ *
+ * Saiu daqui, com esta hero, o campo de fios WebGL (`threadsShaders.ts`,
+ * apagado) e as três camadas do nome — sombra, contorno respirando e o facho
+ * do `text-shine`. O nome de hoje é uma camada só com sombra preta larga, que
+ * é o que o design pede; o `text-shine` e o `breathe` do `index.css` saíram
+ * junto, sem chamador. Está tudo no git.
+ *
+ * **A saída para a seção 02 é uma cortina, não um corte.** As luzes, os cabos
+ * e os cards ficam acesos e a seção 02 sobe por cima deles; só o bloco de
+ * texto apaga, e apaga no instante em que a aresta da cortina chega nele. Ver
+ * o `FADE` do `useHeroScroll` — os números são uma conta contra essa aresta,
+ * não gosto.
+ *
+ * **O que FICOU, e não é decoração:** o track alto com `sticky` e o `--hw`.
+ * Eles não são do hero, são da página — quem depende deles é o `-mt-[80svh]`
+ * do `Metodo`, que sobe como cortina por cima deste bloco preso. Com o hero
+ * numa tela normal, aquela margem negativa cobriria 70% dele já no
+ * carregamento. Os 180vh vêm daí: o `Metodo` começa a 180−80 = 100svh do topo
+ * do track, e o hero fica preso até 80vh, apagando no caminho. Mexeu aqui,
+ * confira o `-mt` de lá E o `FADE` do `useHeroScroll` — os três descrevem a
+ * mesma travessia, e os três erram em silêncio.
  */
 export function Hero() {
-  const { trackRef, contentRef } = useHeroScroll();
+  const { trackRef, contentRef } = useHeroScroll()
 
   return (
     <div ref={trackRef} id="topo" className="relative isolate h-[180svh] bg-frame">
-      <div className="sticky top-0 flex h-viewport items-center bg-frame">
-        <section className="relative flex h-full w-full items-center overflow-hidden bg-linear-[180deg,var(--color-hero-top)_0%,var(--color-hero-mid)_42%,var(--color-hero-bot)_78%] px-6 md:px-[8vw]">
-          {/* REDE DE SEGURANÇA do fundo, e ela é permanente — não é um
-              "se falhar".
+      <div className="sticky top-0 h-viewport bg-frame">
+        {/* **O `--hw` apaga SÓ O BLOCO DE TEXTO**, e isto já foi o contrário.
 
-              O `LightBeam` falha em silêncio quando não há WebGL2: avisa no
-              console e não desenha. Isso serve a uma faixa decorativa, e não
-              ao fundo da primeira tela inteira — sem ele o hero vira preto
-              chapado, e a sombra do nome, que só se lê como recorte contra a
-              luz atrás, some junto. Dois sintomas, uma causa, e nada acusa.
+            Apagando a cena inteira, o que se via na travessia para a seção 02
+            era uma tela PRETA de quase 500px de rolagem: o hero terminava de
+            sumir por volta de 385px e a cortina do `Metodo` só tem conteúdo
+            para mostrar quando prende, a 860px — no meio, cortina preta vazia
+            sobre hero apagado, sem nada em quadro.
 
-              Não dá para detectar a falha em CSS, então este degradê fica
-              SEMPRE atrás do canvas: com os fios desenhando ele é
-              imperceptível; sem eles, o nome continua apoiado em alguma coisa.
-              É o mesmo raciocínio dos três degraus do `EthMark`, que existe
-              porque ícone sumido em botão é defeito que ninguém percebe. */}
+            Luzes, cabos e cards ficam acesos e são COBERTOS pela cortina, que
+            é o que uma cortina faz. Quem precisa se despedir antes é só o
+            nome: ele é grande, centrado, e a aresta de luz da cortina o corta
+            na horizontal — é disso que o fade nasceu. Um card sendo encoberto
+            lê como objeto atrás de um painel; uma palavra cortada ao meio lê
+            como emenda de página. */}
+        <section className="relative h-full w-full overflow-hidden bg-[#030304]">
+          {/* AS DUAS LUZES, e elas são o argumento do fundo inteiro.
+
+              Nascem ABAIXO da borda de baixo (`116%` de altura), então o que
+              se vê é só o topo delas subindo — uma azul à esquerda
+              (automação) e uma sage à direita (landing page). As mesmas duas
+              cores dos cards e dos cabos, agora do tamanho da tela: quem olha
+              de longe já lê "duas frentes" antes de ler qualquer palavra.
+
+              Nascer do rodapé não é escolha estética: é o que puxa o olho
+              para baixo, que é para onde a hero inteira existe para mandar.
+
+              No lugar delas havia uma grade quadriculada de 56px, da primeira
+              versão do handoff. Saiu na segunda: **o fundo agora é só luz.**
+              Se a grade voltar, ela entra AQUI, e não somada às luzes — as
+              duas juntas empastelam o miolo onde o nome mora. */}
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(115%_50%_at_50%_60%,color-mix(in_srgb,var(--color-accent-cool)_10%,transparent),transparent_68%)]"
-            style={{ opacity: "var(--hw, 1)" }}
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(58%_48%_at_16%_116%,rgba(84,116,168,0.34),transparent_70%),radial-gradient(58%_48%_at_84%_116%,rgba(122,154,92,0.26),transparent_70%)]"
           />
 
-          {/* O campo atrás de tudo. Cobre a tela inteira: ele É o fundo, não
-              um objeto dentro da cena. Desenha em alfa sobre o preto, então o
-              `inset-0` é a única coisa que diz até onde ele vai.
-
-              Ele apaga com o MESMO `--hw` do bloco de texto, a pedido: o hero
-              sai inteiro, fundo junto. O `opacity` vai na `className` porque o
-              `LightBeam` não recebe `style` — e a `className` dele é o wrapper
-              inteiro, não um acréscimo. A opacidade do wrapper multiplica a do
-              canvas, que tem o fade de entrada próprio; as duas convivem. */}
-          <LightBeam
-            /* O `brightness` só abaixo de `sm`, e não é capricho: o mesmo
-               valor de opacidade que lê bem num monitor some numa tela de
-               celular — menor, com brilho automático e muitas vezes sol em
-               cima. Foi relatado como "o efeito não está atrás do nome", com o
-               WebGL funcionando (o losango 3D do botão girava). O filtro
-               multiplica o RGB, e como os fios são desenhados sobre preto, isso
-               é exatamente subir o sinal sem mexer no shader — que é string de
-               GLSL e valeria para as duas telas. */
-            className="pointer-events-none absolute inset-0 z-[1] [opacity:var(--hw,1)] max-sm:[filter:brightness(1.75)_saturate(1.1)]"
-            frag={THREADS_FRAG}
+          {/* O véu frio por cima das duas: é ele que costura o azul e o sage
+              num clarão só no meio do rodapé, em vez de dois holofotes
+              separados. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_34%_at_50%_112%,rgba(170,200,245,0.10),transparent_72%)]"
           />
 
-          {/* Bloco centralizado, e `mx-auto` além do `items-center` do pai:
-              o pai centra na vertical, este centra na horizontal. O
-              `max-w-[58ch]` continua sendo a medida do texto miúdo do rodapé
-              do bloco — é ele, e não o nome, que decide se isto lê como um
-              bloco ou como uma faixa atravessando a tela. */}
-          {/* `--hw` é escrito no track pelo `useHeroScroll`. O bloco sobe um
-              pouco enquanto apaga: parado, o fade lê como a luz caindo; com o
-              deslocamento, lê como saída. O `will-change` porque isto anda a
-              cada frame durante quase uma tela de rolagem. */}
+          {/* O palco, com os fios e os cards dentro — os dois na mesma grade,
+              que é o que os mantém plugados. Some inteiro abaixo de 820px:
+              sem os cards não há o que os fios liguem. */}
+          <div className={`${PALCO} pointer-events-none max-[820px]:hidden`}>
+            <Cables />
+
+            {hero.provas.map((prova) => (
+              <Card key={prova.id} prova={prova} />
+            ))}
+          </div>
+
+          {/* O VÉU, e ele é o que faz os cabos SAÍREM do nome.
+
+              Os quatro terminam por volta de 50% da largura, atrás das letras.
+              Se o tracejado chegasse aceso até lá, o desenho leria como quatro
+              linhas passando por cima do nome; apagando antes, lê como cabo
+              entrando por trás dele. Quem faz isso é este degradê, não o
+              `text-shadow` — a sombra recorta o glifo, mas não escurece o vão
+              entre uma letra e outra, que é justo por onde o tracejado passa.
+
+              Cresceu de 34%×38% para 44%×48% e desceu o centro de 47% para
+              52%: o primeiro par é o alcance (pega as duas linhas do nome e o
+              par de botões, que era onde o cabo ainda chegava visível), e a
+              descida é porque o bloco de texto tem botões e a linha mono
+              embaixo — o miolo ótico dele não é a altura das letras.
+
+              **A parada dos 72% é o que segura o resto.** Sem ela o véu vira
+              um disco cinza sobre as luzes do fundo; com ela, a queda é lenta
+              no meio e rápida na borda, e o clarão do rodapé continua vivo. Se
+              alguém aumentar o alcance de novo, some primeiro os cards nos
+              cantos — é o teto deste número. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(44%_48%_at_50%_52%,rgba(3,3,4,0.97)_0%,rgba(3,3,4,0.86)_38%,rgba(3,3,4,0.45)_72%,rgba(3,3,4,0)_88%)]"
+          />
+
+          {/* `--hw` também move o bloco: parado, o fade lê como a luz caindo;
+              com o deslocamento, lê como saída. */}
           <div
             ref={contentRef}
-            className="relative z-2 mx-auto flex w-full max-w-[58ch] flex-col items-center text-center will-change-[opacity,transform]"
+            className="relative flex h-full flex-col items-center justify-center gap-[clamp(20px,3vh,30px)] px-6 pb-[120px] pt-24 text-center will-change-[opacity,transform] max-[820px]:px-5 max-[820px]:pb-[110px] max-[820px]:pt-20"
             style={{
-              opacity: "var(--hw, 1)",
-              transform: "translate3d(0, calc((1 - var(--hw, 1)) * -48px), 0)",
+              opacity: 'var(--hw, 1)',
+              transform: 'translate3d(0, calc((1 - var(--hw, 1)) * -48px), 0)',
             }}
           >
+            {/* A sombra é larga e sem deslocamento: não é profundidade, é
+                recorte — é ela, com o véu atrás, que separa o nome dos cabos
+                que passam por baixo. São TRÊS raios: 26px é o vão colado na
+                letra, 70px (o do handoff) é o corpo da sombra, e 130px é o
+                escurecimento largo que mata o tracejado antes de ele encostar
+                no nome. Nenhuma tem deslocamento — sombra com offset aqui
+                viraria relevo, e o nome não está em cima de nada.
+
+                A última letra da última linha sai no azul, e quem a fatia é
+                isto aqui: a copy guarda o nome, não a marcação. Só a ÚLTIMA
+                linha é fatiada, e `slice(0, -1)` com `slice(-1)` continua
+                correto para qualquer nome de uma letra ou mais. */}
             <h1
-              className={`font-display font-medium leading-[0.92] tracking-[-0.038em] text-ink-bright ${WORDMARK_SIZE}`}
+              className={`font-display font-bold leading-[0.96] tracking-[-0.035em] text-ink-bright [text-shadow:0_0_26px_rgba(3,3,4,0.95),0_0_70px_rgba(3,3,4,0.95),0_0_130px_rgba(3,3,4,0.85)] ${WORDMARK_SIZE}`}
             >
-              {/* `relative` + as cópias em `absolute inset-0`: as três camadas
-                  do nome precisam ocupar exatamente a mesma caixa, e com o
-                  texto quebrando em duas linhas `left-0 top-0` já não basta —
-                  a cópia herdaria a largura do pai, não a do texto. O `w-fit`
-                  da versão centralizada saiu junto: aqui o bloco é ancorado à
-                  esquerda e a caixa do h1 já é a caixa do nome. */}
-              <span className="relative block">
-                {/* A sombra vive AQUI, na cópia de baixo, e não no `h1`.
-                    As outras duas camadas do nome são desenhadas com o texto
-                    transparente (uma recorta um degradê, a outra é contorno), e
-                    `text-shadow` não liga para isso: ele pinta a silhueta do
-                    glifo de qualquer jeito. No pai, a mesma sombra sairia três
-                    vezes empilhada.
+              {hero.wordmark.map((linha, i) => {
+                const ultima = i === hero.wordmark.length - 1
 
-                    Duas sombras, as duas pretas e sem deslocamento: a de 22px é
-                    o vão que separa a letra do fio que passa atrás, e a de 55px
-                    é o escurecimento largo que impede o nó do leque de subir o
-                    fundo inteiro em volta do nome. Não é profundidade, é
-                    recorte — por isso nenhuma tem offset. */}
-                <span className="[text-shadow:0_0_22px_rgba(0,0,0,0.95),0_0_55px_rgba(0,0,0,0.8)]">
-                  {hero.wordmark}
-                </span>
-
-                {/* Cópia que acende num pulso lento, a mesma do rodapé. */}
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-0 animate-breathe opacity-0 [-webkit-text-fill-color:rgba(225,222,218,0.05)] [-webkit-text-stroke-color:var(--color-stroke-glow)] [-webkit-text-stroke-width:clamp(1px,0.32vw,2.4px)]"
-                >
-                  {hero.wordmark}
-                </span>
-
-                {/* Facho varrendo o miolo das letras — ver `text-shine`. */}
-                <span
-                  aria-hidden="true"
-                  className="text-shine absolute inset-0"
-                >
-                  {hero.wordmark}
-                </span>
-              </span>
+                return (
+                  <span key={linha} className="block">
+                    {ultima ? linha.slice(0, -1) : linha}
+                    {ultima && <span className="text-accent-sky">{linha.slice(-1)}</span>}
+                  </span>
+                )
+              })}
             </h1>
 
-
-            {/* Empilhados no celular, lado a lado a partir de `sm`. O `wrap` é
-                herança de quando eram três e fica porque custa zero. */}
-            <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="flex flex-wrap justify-center gap-3">
               <SpecularButton
                 href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                /* Transparente, e não `bg-surface-raised`: o botão vive DENTRO
-                   do card, e qualquer cor própria virava um retângulo mais
-                   claro flutuando sobre o fundo. Quem marca que este é o
-                   primário é o contorno especular, que o link ao lado não tem. */
-                className="rounded-xl border border-white/10 bg-transparent px-5 py-3 text-center text-sm text-ink hover:border-white/25"
+                idleGlow={IDLE_GLOW}
+                className={BOTAO}
               >
                 {hero.actions.primary}
               </SpecularButton>
-              {/* Sai do site, então abre em outra aba — o CTA ao lado fica
-                  aqui dentro e não abre.
 
-                  **Havia uma seta `↗` nesta ponta, e ela saiu a pedido**; o
-                  losango tomou o lugar dela. Vale saber o que foi junto: com o
-                  rótulo curto ("Web3", não mais "Portfólio web3"), a seta era a
-                  única coisa dizendo que o clique LEVA PARA FORA do site. Hoje
-                  não há sinal disso antes do clique — é decisão tomada, não
-                  descuido.
+              {/* Sai do site, então abre em outra aba — o CTA ao lado não abre.
+                  Nada aqui avisa que o clique leva para fora: a seta `↗` que
+                  fazia isso saiu a pedido, e o losango tomou o lugar dela. É
+                  decisão registrada no `AGENTS.md`, não descuido.
 
-                  A `perspective` fica AQUI, no pai, e serve ao DEGRAU DE
-                  BAIXO do `EthMark`: sem WebGL2 o losango volta a ser o SVG
-                  plano girando com o `eth-spin`, e `rotateY` sem perspectiva
-                  num ancestral achata o giro. O caminho 3D não a usa — a
-                  projeção dele é do shader. */}
-              <a
+                  A `perspective` fica no ANCESTRAL e serve ao degrau de baixo
+                  do `EthMark`: sem WebGL2 o losango volta a ser o SVG plano
+                  girando, e `rotateY` sem perspectiva num pai achata o giro. O
+                  caminho 3D não a usa — a projeção dele é do shader.
+
+                  O `.btn__icon` do protótipo é este slot de 20px: o `EthMark`
+                  entra inteiro, com os três degraus que ele já resolve. */}
+              <SpecularButton
                 href={hero.actions.web3.href}
                 target="_blank"
                 rel="noreferrer"
-                style={{ perspective: "200px" }}
-                className="inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-transparent px-5 py-3 text-sm text-ink transition-colors hover:border-white/25"
+                style={{ perspective: '200px' }}
+                idleGlow={IDLE_GLOW}
+                className={BOTAO}
               >
                 {hero.actions.web3.label}
-                <EthMark />
-              </a>
+                <span className="inline-flex size-5 items-center justify-center">
+                  <EthMark />
+                </span>
+              </SpecularButton>
             </div>
 
-            {/* A única linha acima da dobra que diz o que o site faz, no lugar
-                e no estilo do carimbo mono que morava aqui — mesmo mono, mesmo
-                caixa alta, mesmo espacejamento.
+            {/* A grade 2×2 do celular: os mesmos quatro ganchos dos cards, sem
+                a cena. Só existe abaixo de 820px, que é onde os cards e os
+                cabos somem — sem ela, a primeira tela do celular volta a ser
+                nome e dois botões, que é exatamente o problema que esta hero
+                foi desenhada para resolver. */}
+            <div className="hidden w-full max-w-[380px] grid-cols-2 gap-2.5 max-[820px]:grid">
+              {hero.provas.map((prova) => (
+                <div
+                  key={prova.id}
+                  className="rounded-xl border border-hero-line bg-hero-card p-3 text-left"
+                >
+                  <span
+                    className={`block font-mono text-[9px] uppercase tracking-[0.14em] ${TONS[prova.tom].label}`}
+                  >
+                    {prova.curto.label}
+                  </span>
+                  <b className="mt-0.5 block text-[22px] font-bold tracking-[-0.03em]">
+                    {prova.curto.valor}
+                  </b>
+                </div>
+              ))}
+            </div>
 
-                DUAS coisas do carimbo NÃO vieram junto, e as duas de
-                propósito:
-
-                1. **Não é `text-ink/45`.** Aquele tom valia para textura; isto
-                   é a frase que responde "serve para mim?", e texto pequeno
-                   abaixo de `/55` fica sob 4,5:1 de contraste — a regra está
-                   no `AGENTS.md`.
-                2. **Não é `hidden sm:block`.** O carimbo sumia no celular
-                   porque era enfeite. Esta linha sumir no celular seria
-                   exatamente o problema que ela existe para consertar, na tela
-                   em que ele é mais grave. */}
-            <p className="mt-10 max-w-[38ch] font-mono text-[11px] uppercase leading-[1.8] tracking-[0.08em] text-ink/60">
+            {/* A linha que responde "serve para mim?" — a única acima da dobra
+                que diz o que o site faz. Não é `text-ink/45`: texto pequeno
+                abaixo de `/55` cai sob 4,5:1 de contraste, e a regra está no
+                `AGENTS.md`. A quebra manual do protótipo virou `max-w`: a
+                medida faz o mesmo desenho e não quebra torto quando a copy
+                mudar. */}
+            <p className="max-w-[420px] font-mono text-[12px] uppercase leading-[1.9] tracking-[0.16em] text-ink/60">
               {hero.subtitle}
             </p>
+          </div>
+
+          {/* O indicador de rolagem, colado no pé da tela e fora do bloco
+              centrado: ele pertence à BORDA do quadro, não à coluna. */}
+          <div
+            aria-hidden
+            className="role-desce pointer-events-none absolute inset-x-0 bottom-[26px] flex flex-col items-center gap-2"
+          >
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#7d7a76]">
+              {hero.cue}
+            </span>
+            <span className="h-[26px] w-px bg-linear-[180deg,#5a5c62,transparent]" />
           </div>
         </section>
       </div>
     </div>
-  );
+  )
+}
+
+/** Um card de resultado, pendurado na ponta do cabo que o liga ao nome. */
+function Card({ prova }: { prova: (typeof hero.provas)[number] }) {
+  const tom = TONS[prova.tom]
+  const c = CARDS[prova.id]
+
+  return (
+    <article
+      style={ancora(prova.id)}
+      className={`flutua absolute rounded-[14px] border border-hero-line bg-hero-card p-4 shadow-[0_26px_60px_rgba(0,0,0,0.6)] max-[1100px]:scale-[0.86] ${c.largura} ${c.giro} ${c.canto} ${c.duracao} ${c.atraso}`}
+    >
+      <div className="flex items-center gap-2">
+        <i className={`no-pulsa size-[7px] rounded-full ${tom.ponto}`} />
+        <span className={`font-mono text-[9px] uppercase tracking-[0.18em] ${tom.label}`}>
+          {prova.label}
+        </span>
+      </div>
+
+      {/* `flex-wrap` com `items-baseline`: sem isso o número de 38px e a
+          unidade de 13px disputam a mesma linha num card de 232px, e a unidade
+          é empurrada para cima do texto de baixo. Está no handoff como
+          armadilha conhecida. */}
+      <div className="mt-3 flex flex-wrap items-baseline gap-x-[7px] gap-y-0.5 leading-[1.1]">
+        <span className="whitespace-nowrap text-[38px] font-bold leading-[1.1] tracking-[-0.04em]">
+          {prova.numero}
+        </span>
+        {'unidade' in prova && prova.unidade && (
+          <span className={`whitespace-nowrap text-[13px] ${tom.unidade}`}>{prova.unidade}</span>
+        )}
+      </div>
+
+      {'legenda' in prova && prova.legenda && (
+        <p className="mt-2 text-[13px] leading-[1.45] text-[#a9aeb8]">{prova.legenda}</p>
+      )}
+
+      {'barra' in prova && prova.barra !== undefined && (
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#1b1e24]">
+          <i
+            className="block h-1.5 rounded-full bg-accent-sage"
+            style={{ width: `${prova.barra}%` }}
+          />
+        </div>
+      )}
+    </article>
+  )
 }

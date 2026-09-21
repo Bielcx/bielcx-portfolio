@@ -102,6 +102,19 @@ type SpecularButtonProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   autoSpeed?: number
   /** distância em px a partir da qual o brilho começa a acender */
   proximity?: number
+  /**
+   * Brilho MÍNIMO, de 0 a 1, com o ponteiro longe ou inexistente.
+   *
+   * Com 0 (o padrão, que é o rodapé) o botão nasce apagado e só acende quando
+   * o mouse chega perto — quem nunca passa por ali não vê que existe efeito.
+   * Na hero isso é caro: o botão é a primeira coisa que se olha e, parado, ele
+   * é um retângulo de borda fina. Com um piso, o contorno já está aceso no
+   * estado "mouse começando a chegar", e a aproximação só o leva ao máximo.
+   *
+   * Também é o que o celular vê: lá não há ponteiro, a varredura já roda
+   * sozinha (`autoSpeed`) e antes deste piso ela girava sobre brilho zero.
+   */
+  idleGlow?: number
 }
 
 export function SpecularButton({
@@ -116,6 +129,7 @@ export function SpecularButton({
   speed = 0.35,
   autoSpeed = 1.1,
   proximity = 250,
+  idleGlow = 0,
   ...anchorProps
 }: SpecularButtonProps) {
   const anchorRef = useRef<HTMLAnchorElement>(null)
@@ -124,10 +138,12 @@ export function SpecularButton({
   // o loop lê os ajustes daqui, então trocá-los não remonta o contexto WebGL
   const tuning = useRef({
     radius, lineColor, intensity, shineSize, shineFade, thickness, speed, autoSpeed, proximity,
+    idleGlow,
   })
   useEffect(() => {
     tuning.current = {
       radius, lineColor, intensity, shineSize, shineFade, thickness, speed, autoSpeed, proximity,
+      idleGlow,
     }
   })
 
@@ -264,8 +280,8 @@ export function SpecularButton({
         let angle = 2.4
         let idleAngle = 2.4
         let pointerAngle: number | null = null
-        let nearness = 0
-        let bright = 0
+        let nearness = tuning.current.idleGlow
+        let bright = tuning.current.idleGlow
         let visible = true
         let last = 0
 
@@ -338,7 +354,9 @@ export function SpecularButton({
             }
 
             const t = Math.max(0, 1 - dist / Math.max(tuning.current.proximity, 1))
-            nearness = t * t * (3 - 2 * t)
+            // o piso é o CHÃO da curva, não um somatório: longe fica no piso,
+            // perto continua chegando a 1
+            nearness = Math.max(tuning.current.idleGlow, t * t * (3 - 2 * t))
             start()
           })
         }

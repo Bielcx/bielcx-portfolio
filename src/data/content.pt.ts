@@ -44,11 +44,19 @@ const nav = {
 
 const hero = {
   /**
-   * O nome inteiro, numa linha só. O `WORDMARK_SIZE` do Hero é calibrado para
-   * o comprimento deste texto — trocar por nome mais longo é recalibrar o
-   * clamp de lá, senão ele vaza da tela no celular.
+   * O nome, UMA LINHA POR ITEM — a quebra é do design, não do navegador, e é
+   * ela que dá ao nome a silhueta de bloco que os cabos plugam no meio.
+   *
+   * A ÚLTIMA LETRA DA ÚLTIMA LINHA sai no azul do acento (o `i` de
+   * "Cavalcanti"). Quem fatia é o `Hero.tsx`, e não a copy: um `<span>` no
+   * meio de uma string de conteúdo é marcação disfarçada de texto, e o dia em
+   * que o nome mudar ninguém vai lembrar de mexer na tag.
+   *
+   * O `WORDMARK_SIZE` do Hero é calibrado para a MAIOR destas linhas —
+   * trocar por nome mais longo é recalibrar o clamp de lá, senão ele vaza na
+   * tela do celular.
    */
-  wordmark: 'Gabriel Cavalcanti',
+  wordmark: ['Gabriel', 'Cavalcanti'],
   /**
    * A linha que diz O QUE o site faz, e a única coisa acima da dobra que
    * responde "serve para mim?".
@@ -91,7 +99,105 @@ const hero = {
      */
     web3: { label: 'Web3', href: web3Url },
   },
-}
+  /**
+   * OS QUATRO NÚMEROS DA PRIMEIRA TELA — e cada um tem fonte, porque promessa
+   * que a hero faz é a que o cliente cobra na reunião.
+   *
+   * Vieram do handoff como placeholder ("18h por semana", "142 tarefas hoje",
+   * "7 dias", "4,8% de conversão") e foram TODOS trocados por número com
+   * lastro. A fonte de cada um está no comentário dele. Ao mexer aqui, mexa
+   * na fonte junto — número sem origem escrita volta a ser placeholder na
+   * primeira vez que alguém perguntar de onde saiu.
+   *
+   * `tom` escolhe a cor da frente de trabalho — `sky` é automação, `sage` é
+   * landing page. São duas de cada, de propósito: é assim que a primeira tela
+   * diz que existem DOIS serviços sem precisar escrever isso.
+   *
+   * `curto` é a versão de celular. Abaixo de 820px os cards flutuantes e os
+   * cabos somem (não há margem para eles ao lado do nome) e estes quatro
+   * ganchos viram uma grade 2×2 embaixo dos botões — o mesmo conteúdo, sem a
+   * cena.
+   */
+  provas: [
+    {
+      id: 'automacao',
+      tom: 'sky',
+      label: 'Automação',
+      /**
+       * FONTE: o `README.md` do Car10Automation — "reduzindo um processo de
+       * ~10 etapas manuais para apenas revisar documentos, zipar e aprovar via
+       * Telegram". Dez para três, contadas no fluxo escrito lá.
+       *
+       * A legenda NÃO diz "de um cliente", e isso é correção de uma mentira
+       * que estava no ar: a automação é do fluxo de sinistros em que o dono
+       * trabalha, não de um contrato de terceiro. O serviço é o mesmo, a
+       * origem é outra — e "no meu próprio trabalho" é mais forte do que um
+       * cliente anônimo, porque é verificável.
+       */
+      numero: '10 → 3',
+      unidade: 'etapas',
+      legenda: 'o que eu fazia à mão num fluxo de sinistros; o resto o robô faz',
+      /** A fatia que sobrou de trabalho manual: 3 de 10. */
+      barra: 30,
+      curto: { label: 'Automação', valor: '10 → 3' },
+    },
+    {
+      id: 'rodando',
+      tom: 'sky',
+      label: 'Rodando agora',
+      /**
+       * FONTE: a stack do mesmo projeto — WhatsApp (Evolution API), Telegram,
+       * o sistema da seguradora (i4pro, via Playwright), Google Sheets e
+       * Supabase. Cinco, contados no README.
+       */
+      numero: '5 sistemas',
+      unidade: 'sem ninguém digitar',
+      legenda: 'WhatsApp, planilha, banco e dois painéis, conversando entre si',
+      curto: { label: 'Rodando', valor: '5 sistemas' },
+    },
+    {
+      id: 'landing',
+      tom: 'sage',
+      label: 'Landing page',
+      /**
+       * FONTE: o git dos últimos sites. Dr. Mario Oshima, Luccare e Suga
+       * Odontologia foram do primeiro commit ao último no MESMO dia; o Sizr
+       * levou dois. Dois dias é, portanto, conservador de propósito — o
+       * registro diz um, e a folga cobre o briefing e o texto, que não moram
+       * no repositório.
+       *
+       * Projeto maior não entra nesta conta e não deve: o Voha levou 16 dias
+       * e o JCM, 13. A promessa é de LANDING PAGE, e é o que a etiqueta diz.
+       */
+      numero: '2 dias',
+      legenda: 'do briefing ao site no ar — medido nos últimos quatro',
+      curto: { label: 'Landing', valor: '2 dias' },
+    },
+    {
+      id: 'atendimento',
+      tom: 'sage',
+      label: 'Atendimento',
+      /**
+       * ESTE CARD SUBSTITUIU O DE CONVERSÃO ("4,8% ↑ de 1,4%"), que era o
+       * único dos quatro sem NENHUMA fonte — nem no repositório, nem em
+       * projeto entregue. Número de conversão inventado é o pior tipo de
+       * promessa: é exatamente o que o cliente mede depois.
+       *
+       * Este é verificável por construção: o bot roda em PM2, atende no
+       * WhatsApp a qualquer hora e escala para uma pessoa quando sai do que
+       * resolve. Se um dia houver número de conversão MEDIDO num cliente, ele
+       * volta para cá — com a fonte escrita, como os outros três.
+       */
+      numero: '24/7',
+      unidade: 'sem fila',
+      legenda: 'responde na hora e chama uma pessoa quando sai do script',
+      curto: { label: 'Atendimento', valor: '24/7' },
+    },
+  ],
+  /** O indicador de rolagem no pé da tela. É o que a hero inteira existe para
+   *  provocar: a primeira tela dá motivo, este traço diz para onde. */
+  cue: 'Role',
+} as const
 
 /**
  * Seção 02 — o argumento de venda, provado ao lado em vez de só afirmado.
@@ -197,7 +303,7 @@ const services = {
           detail: 'Liga o que a empresa já usa — inclusive sistema feito em casa.',
         },
       ],
-      visual: 'process',
+      visual: 'agent',
     },
   ],
   /**
@@ -220,45 +326,102 @@ const services = {
     { slug: 'oshima', name: 'Dr. Mario Oshima', href: 'https://drmariooshima.vercel.app' },
   ],
   /**
-   * Como um contrato de automação começa — o painel da faixa de Automação.
+   * A conversa de demonstração do painel da faixa de Automação.
    *
-   * A `note` é a linha mais importante do bloco: é ela que tira o pé do
-   * cliente da dúvida de precisar ter alguma coisa pronta antes de chamar.
+   * **É roteiro, e a `note` diz isso.** O site é estático: modelo de verdade
+   * nesta caixa é função serverless, chave de API, custo por visita e campo de
+   * texto aberto para desconhecido. O que o painel precisa provar é o FORMATO
+   * da conversa — consulta antes de responder, frase em vez de menu, e passa
+   * para uma pessoa quando sai do que resolve —, e isso um roteiro prova
+   * igual, sem alucinar na frente de cliente.
+   *
+   * O negócio é fictício de propósito: nome de cliente real aqui é promessa de
+   * que aquele agente está no ar, e é cobrável. Se um dia um cliente autorizar,
+   * troque — e aí a conversa tem de ser a de verdade.
+   *
+   * **Cada pergunta se sustenta sozinha**, em qualquer ordem: os chips somem
+   * conforme são usados, então não há como garantir que a de reservar venha
+   * depois da de horário. Nenhuma resposta pode depender da anterior.
+   *
+   * No lugar disto havia a `process` — a rede de nós que DESENHAVA a automação
+   * em vez de demonstrá-la. Saiu junto com o componente.
    */
-  process: {
-    eyebrow: 'como funciona',
+  agente: {
+    eyebrow: 'veja funcionando',
+    /** Negócio fictício. Ver a nota acima antes de trocar por um real. */
+    negocio: 'Estúdio Vélo · pilates',
+    status: 'responde na hora, 24h',
+    /** O separador de data no alto da conversa, como o do WhatsApp. */
+    divisor: 'hoje',
     /**
-     * A rede do painel de automação: o que ENTRA à esquerda, a automação no
-     * meio, o que SAI à direita. Não é a lista de serviços (essa é a `services`
-     * acima) — é um desenho do que acontece, e os rótulos existem para quem
-     * olha o ícone e não sabe do que se trata.
-     *
-     * **Nenhum nome de ferramenta aqui, pela mesma razão da lista de serviços.**
-     * Este painel nasceu justamente no lugar de uma grade de logos: logo
-     * responde "com o que vocês trabalham", e a pergunta que vem antes é "serve
-     * para mim?". Uma parede de marcas que o cliente não reconhece responde que
-     * não. Por isso os ícones são genéricos — pessoa, mensagem, planilha — e
-     * não WhatsApp, Sheets e afins, mesmo que sejam exatamente esses os
-     * sistemas em que o trabalho entra. Quem nomeia as ferramentas é a `note`
-     * logo abaixo, em texto, onde elas soam como "funciona com o SEU" e não
-     * como requisito.
-     *
-     * Os `icon` têm de existir no `components/Icon.tsx`.
+     * A conversa NÃO começa vazia: o cliente já disse oi e o agente já
+     * respondeu. Tela de mensagens com um balão só, no alto de um aparelho de
+     * 600px, é meia tela de vazio — e aplicativo nenhum se parece com isso. A
+     * saudação é do visitante (balão verde, à direita), que é o papel em que
+     * ele entra ao clicar nos chips.
      */
-    rede: {
-      entradas: [
-        { icon: 'users', label: 'cliente' },
-        { icon: 'mail', label: 'mensagem' },
-        { icon: 'doc', label: 'planilha' },
-      ],
-      nucleo: { icon: 'bolt', label: 'automação' },
-      saidas: [
-        { icon: 'check', label: 'resposta' },
-        { icon: 'clock', label: 'na hora' },
-        { icon: 'layers', label: 'registro' },
-      ],
-    },
-    note: 'Funciona com o que a sua empresa já tem — WhatsApp, planilha, CRM, sistema feito em casa. Ou com o que ainda nem existe.',
+    saudacao: 'Oi, bom dia! Vocês têm aula hoje?',
+    /**
+     * **A abertura RESPONDE a saudação**, e essa é a regra mais importante
+     * desta copy inteira. Ela já foi um cartão de visita — "sou o atendimento
+     * do Estúdio Vélo, vejo horário, preço e agendo" — depois de uma pergunta
+     * direta sobre ter aula hoje: o cliente perguntou uma coisa e ouviu outra,
+     * que é exatamente o robô de menu que este painel existe para desmentir.
+     *
+     * Toda resposta daqui obedece à mesma ordem: responde primeiro, com dado
+     * concreto, e só então oferece o passo seguinte. Se uma resposta nova não
+     * couber nessa ordem, ela está errada.
+     */
+    abertura:
+      'Bom dia! Temos, sim — hoje ainda estão livres 12h, 17h e 19h. Quer que eu segure alguma para você?',
+    /**
+     * `label` é o que vai no chip (curto, do jeito que o cliente escreveria);
+     * `pergunta` é o que entra no balão; `passo` é o que o agente consultou
+     * antes de responder — é essa linha que separa um agente de um menu de
+     * respostas prontas.
+     */
+    perguntas: [
+      {
+        label: 'Quanto custa?',
+        pergunta: 'Quanto custa a aula?',
+        passo: 'consultando a tabela',
+        resposta:
+          'A avulsa sai R$ 70. No plano de 2x por semana a aula fica R$ 48, e a primeira é de graça para você experimentar. Quer que eu marque a experimental?',
+      },
+      {
+        label: 'Tem horário quinta de manhã?',
+        pergunta: 'Tem horário quinta de manhã?',
+        passo: 'consultando a agenda',
+        resposta:
+          'Quinta tem 7h, 8h e 10h30 livres. O de 8h é o mais tranquilo, com três pessoas na sala.',
+      },
+      {
+        label: 'Quero reservar quinta, 8h',
+        pergunta: 'Quero reservar quinta, 8h',
+        passo: 'reservando e avisando a equipe',
+        resposta:
+          'Reservado para quinta às 8h. Mandei o endereço no seu WhatsApp e avisei a Marina, que dá essa aula. Se precisar desmarcar, é só me escrever.',
+      },
+      {
+        label: 'Posso parcelar em 3x?',
+        pergunta: 'Posso parcelar o plano em 3x?',
+        passo: 'isto sai do que eu resolvo',
+        /**
+         * A única que não resolve — e ainda assim responde ao que foi
+         * perguntado antes de passar adiante. "Não sei, vou chamar alguém" sem
+         * dizer o que sabe é o robô de menu de novo, só que educado.
+         */
+        resposta:
+          'Em 3x não é uma condição que eu feche sozinho — a recepção avalia caso a caso. Chamei a Ana e passei a nossa conversa; ela responde neste mesmo número em alguns minutos.',
+      },
+    ],
+    reiniciar: 'conversar de novo',
+    /**
+     * Duas coisas numa linha só, e as duas obrigatórias: dizer que a conversa
+     * é uma demonstração (senão é propaganda enganosa) e dizer o que muda num
+     * agente de verdade — ele lê a SUA agenda, o SEU preço, no SEU tom.
+     */
+    note: 'Conversa de demonstração, com um negócio inventado. O seu agente lê a sua agenda, a sua tabela de preços e responde no seu tom — no WhatsApp, no site ou nos dois.',
   },
 } as const
 

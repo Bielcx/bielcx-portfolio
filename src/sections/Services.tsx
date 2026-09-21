@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 
 import { Icon } from '../components/Icon'
-import { ProcessSteps } from '../components/services/ProcessSteps'
+import { AgentDemo } from '../components/services/AgentDemo'
 import { WorkGrid } from '../components/services/WorkGrid'
 import { services } from '../data/content'
 import { SectionHeading } from '../components/SectionHeading'
@@ -15,7 +15,7 @@ const ACCENTS = {
 /** Cada faixa escolhe o painel que vai ao lado do texto. */
 const VISUALS = {
   works: WorkGrid,
-  process: ProcessSteps,
+  agent: AgentDemo,
 } as const
 
 
@@ -136,7 +136,10 @@ function ServiceBand({ card, index }: { card: Card; index: number }) {
           isso abria um buraco de mais de cem pixels entre um passo e o
           seguinte. Vão simétrico em volta lê como respiro; vão no meio da
           lista lê como defeito. */}
-      <div className="overflow-hidden rounded-2xl border border-white/8 bg-card">
+      {/* Sem moldura aqui: quem tem borda é o painel que precisa dela. A
+          grade de trabalhos traz a sua; o `AgentDemo` é um celular, e caixa em
+          volta de celular vira moldura dentro de moldura. */}
+      <div>
         <Visual />
       </div>
     </article>
