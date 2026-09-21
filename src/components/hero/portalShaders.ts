@@ -31,8 +31,21 @@
 const VERDE = 'vec3(0.592, 0.839, 0.310)';
 /** Menta do tema, no corpo do anel — o que amarra o efeito ao resto do site. */
 const MENTA = 'vec3(0.455, 0.839, 0.706)';
-/** O fundo do site de destino. Ver a nota acima: não é gosto, é medida. */
-const DESTINO = 'vec3(0.067, 0.067, 0.067)';
+/**
+ * O fundo do site de destino: o `--surface` do tema escuro dele, `#141413`.
+ *
+ * Não é gosto, é medida — e foi corrigida uma vez: o `#111111` que estava aqui
+ * veio de um `background-color` solto no HTML servido, e não do fundo que a
+ * página de fato pinta. Três pontos de diferença que ninguém vê, mas a régua
+ * deste valor é o outro site, então ela tem de apontar para o lugar certo.
+ *
+ * **O tema claro do outro lado não entra nesta conta.** Ele existe (o web3 tem
+ * claro e escuro em `localStorage`), e daqui não há como saber qual está
+ * ativo: é outra origem. O portal é escuro nos dois lados da viagem, e quem
+ * chega no claro vê o disco escuro encolher e revelar o papel — a decisão está
+ * escrita também no `portalShader.ts` de lá.
+ */
+const DESTINO = 'vec3(0.078, 0.078, 0.075)';
 
 export const PORTAL_FRAG = `#version 300 es
 precision highp float;
