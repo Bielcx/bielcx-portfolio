@@ -70,9 +70,15 @@ const TONS = {
  *
  * `canto` diz QUAL canto encosta na ponta: o card fica do lado de fora, então
  * o de cima-esquerda pendura pelo canto inferior direito, e assim por diante.
- * O recuo de 10px é a folga para o traço não entrar por baixo da borda. O
- * `data-plug` do `Card` marca esse mesmo canto para o `Cables` MEDIR onde ele
- * caiu — com a rotação e a folga já embutidas.
+ * O `data-plug` do `Card` marca esse canto para o `Cables` MEDIR onde ele caiu
+ * — com a rotação já embutida.
+ *
+ * **Os 9px de recuo do plug são o raio da borda, e não folga.** O canto da
+ * CAIXA fica fora do desenho: com `rounded-[14px]`, a borda pintada curva para
+ * dentro e o vértice cai a uns 4px de qualquer traço. Plugando ali sobrava uma
+ * brecha entre o card e o fio. Com o recuo, a ponta entra POR BAIXO do card —
+ * o SVG é desenhado antes dos cards no DOM, então eles a cobrem, e o que se vê
+ * é o fio saindo de dentro da caixa. Mexeu no raio, mexa aqui.
  *
  * **Largura é o que sobrou aqui.** A inclinação e o compasso do flutuar
  * mudaram de casa: moram no `CABOS`, porque quem escreve o `transform` do card
@@ -88,22 +94,22 @@ const CARDS: Record<string, { largura: string; canto: string; plug: string }> = 
   automacao: {
     largura: 'w-[232px]',
     canto: '[translate:calc(-100%-10px)_calc(-100%-10px)]',
-    plug: 'bottom-0 right-0',
+    plug: 'bottom-[9px] right-[9px]',
   },
   rodando: {
     largura: 'w-[246px]',
     canto: '[translate:calc(-100%-10px)_10px]',
-    plug: 'top-0 right-0',
+    plug: 'top-[9px] right-[9px]',
   },
   landing: {
     largura: 'w-[238px]',
     canto: '[translate:10px_calc(-100%-10px)]',
-    plug: 'bottom-0 left-0',
+    plug: 'bottom-[9px] left-[9px]',
   },
   atendimento: {
     largura: 'w-[250px]',
     canto: '[translate:10px_10px]',
-    plug: 'top-0 left-0',
+    plug: 'top-[9px] left-[9px]',
   },
 }
 
