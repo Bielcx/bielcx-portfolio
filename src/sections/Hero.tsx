@@ -60,59 +60,50 @@ const TONS = {
 
 /**
  * ONDE CADA CARD FICA — e a regra é: **o card não tem posição própria, ele
- * pendura na PONTA DO CABO.**
+ * pendura na PONTA DO FIO.**
  *
- * Antes cada um tinha `left/top` em % da tela enquanto os cabos viviam na
- * grade do SVG (1240×700, escalada por `slice`). São duas grades diferentes:
- * elas coincidem numa proporção de janela e se afastam em todas as outras, e
- * o sintoma é o cabo chegando no vazio ao lado do card. Agora os dois moram
- * no mesmo palco (ver `PALCO`), e o canto do card é o ponto onde o cabo
- * começa — por construção, em qualquer tela.
+ * Antes cada um tinha `left/top` em % da tela enquanto os fios viviam na grade
+ * do SVG (1240×700, escalada por `slice`). São duas grades diferentes: elas
+ * coincidem numa proporção de janela e se afastam em todas as outras, e o
+ * sintoma é o fio chegando no vazio ao lado do card. Agora os dois moram no
+ * mesmo palco (ver `PALCO`), e o canto do card é o ponto onde o fio começa.
  *
  * `canto` diz QUAL canto encosta na ponta: o card fica do lado de fora, então
  * o de cima-esquerda pendura pelo canto inferior direito, e assim por diante.
- * O recuo de 10px é a folga para o traço não entrar por baixo da borda.
+ * O recuo de 10px é a folga para o traço não entrar por baixo da borda. O
+ * `data-plug` do `Card` marca esse mesmo canto para o `Cables` MEDIR onde ele
+ * caiu — com a rotação e a folga já embutidas.
  *
- * **As durações e os atrasos são todos diferentes de propósito.** Em fase, os
- * quatro cards sobem e descem juntos e o quadro inteiro lê como um GIF; fora
- * de fase, lê como quatro coisas acontecendo sozinhas.
+ * **Largura é o que sobrou aqui.** A inclinação e o compasso do flutuar
+ * mudaram de casa: moram no `CABOS`, porque quem escreve o `transform` do card
+ * agora é o loop do `Cables.tsx`, o mesmo que desenha o fio. Enquanto o
+ * flutuar era um `@keyframes`, o card subia num relógio e a ponta do fio ficava
+ * parada em outro — era isso que os descolava.
  *
  * O `scale-[0.86]` abaixo de 1100px usa a propriedade `scale` do Tailwind v4,
- * que COMPÕE com o `transform` do keyframe — um `transform: scale()` ali
- * seria apagado pela animação no primeiro quadro. O `translate` do canto pela
- * mesma razão: é propriedade própria, não `transform`.
+ * que COMPÕE com o `transform` escrito pelo loop; o `translate` do canto, pela
+ * mesma razão, é propriedade própria e não `transform`.
  */
-const CARDS: Record<
-  string,
-  { largura: string; giro: string; canto: string; duracao: string; atraso: string }
-> = {
+const CARDS: Record<string, { largura: string; canto: string; plug: string }> = {
   automacao: {
     largura: 'w-[232px]',
-    giro: '[--r:-6deg]',
     canto: '[translate:calc(-100%-10px)_calc(-100%-10px)]',
-    duracao: '[animation-duration:10s]',
-    atraso: '[animation-delay:0s]',
+    plug: 'bottom-0 right-0',
   },
   rodando: {
     largura: 'w-[246px]',
-    giro: '[--r:5deg]',
     canto: '[translate:calc(-100%-10px)_10px]',
-    duracao: '[animation-duration:12s]',
-    atraso: '[animation-delay:1.2s]',
+    plug: 'top-0 right-0',
   },
   landing: {
     largura: 'w-[238px]',
-    giro: '[--r:7deg]',
     canto: '[translate:10px_calc(-100%-10px)]',
-    duracao: '[animation-duration:9s]',
-    atraso: '[animation-delay:0.6s]',
+    plug: 'bottom-0 left-0',
   },
   atendimento: {
     largura: 'w-[250px]',
-    giro: '[--r:-5deg]',
     canto: '[translate:10px_10px]',
-    duracao: '[animation-duration:11s]',
-    atraso: '[animation-delay:1.6s]',
+    plug: 'top-0 left-0',
   },
 }
 
@@ -400,9 +391,15 @@ function Card({ prova }: { prova: (typeof hero.provas)[number] }) {
 
   return (
     <article
+      data-card={prova.id}
       style={ancora(prova.id)}
-      className={`flutua absolute rounded-[14px] border border-hero-line bg-hero-card p-4 shadow-[0_26px_60px_rgba(0,0,0,0.6)] max-[1100px]:scale-[0.86] ${c.largura} ${c.giro} ${c.canto} ${c.duracao} ${c.atraso}`}
+      className={`absolute rounded-[14px] border border-hero-line bg-hero-card p-4 shadow-[0_26px_60px_rgba(0,0,0,0.6)] max-[1100px]:scale-[0.86] ${c.largura} ${c.canto}`}
     >
+      {/* O ponto onde o fio encosta. Sem tamanho e sem pintura: existe so para
+          o `Cables` ler a posicao dele depois da rotacao e da folga, uma vez
+          por resize. Conta em trigonometria precisaria da ALTURA do card, que
+          depende do texto — e texto muda. */}
+      <span data-plug aria-hidden className={`absolute size-0 ${c.plug}`} />
       <div className="flex items-center gap-2">
         <i className={`no-pulsa size-[7px] rounded-full ${tom.ponto}`} />
         <span className={`font-mono text-[9px] uppercase tracking-[0.18em] ${tom.label}`}>

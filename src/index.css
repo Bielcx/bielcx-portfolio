@@ -248,7 +248,7 @@
 }
 
 /**
- * AS TRÊS ANIMAÇÕES CSS DA HERO, todas contínuas e nenhuma disparada por
+ * AS DUAS ANIMAÇÕES CSS DA HERO, todas contínuas e nenhuma disparada por
  * interação — o canvas de automação tem de parecer LIGADO, não esperando
  * clique. Cada uma traz o seu `prefers-reduced-motion`, como o resto do
  * arquivo: quem pediu menos movimento vê o mesmo quadro, parado.
@@ -257,32 +257,12 @@
  * e é o que impede os quatro cards de baterem no mesmo compasso — em fase, o
  * painel inteiro pulsa junto e lê como um GIF.
  *
- * Os fios e os pulsos que corriam dentro deles saíram daqui: viraram geometria
- * recalculada a cada quadro no `Cables.tsx`, porque o que ondula é a curva, e
- * isso não é animação de propriedade. Foram-se com eles o `cabo-anda`
- * (tracejado) e o `pulso-viaja` (`offset-path`).
+ * Os fios, os pulsos e O FLUTUAR DOS CARDS saíram daqui: viraram conta no loop
+ * do `Cables.tsx`. Os dois primeiros porque o que ondula é a geometria, e isso
+ * não é animação de propriedade; o terceiro porque a ponta do fio precisa
+ * saber onde o card está AGORA — em dois relógios, ela descolava. Foram-se com
+ * eles o `cabo-anda` (tracejado), o `pulso-viaja` (`offset-path`) e o `flutua`.
  */
-
-/* O card boiando. O `--r` é a inclinação dele, e precisa entrar DENTRO do
-   keyframe: `transform` é uma propriedade só, então um `rotate` na classe
-   seria apagado pela animação no primeiro quadro. */
-@keyframes flutua {
-  0%,
-  100% {
-    transform: translateY(0) rotate(var(--r, 0deg));
-  }
-  50% {
-    transform: translateY(-10px) rotate(var(--r, 0deg));
-  }
-}
-
-@utility flutua {
-  animation: flutua 10s ease-in-out infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
 
 /* O ponto do cabeçalho do card, respirando. */
 @keyframes no-pulsa {

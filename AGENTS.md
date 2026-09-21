@@ -340,6 +340,20 @@ e os cards em `%` da tela, duas grades que coincidem numa proporção de janela
 e se afastam em todas as outras. O sintoma era o cabo chegando no vazio ao
 lado do card.
 
+**Os fios e o flutuar dos cards correm no MESMO relógio**, e isso não é
+elegância — é o que os mantém grudados. Enquanto o flutuar era um
+`@keyframes` (card subindo e descendo 10px) e o fio nascia num ponto fixo do
+desenho, a ponta descolava do card: animação CSS começa quando o elemento
+monta, o `requestAnimationFrame` conta de outro zero, e os dois se afastam. É
+o mesmo erro que a rede de nós teve entre SMIL e CSS. Hoje o loop do
+`Cables.tsx` calcula a boia uma vez por card e usa o número nos dois lugares —
+escreve o `transform` do card e soma na ponta do fio.
+
+Onde a ponta encosta é **medido**, não calculado: um `[data-plug]` de tamanho
+zero no canto do card é lido uma vez por resize, já com a rotação e a folga de
+10px embutidas. Em trigonometria seria preciso a altura do card, que depende
+do texto.
+
 Hoje o `PALCO` é uma caixa com a proporção exata do `viewBox`, e daí sai tudo:
 o SVG encaixa nela sem distorcer e uma coordenada do desenho vira porcentagem
 do palco por uma conta só (`ancora`). Cada card recebe essa porcentagem e

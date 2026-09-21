@@ -29,6 +29,23 @@ import { useEffect, useRef } from 'react'
  * PLUGADO no canto do card e no nome, ondulando só no meio do caminho. Sem
  * isso ele se solta da ponta e a cena inteira perde o sentido — ver a nota
  * das âncoras no `Hero.tsx`.
+ *
+ * **ESTE LOOP TAMBÉM FAZ OS CARDS FLUTUAREM, e essa é a razão de ele existir
+ * assim.** O flutuar já foi um `@keyframes` em CSS, e por isso o fio descolava:
+ * a ponta dele nascia num ponto FIXO do desenho enquanto o card subia e descia
+ * 10px por conta própria, em outro relógio — animação CSS começa quando o
+ * elemento monta, o `requestAnimationFrame` daqui conta de outro zero, e os
+ * dois se afastam. É o mesmo erro que a rede de nós da seção 03 já teve entre
+ * SMIL e CSS, e a cura é a mesma: um relógio só.
+ *
+ * Agora o quadro calcula `boia` uma vez por card e usa o MESMO número nos dois
+ * lugares — escreve no `transform` do card e soma na ponta do fio. Sincronia
+ * por construção, não por dois números que se perseguem.
+ *
+ * Onde a ponta encosta é MEDIDO, não calculado: um `[data-plug]` de tamanho
+ * zero mora no canto do card e é lido uma vez por resize, já com a rotação e a
+ * folga embutidas. Refazer essa conta em trigonometria exigiria a altura do
+ * card, que depende do texto — e texto muda.
  */
 
 export const VB_W = 1240
@@ -58,6 +75,12 @@ export const CABOS = [
     /** Fase inicial, para os quatro não ondularem em compasso. */
     fase: 0,
     pulso: 4,
+    /** O canto do card que encosta nesta ponta. */
+    canto: 'br',
+    /** Inclinação do card, em graus, e o compasso do flutuar. */
+    giro: -6,
+    boia: 10,
+    atraso: 0,
   },
   {
     id: 'rodando',
@@ -71,6 +94,10 @@ export const CABOS = [
     alfa: 0.44,
     fase: 1.7,
     pulso: 4.6,
+    canto: 'tr',
+    giro: 5,
+    boia: 12,
+    atraso: 1.2,
   },
   {
     id: 'landing',
@@ -84,6 +111,10 @@ export const CABOS = [
     alfa: 0.66,
     fase: 3.1,
     pulso: 4.2,
+    canto: 'bl',
+    giro: 7,
+    boia: 9,
+    atraso: 0.6,
   },
   {
     id: 'atendimento',
@@ -97,6 +128,10 @@ export const CABOS = [
     alfa: 0.48,
     fase: 4.6,
     pulso: 5.2,
+    canto: 'tl',
+    giro: -5,
+    boia: 11,
+    atraso: 1.6,
   },
 ] as const
 
@@ -167,6 +202,10 @@ function tracar(p: Ponto[], fase: number, tempo: number) {
   return d
 }
 
+/** Quanto o card flutuou neste instante, em px. Zero no começo do ciclo. */
+const boiar = (cabo: (typeof CABOS)[number], tempo: number) =>
+  (-cabo.boia / 2) * (1 - Math.cos(((tempo + cabo.atraso) / cabo.pulso) * Math.PI))
+
 export function Cables() {
   const svg = useRef<SVGSVGElement>(null)
 
@@ -174,15 +213,62 @@ export function Cables() {
     const raiz = svg.current
     if (!raiz) return
 
+    const palco = raiz.parentElement
+    if (!palco) return
+
     const fios = [...raiz.querySelectorAll<SVGPathElement>('[data-fio]')]
     const bolinhas = [...raiz.querySelectorAll<SVGCircleElement>('[data-pulso]')]
+    const cards = CABOS.map((c) => palco.querySelector<HTMLElement>(`[data-card="${c.id}"]`))
     const parado = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    /**
+     * ONDE CADA FIO ENCOSTA, em unidades do viewBox — medido, e em cache.
+     *
+     * Lê o `[data-plug]` de cada card (um ponto sem tamanho no canto que olha
+     * para o nome) com o card PARADO, o que traz de graça a rotação e a folga
+     * de 10px. É a única leitura de layout daqui, e ela roda no mount e no
+     * resize, nunca por quadro — a regra do `AGENTS.md` sobre não ler layout
+     * dentro de loop de scroll vale igual aqui.
+     */
+    const plugs: (readonly [number, number])[] = CABOS.map((c) => [c.p[0][0], c.p[0][1]])
+    let porPx = { x: VB_W / 1240, y: VB_H / 700 }
+
+    const medir = () => {
+      const caixa = palco.getBoundingClientRect()
+      if (!caixa.width || !caixa.height) return
+      porPx = { x: VB_W / caixa.width, y: VB_H / caixa.height }
+
+      cards.forEach((card, i) => {
+        if (!card) return
+        const antes = card.style.transform
+        // sem o flutuar: a medida é a do card em repouso
+        card.style.transform = `rotate(${CABOS[i].giro}deg)`
+        const plug = card.querySelector<HTMLElement>('[data-plug]')
+        if (plug) {
+          const r = plug.getBoundingClientRect()
+          plugs[i] = [(r.left - caixa.left) * porPx.x, (r.top - caixa.top) * porPx.y]
+        }
+        card.style.transform = antes
+      })
+    }
 
     /** Um quadro. Com movimento reduzido ele roda UMA vez, e é o suficiente:
      *  sem isto o SVG nasce com os fios sem `d` nenhum e a cena fica vazia. */
     const desenhar = (tempo: number) => {
       CABOS.forEach((cabo, i) => {
-        const d = tracar(cabo.p as Ponto[], cabo.fase, tempo)
+        // o MESMO número move o card e a ponta do fio
+        const boia = boiar(cabo, tempo)
+        const card = cards[i]
+        if (card) card.style.transform = `translateY(${boia.toFixed(2)}px) rotate(${cabo.giro}deg)`
+
+        // a curva começa onde o card está AGORA, não onde o desenho o pôs
+        const p: Ponto[] = [
+          [plugs[i][0], plugs[i][1] + boia * porPx.y],
+          cabo.p[1],
+          cabo.p[2],
+          cabo.p[3],
+        ]
+        const d = tracar(p, cabo.fase, tempo)
         // as três camadas do mesmo fio compartilham o caminho
         for (let camada = 0; camada < CAMADAS.length; camada++) {
           fios[i * CAMADAS.length + camada]?.setAttribute('d', d)
@@ -193,8 +279,8 @@ export function Cables() {
         // a bolinha anda pelo MESMO fio ondulado: percorre o parâmetro e é
         // posicionada pela mesma conta, senão ela desliza ao lado da luz
         const ciclo = (tempo % cabo.pulso) / cabo.pulso
-        const [x, y] = bezier(cabo.p as Ponto[], ciclo)
-        const [tx, ty] = tangente(cabo.p as Ponto[], ciclo)
+        const [x, y] = bezier(p, ciclo)
+        const [tx, ty] = tangente(p, ciclo)
         const norma = Math.hypot(tx, ty) || 1
         const amp = AMPLITUDE * Math.sin(Math.PI * ciclo)
         const onda = Math.sin(ciclo * ONDAS * Math.PI * 2 + cabo.fase - tempo * VELOCIDADE) * amp
@@ -205,9 +291,13 @@ export function Cables() {
       })
     }
 
+    medir()
+    const regua = new ResizeObserver(medir)
+    regua.observe(palco)
+
     if (parado) {
       desenhar(0)
-      return
+      return () => regua.disconnect()
     }
 
     let raf = 0
@@ -235,6 +325,7 @@ export function Cables() {
     return () => {
       cancelAnimationFrame(raf)
       olho.disconnect()
+      regua.disconnect()
     }
   }, [])
 
