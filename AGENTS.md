@@ -242,6 +242,32 @@ utilidades `onda-corre` e `beam-bead`, que eram só dele. Está no git. Antes da
 rede houve ainda uma sequência de quatro passos com um facho descendo, que é o
 que esta nota descrevia até aqui.
 
+**O botão do Web3 abre um PORTAL antes de navegar**, e ele é o único lugar do
+site com uma piscadela cultural — a referência é o portal do Rick and Morty.
+Cabe ali e em lugar nenhum mais: é o único botão que fala com quem é do meio,
+e o visitante comercial nunca clica nele.
+
+Três coisas que não são estilo:
+
+- **Ele navega na MESMA ABA**, e isso contraria a decisão anterior (`target="_blank"`),
+  a pedido: animação de passagem só faz sentido se a passagem acontece aqui.
+  Ctrl/Cmd/shift/botão do meio continuam indo para aba nova, sem animação, e
+  com `prefers-reduced-motion` o `Portal` nem monta — o link é um link.
+- **Ele navega em 72% da animação, não no fim.** O navegador segura esta
+  página até o destino pintar; os últimos quadros do portal rodam DENTRO desse
+  intervalo, e a espera vira efeito. Por isso o miolo do shader é `#111111`:
+  é o fundo que o outro site pinta no primeiro quadro (medido no HTML dele),
+  então a emenda cai em escuro sobre escuro.
+- **As duas origens são diferentes**, então não existe transição nativa entre
+  os documentos — `@view-transition` só funciona same-origin, e nem domínio
+  próprio resolve (`web3.dominio.com` também é outra origem). A passagem é uma
+  ilusão em duas metades; a segunda, a chegada do outro lado, ainda não existe.
+
+O shader (`portalShaders.ts`) é o primeiro do site a usar o uniform `uB` do
+`LightBeam`, que estava lá sem chamador esperando um efeito dirigido por
+progresso em vez de por tempo. Quem escreve o `uB` é o `Portal.tsx`, que também
+decide a hora de navegar.
+
 **Nada de three.js.** Ele foi considerado e recusado para este losango: ~120 KB
 gzip contra os 77 KB do site inteiro, para desenhar um ícone de 18px que o
 casco WebGL2 daqui já desenha de graça.

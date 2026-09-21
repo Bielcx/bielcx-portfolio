@@ -1,6 +1,9 @@
 import { SpecularButton } from '../components/SpecularButton'
+import { useState, type MouseEvent } from 'react'
+
 import { Cables, ancora } from '../components/hero/Cables'
 import { EthMark } from '../components/hero/EthMark'
+import { Portal } from '../components/hero/Portal'
 import { hero, whatsappUrl } from '../data/content'
 import { useHeroScroll } from '../hooks/useHeroScroll'
 
@@ -190,6 +193,27 @@ const PALCO =
  */
 export function Hero() {
   const { trackRef, contentRef } = useHeroScroll()
+  const [portal, setPortal] = useState(false)
+
+  /**
+   * O CLIQUE NO WEB3 — e o que ele NÃO intercepta.
+   *
+   * Ctrl/Cmd/shift/botão do meio continuam sendo do navegador: quem pede aba
+   * nova quer a aba nova agora, não uma animação numa página que vai ficar
+   * para trás. O mesmo vale para quem pediu movimento reduzido no sistema —
+   * aí o link é um link, e o `Portal` nem chega a montar.
+   *
+   * Nos outros casos o portal abre e ele mesmo navega, na mesma aba. **Isso
+   * contraria a decisão registrada de o botão abrir em outra aba**, e foi
+   * pedido: animação de passagem só faz sentido se a passagem acontece aqui.
+   */
+  function abrirPortal(e: MouseEvent<HTMLAnchorElement>) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    e.preventDefault()
+    setPortal(true)
+  }
 
   return (
     <div ref={trackRef} id="topo" className="relative isolate h-[180svh] bg-frame">
@@ -349,8 +373,11 @@ export function Hero() {
                   entra inteiro, com os três degraus que ele já resolve. */}
               <SpecularButton
                 href={hero.actions.web3.href}
-                target="_blank"
                 rel="noreferrer"
+                onClick={abrirPortal}
+                /* Abre o TLS com o outro domínio enquanto o ponteiro está a
+                   caminho: são ~50ms de TTFB que somem do meio da animação. */
+                onPointerEnter={preconectar}
                 style={{ perspective: '200px' }}
                 idleGlow={IDLE_GLOW}
                 className={BOTAO}
@@ -410,8 +437,27 @@ export function Hero() {
           </div>
         </section>
       </div>
+
+      {portal && <Portal href={hero.actions.web3.href} />}
     </div>
   )
+}
+
+/**
+ * Abre a conexão com o domínio do outro portfólio antes do clique. É uma tag
+ * só, injetada uma vez: `preconnect` resolve DNS e faz o handshake TLS, que é
+ * o grosso do custo de uma primeira visita a outra origem. Não baixa a página
+ * — `prefetch` cross-origin sem `no-cors` não é confiável, e o destino já
+ * responde em ~50ms.
+ */
+function preconectar() {
+  const href = new URL(hero.actions.web3.href).origin
+  if (document.head.querySelector(`link[rel="preconnect"][href="${href}"]`)) return
+
+  const tag = document.createElement('link')
+  tag.rel = 'preconnect'
+  tag.href = href
+  document.head.append(tag)
 }
 
 /** Um card de resultado, pendurado na ponta do cabo que o liga ao nome. */
