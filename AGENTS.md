@@ -349,10 +349,19 @@ o mesmo erro que a rede de nós teve entre SMIL e CSS. Hoje o loop do
 `Cables.tsx` calcula a boia uma vez por card e usa o número nos dois lugares —
 escreve o `transform` do card e soma na ponta do fio.
 
-Onde a ponta encosta é **medido**, não calculado: um `[data-plug]` de tamanho
-zero no canto do card é lido uma vez por resize, já com a rotação e a folga de
-10px embutidas. Em trigonometria seria preciso a altura do card, que depende
-do texto.
+De onde o fio sai é **medido**, não calculado: um `[data-plug]` de tamanho
+zero no CENTRO do card é lido uma vez por resize, já com a rotação e o flutuar
+aplicados. Em trigonometria seria preciso a altura do card, que depende do
+texto.
+
+**O centro, e não o canto** — foram três tentativas. No vértice da caixa o fio
+começava no ar, porque com `rounded-[14px]` a borda pintada curva para dentro
+e o vértice cai a uns 4px de qualquer traço. Recuado 9px a distância mede zero
+e ainda assim lê como fresta: o traço termina em cima da borda de 1px e o
+antialias das duas coisas no mesmo pixel desenha uma linha clara entre elas.
+Do centro não há o que alinhar — o trecho inicial fica coberto pelo card
+(opaco, e desenhado depois do SVG), e o que se vê é a linha saindo de trás
+dele. Vale em qualquer ângulo, raio de borda e altura do flutuar.
 
 Hoje o `PALCO` é uma caixa com a proporção exata do `viewBox`, e daí sai tudo:
 o SVG encaixa nela sem distorcer e uma coordenada do desenho vira porcentagem

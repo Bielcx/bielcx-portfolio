@@ -73,12 +73,18 @@ const TONS = {
  * O `data-plug` do `Card` marca esse canto para o `Cables` MEDIR onde ele caiu
  * — com a rotação já embutida.
  *
- * **Os 9px de recuo do plug são o raio da borda, e não folga.** O canto da
- * CAIXA fica fora do desenho: com `rounded-[14px]`, a borda pintada curva para
- * dentro e o vértice cai a uns 4px de qualquer traço. Plugando ali sobrava uma
- * brecha entre o card e o fio. Com o recuo, a ponta entra POR BAIXO do card —
- * o SVG é desenhado antes dos cards no DOM, então eles a cobrem, e o que se vê
- * é o fio saindo de dentro da caixa. Mexeu no raio, mexa aqui.
+ * **O plug fica no CENTRO do card, e não no canto.** Foram três tentativas: no
+ * vértice da caixa (o pior — com `rounded-[14px]` a borda pintada curva para
+ * dentro e o vértice cai a uns 4px de qualquer traço, deixando o fio começando
+ * no ar), depois 9px para dentro, que mede zero de distância e AINDA assim lê
+ * como fresta: o traço termina exatamente em cima da borda de 1px, e o
+ * antialias das duas coisas no mesmo pixel desenha uma linha clara entre elas.
+ *
+ * Do centro não há o que alinhar. O começo do fio fica escondido sob o card —
+ * o SVG é desenhado antes dos cards no DOM, e o card é opaco —, e o que se vê
+ * é a linha SAINDO de trás dele, cruzando a borda onde quer que ela caia. Isso
+ * vale em qualquer ângulo, com qualquer raio de borda e a qualquer altura do
+ * flutuar, que é o que as duas tentativas anteriores não davam.
  *
  * **Largura é o que sobrou aqui.** A inclinação e o compasso do flutuar
  * mudaram de casa: moram no `CABOS`, porque quem escreve o `transform` do card
@@ -94,22 +100,22 @@ const CARDS: Record<string, { largura: string; canto: string; plug: string }> = 
   automacao: {
     largura: 'w-[232px]',
     canto: '[translate:calc(-100%-10px)_calc(-100%-10px)]',
-    plug: 'bottom-[9px] right-[9px]',
+    plug: 'left-1/2 top-1/2',
   },
   rodando: {
     largura: 'w-[246px]',
     canto: '[translate:calc(-100%-10px)_10px]',
-    plug: 'top-[9px] right-[9px]',
+    plug: 'left-1/2 top-1/2',
   },
   landing: {
     largura: 'w-[238px]',
     canto: '[translate:10px_calc(-100%-10px)]',
-    plug: 'bottom-[9px] left-[9px]',
+    plug: 'left-1/2 top-1/2',
   },
   atendimento: {
     largura: 'w-[250px]',
     canto: '[translate:10px_10px]',
-    plug: 'top-[9px] left-[9px]',
+    plug: 'left-1/2 top-1/2',
   },
 }
 
@@ -401,10 +407,11 @@ function Card({ prova }: { prova: (typeof hero.provas)[number] }) {
       style={ancora(prova.id)}
       className={`absolute rounded-[14px] border border-hero-line bg-hero-card p-4 shadow-[0_26px_60px_rgba(0,0,0,0.6)] max-[1100px]:scale-[0.86] ${c.largura} ${c.canto}`}
     >
-      {/* O ponto onde o fio encosta. Sem tamanho e sem pintura: existe so para
-          o `Cables` ler a posicao dele depois da rotacao e da folga, uma vez
-          por resize. Conta em trigonometria precisaria da ALTURA do card, que
-          depende do texto — e texto muda. */}
+      {/* De onde o fio sai: o centro do card. Sem tamanho e sem pintura —
+          existe só para o `Cables` medir o ponto já com a rotação e o flutuar
+          aplicados, uma vez por resize. O trecho entre o centro e a borda fica
+          coberto pelo próprio card, e é isso que faz a linha parecer vir de
+          trás dele em vez de encostar nele. */}
       <span data-plug aria-hidden className={`absolute size-0 ${c.plug}`} />
       <div className="flex items-center gap-2">
         <i className={`no-pulsa size-[7px] rounded-full ${tom.ponto}`} />
