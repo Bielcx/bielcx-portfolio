@@ -123,10 +123,20 @@ export function Metodo() {
 
           Sem ela e sem o campo de estrelas que saiu, esta seção encostaria na
           anterior sem nada entre as duas.
+
+          **A máscara apaga nas DUAS pontas, e isso e um conserto.** Ela era
+          `linear-gradient(0deg,#000 0%,transparent 100%)`: cheia ate o ultimo
+          pixel de baixo e sumindo so para cima. Sobre a cortina isso nao
+          aparecia — havia hero aceso atras. Sobre o preto chapado da secao, a
+          borda de baixo virou um corte reto na largura inteira: medido, a
+          luminancia caia de 15,6 para 0,0 de uma linha para a outra, 56px
+          abaixo da emenda. Era ISSO que se via como listra no alto da secao que
+          sobe, e nao a emenda em si. Apagando nas duas pontas, a faixa nao tem
+          mais borda nenhuma.
         */}
         <span
           aria-hidden
-          className="beam-dock pointer-events-none absolute inset-x-4 top-0 h-5 bg-linear-[90deg,transparent,rgba(255,255,255,0.10)_22%,rgba(255,255,255,0.26)_50%,rgba(255,255,255,0.10)_78%,transparent] blur-[12px] [mask-image:linear-gradient(0deg,#000_0%,transparent_100%)] md:inset-x-16 md:h-14"
+          className="beam-dock pointer-events-none absolute inset-x-4 top-0 h-5 bg-linear-[90deg,transparent,rgba(255,255,255,0.10)_22%,rgba(255,255,255,0.26)_50%,rgba(255,255,255,0.10)_78%,transparent] blur-[12px] [mask-image:linear-gradient(0deg,transparent_0%,#000_40%,transparent_100%)] md:inset-x-16 md:h-14"
         />
 
         <div
