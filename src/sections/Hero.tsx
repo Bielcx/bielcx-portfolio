@@ -216,7 +216,7 @@ export function Hero() {
   }
 
   return (
-    <div ref={trackRef} id="topo" className="relative isolate h-viewport bg-frame">
+    <div ref={trackRef} id="topo" className="relative isolate h-viewport">
         {/* **O `--hw` apaga SÓ O BLOCO DE TEXTO, e o `--hs` leva a cena
             depois.** Os dois tempos vêm da versão com cortina, mas a razão
             mudou: lá o nome precisava sair antes porque a aresta de uma chapa
@@ -227,36 +227,14 @@ export function Hero() {
             Uma altura só (`h-viewport`), e é o que o `useHeroScroll` mede para
             calcular o progresso. Não há mais track, nem `sticky`, nem número
             combinado com o `Metodo`. */}
-        <section className="relative h-full w-full overflow-hidden bg-[#030304]">
-          {/* AS DUAS LUZES, e elas são o argumento do fundo inteiro.
-
-              Nascem ABAIXO da borda de baixo (`116%` de altura), então o que
-              se vê é só o topo delas subindo — uma azul à esquerda
-              (automação) e uma sage à direita (landing page). As mesmas duas
-              cores dos cards e dos cabos, agora do tamanho da tela: quem olha
-              de longe já lê "duas frentes" antes de ler qualquer palavra.
-
-              Nascer do rodapé não é escolha estética: é o que puxa o olho
-              para baixo, que é para onde a hero inteira existe para mandar.
-
-              No lugar delas havia uma grade quadriculada de 56px, da primeira
-              versão do handoff. Saiu na segunda: **o fundo agora é só luz.**
-              Se a grade voltar, ela entra AQUI, e não somada às luzes — as
-              duas juntas empastelam o miolo onde o nome mora. */}
-          <span
-            aria-hidden
-            style={{ opacity: 'var(--hs, 1)' }}
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(58%_48%_at_16%_116%,rgba(84,116,168,0.34),transparent_70%),radial-gradient(58%_48%_at_84%_116%,rgba(122,154,92,0.26),transparent_70%)]"
-          />
-
-          {/* O véu frio por cima das duas: é ele que costura o azul e o sage
-              num clarão só no meio do rodapé, em vez de dois holofotes
-              separados. */}
-          <span
-            aria-hidden
-            style={{ opacity: 'var(--hs, 1)' }}
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_34%_at_50%_112%,rgba(170,200,245,0.10),transparent_72%)]"
-          />
+        <section className="relative h-full w-full overflow-hidden">
+          {/* **AS DUAS LUZES SAÍRAM DAQUI**, e isso é estrutural, não arrumação.
+              Elas moravam nesta seção, e o resto da página era preto chapado:
+              dois fundos opacos encostando, e toda emenda entre eles virava
+              listra. Agora existe UM fundo, no `components/Fundo.tsx`, atrás da
+              página inteira — esta seção é transparente e flutua sobre ele.
+              O clarão da primeira tela é o mesmo, com os números convertidos
+              para uma caixa mais alta; a conta está lá. */}
 
           {/* O palco, com os fios e os cards dentro — os dois na mesma grade,
               que é o que os mantém plugados. Some inteiro abaixo de 820px:
@@ -304,40 +282,6 @@ export function Hero() {
           <span
             aria-hidden
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(44%_48%_at_50%_52%,rgba(3,3,4,0.97)_0%,rgba(3,3,4,0.86)_38%,rgba(3,3,4,0.45)_72%,rgba(3,3,4,0)_88%)]"
-          />
-
-          {/* O PÉ, e ele conserta um corte a faca.
-
-              As duas luzes nascem abaixo da borda de baixo, então a parte mais
-              acesa delas fica justamente no pé da seção — e o `overflow-hidden`
-              a corta reto. Medido na emenda: o pixel salta de rgb(12,15,22)
-              para rgb(0,0,0) de uma linha para a outra, na largura inteira. Lê
-              como listra, e foi assim que apareceu.
-
-              Isso é novo, e não é regressão do fundo: a cortina antiga passava
-              POR CIMA desta borda e nunca a deixava aparecer. Tirada a cortina,
-              o corte ficou à mostra desde o primeiro pixel de rolagem.
-
-              Esta faixa apaga os últimos 72px até o preto da página. **O
-              número é curto de propósito, e foi medido.** O clarão do rodapé
-              vive em rgb(13,15,19)–rgb(16,18,22) nos últimos 200px e é mais
-              forte justamente colado na borda — é ele que puxa o olho para
-              baixo, e é a razão do fundo inteiro. Uma primeira tentativa de
-              140px a 88% matou o clarão junto com a lâmina: o pé virou preto
-              chapado a 120px do fim. Com 72px o degradê cai ~15 níveis, que o
-              olho lê como esfumado e não como linha, e o clarão continua.
-
-              **Mexeu nas luzes, remeça.** Curto demais e a listra volta;
-              comprido demais e o rodapé apaga.
-
-              **Não segue o `--hs`, de propósito.** Com a cena apagada o fundo
-              do hero ainda é #030304 e o da seção 02 é #000 — três níveis de
-              diferença, que numa borda reta de 1440px ainda se enxergam. Esta
-              faixa termina em preto puro e fecha os dois casos com um elemento
-              só. */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-[72px] bg-linear-[180deg,transparent,rgba(0,0,0,0.30)_50%,#000]"
           />
 
           {/* `--hw` também move o bloco: parado, o fade lê como a luz caindo;

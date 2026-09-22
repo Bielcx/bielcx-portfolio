@@ -296,10 +296,15 @@ site do anime.js, que não prende nenhuma seção — rolagem nativa, e quem ani
 cada bloco conforme entra e sai de quadro. O único `sticky` que sobra na página
 é o palco do próprio `Metodo`, que nunca teve a ver com o hero.
 
-**A página é toda preta, e `--color-surface` não existe mais.** O cinza que
-separava a seção de serviços do resto saiu: quem separa uma seção da outra é a
-luz — a faixa do `beam-dock` no alto da 02 e o campo de estrelas atrás dela.
-Continua havendo `--color-surface-raised`, que é de botão e não de seção.
+**`--color-surface` não existe mais**, e as seções não têm fundo próprio: quem
+pinta é o `Fundo` da página (ver "O fundo é só LUZ" abaixo). As duas exceções
+são objetos, não seções — o cartão do rodapé, que precisa do preto atrás das
+ondas, e a cobertura do `Menu`. Continua havendo `--color-surface-raised`, que
+é de botão.
+
+A faixa do `beam-dock` no alto da 02 continua, e a máscara dela apaga nas DUAS
+pontas: com um lado só, a borda de baixo era um corte reto na largura inteira —
+medido, a luminância caía de 15,6 para 0,0 de uma linha para a outra.
 
 **Não há campo de estrelas.** O `Starfield` rodava no hero e na seção 02 e saiu
 do site inteiro a pedido. O `sopa-agency`, de onde esta base veio, ainda o tem
@@ -320,16 +325,35 @@ rodaram enquanto você lia" saíram do protótipo, que diz por escrito que são
 placeholders. Promessa que a primeira tela faz é a que o cliente cobra na
 reunião, e esta faz quatro. A nota está por extenso em `hero.provas`.
 
-**O fundo é só LUZ.** Preto sólido com duas radiais nascendo abaixo da borda
-de baixo (`116%`): azul à esquerda (automação) e sage à direita (landing), as
-mesmas cores dos cards, mais um véu frio que costura as duas num clarão só.
-Nascer do rodapé é o que puxa o olho para baixo, que é para onde esta hero
-existe para mandar. A primeira versão do handoff tinha uma grade quadriculada
+**O fundo é só LUZ, e ele é da PÁGINA, não da hero** — mora em
+`components/Fundo.tsx`, uma camada `absolute inset-0 -z-10` sob o `<main>`, e
+todas as seções são transparentes por cima dele. Preto sólido com duas radiais
+nascendo abaixo da borda de baixo da primeira tela: azul à esquerda (automação)
+e sage à direita (landing), as mesmas cores dos cards, mais um véu frio que
+costura as duas num clarão só. Nascer do rodapé é o que puxa o olho para baixo,
+que é para onde esta hero existe para mandar. Daí para baixo o mesmo par repete
+em ladrilho, bem mais fraco, para a página não virar preto chapado.
+
+**Por que é da página e não da hero.** As luzes moravam dentro da hero e o
+resto era `#000`: dois fundos opacos encostando, e toda emenda entre eles
+aparecia como listra — primeiro no corte a faca do pé da hero, depois na borda
+de baixo do `beam-dock`. Esfumar cada emenda conserta o sintoma; o defeito é
+ter dois fundos. Com um só, não existe borda entre seção e seção para cortar
+nada.
+
+Dois números não são estilo: a caixa das luzes tem **150svh** para o gradiente
+terminar dentro dela (a 100svh ele ainda estava vivo quando a caixa acabava, e
+era isso que o `overflow-hidden` cortava), e as porcentagens foram
+**convertidas** para esse denominador — 116%→77,33%, 48%→32%, 112%→74,67%,
+34%→22,67%. Nos primeiros 100svh o desenho é o mesmo de antes, pixel a pixel.
+Mexeu na altura da caixa, refaça as divisões. E `absolute`, nunca `fixed`:
+preso na viewport o clarão se refaz a cada tela e a página lê como escorregando
+sobre um papel de parede parado. A primeira versão do handoff tinha uma grade quadriculada
 de 56px no lugar; a segunda a tirou, e se ela voltar é NO LUGAR das luzes —
 juntas, empastelam o miolo onde o nome mora.
 
-As camadas, de baixo para cima: preto, luzes, véu frio, cabos (SVG), cards,
-vinheta e o bloco central. **A vinheta é o que faz os cabos SAÍREM do nome**:
+As camadas, de baixo para cima: o `Fundo` da página (preto, luzes, véu frio) e,
+dentro da hero, cabos (SVG), cards, vinheta e o bloco central. **A vinheta é o que faz os cabos SAÍREM do nome**:
 os quatro terminam por volta de 50% da largura, atrás das letras, e se
 chegassem acesos até lá o desenho leria como linhas passando POR CIMA do nome.
 Ela foi aberta de 34%×38% para 44%×48% e o centro desceu para 52% justamente
@@ -423,15 +447,12 @@ profundidade: o texto vai, o fundo o segue, e a hero se desfaz em duas camadas
 em vez de uma chapa só. `FADE` e `CENA` viraram fração de UMA TELA de rolagem e
 **não dependem mais de medida nenhuma fora do `useHeroScroll`**.
 
-**O pé do hero tem uma faixa que apaga os últimos 72px até o preto puro, e ela
-não é enfeite.** As duas luzes nascem abaixo da borda de baixo, então a parte
-mais acesa delas fica colada no pé — e o `overflow-hidden` a cortava reto.
-Medido na emenda, sem a faixa: o pixel salta de rgb(12,15,22) para rgb(0,0,0)
-de uma linha para a outra, na largura inteira, e lê como listra. A cortina
-passava por cima disso e nunca deixava aparecer; tirada a cortina, o corte
-ficou à mostra desde o primeiro pixel de rolagem. O número é curto de propósito
-— uma tentativa de 140px a 88% matou o clarão do rodapé junto com a lâmina.
-**Mexeu nas luzes, remeça.**
+**Houve uma faixa de 72px no pé da hero para esfumar o corte da emenda, e ela
+saiu junto com o problema.** Ela era o remendo: com as luzes dentro da hero, o
+pé era cortado a faca e o pixel saltava de rgb(12,15,22) para rgb(0,0,0) de uma
+linha para a outra. Com o fundo na página não há pé para cortar. Fica o
+registro porque a tentação é reintroduzir esse tipo de remendo — se uma emenda
+voltar a aparecer, procure o fundo opaco novo, não o esfumado que falta.
 
 **O nome da hero é `font-display` (Bricolage Grotesque), a mesma do h2 da seção
 02**, em duas linhas — e a quebra é da copy (`hero.wordmark` é um array), não

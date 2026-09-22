@@ -42,7 +42,7 @@ export function Footer() {
        o cartão fecha exatamente na mesma coluna em que as faixas de serviço
        terminam. Mexeu lá, mexa aqui — são dois arquivos dizendo a mesma
        largura, e o desalinhamento não aparece em nenhum dos dois sozinho. */
-    <footer id="contato" className="bg-frame px-6 pt-3 sm:px-10 md:pt-5">
+    <footer id="contato" className="px-6 pt-3 sm:px-10 md:pt-5">
       <div className="relative isolate mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-[28px] border border-white/8 bg-frame px-6 py-[clamp(34px,5vh,64px)] md:rounded-[36px] md:px-12">
         <LightBeam
           className="pointer-events-none absolute inset-0 z-0"

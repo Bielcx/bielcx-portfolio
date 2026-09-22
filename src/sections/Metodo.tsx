@@ -76,7 +76,7 @@ export function Metodo() {
        * No celular não há palco preso: a tela é curta demais para prender e
        * ainda sobrar percurso.
        */
-      className="relative isolate bg-frame md:h-[115svh]"
+      className="relative isolate md:h-[115svh]"
     >
       {/*
         O palco. As medidas laterais são as MESMAS que o hero usa quando o card
