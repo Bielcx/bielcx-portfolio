@@ -289,6 +289,20 @@ configurado clica e nada acontece.
 faltando um, o `wa.me` não reclama, só abre conversa vazia, e todo CTA do site
 vira link morto sem aviso.
 
+**Não há mais NADA preso na página** — nem a travessia do hero, nem o palco da
+seção 02. O palco era um track de 115svh com um `sticky` de uma tela dentro, e
+existia para o conteúdo subir por dentro de um quadro parado. Ele caiu junto com
+a unificação do fundo, e por um motivo que dá para medir: com o fundo no
+DOCUMENTO e o conteúdo preso na VIEWPORT, os dois referenciais brigam. Entre
+`scrollY` 900 e 1020 o `h2` ficava congelado em y=205 enquanto a luz no mesmo
+ponto da tela drenava de rgb(11,16,23) para rgb(1,1,2) — 120px de conteúdo
+pregado com o fundo escorrendo por trás. Lê como fundo se mexendo sozinho.
+
+**Enquanto o fundo for único, `sticky` volta a produzir isso.** O
+`useStageProgress` saiu (o `Metodo` era a única chamadora) e a seção passou a
+usar o `useEnterProgress`, que o `Services` já usava e publica no mesmo
+`--enter` — os `enter-rise` não mudaram.
+
 **Não há mais cortina.** A seção 02 subia opaca por cima do hero preso, com um
 `-mt-[80vh]` e um `z-10` no `Metodo`. Saiu: o hero é uma seção de uma tela, a 02
 vem depois dele e a rolagem entre as duas é a do documento. A referência foi o
@@ -513,20 +527,20 @@ arquivos repetiriam na primeira volta, então cada bloco é um recorte
 mora no componente e não na copy: recorte é configuração, não texto. Trabalho
 novo na pasta não entra sozinho ali; acrescente as linhas.
 
-**Ele tem uma poça de preto atrás**, e ela não é enfeite. Os prints têm cor
-própria — teal, laranja, branco — e a parede cai justamente onde o `Fundo` da
-página tem o clarão sage: o verde passa por trás dos blocos e vaza pelos vãos,
-e as duas cores brigam. A sombra isola a parede do clarão sem apagar o clarão
-em volta dela.
+**Ele é em PRETO E BRANCO**, e isso resolve um conflito de cor. Os prints têm
+cor própria — teal, laranja, branco — e a parede cai justamente onde o `Fundo`
+da página tem o clarão sage: duas cores no mesmo lugar, e o print deixa de ler
+como print para virar mancha colorida no meio de outra.
 
-Dois detalhes que quebram em silêncio: ela vem ANTES do `DriftWall` no DOM (e
-por isso fica atrás, sem `z-index`), e os raios do radial são **50%/50%** da
-caixa, que é o que a faz chegar em transparente justo na borda. Maior que isso
-o degradê é cortado ainda aceso e vira um retângulo preto sobre o fundo aceso;
-menor, sobra caixa sem sombra. Os 48px de folga do `-inset-12` põem a aresta da
-parede a ~88% do raio — a primeira versão tinha raio menor e caía para 0,07 de
-opacidade ali, deixando sem sombra justamente o topo, que é onde o clarão bate
-mais forte.
+Houve uma tentativa de empilhar uma poça de preto atrás da parede para isolá-la
+do clarão. Funcionava e ficou feia — uma mancha escura no meio de um fundo
+aceso, e mais um objeto para calibrar. Tirar a cor ataca o mesmo conflito pelo
+outro lado e não acrescenta camada nenhuma: a parede vira TEXTURA, que é o papel
+dela (prova que há trabalho, não mostra qual). O `contrast`/`brightness`
+acompanham o `grayscale` porque dessaturar sozinho achata tudo num cinza médio
+que some no fundo escuro, e o véu por cima virou preto — com os blocos em cinza,
+véu com matiz (era `#060010`) devolve justamente o que a dessaturação tirou e
+puxa a parede inteira para o roxo.
 
 Ele é DECORATIVO e vai inteiro em `aria-hidden`: o hover que levanta o bloco e
 o `role="button"` do original ficaram de fora, porque a regra da seção é que o

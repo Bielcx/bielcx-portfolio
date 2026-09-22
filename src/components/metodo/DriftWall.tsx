@@ -112,6 +112,23 @@ const VELOCIDADE = 42
  */
 const fator = (i: number) => 1 + 0.45 * ((((i * 0.6180339887 + 0.35) % 1) * 2) - 1)
 
+/**
+ * **A PAREDE É EM PRETO E BRANCO, e isso resolve um conflito de cor.**
+ *
+ * Os prints têm cor própria — teal, laranja, branco — e a parede cai justamente
+ * onde o `Fundo` da página tem o clarão sage. Duas cores no mesmo lugar, e o
+ * print deixa de ler como print: vira mancha colorida no meio de outra.
+ *
+ * A primeira tentativa foi empilhar uma poça de preto atrás da parede para
+ * isolá-la do clarão. Funcionava e ficou feia — uma mancha escura no meio de um
+ * fundo aceso, e mais um objeto para calibrar. Tirar a cor dos prints ataca o
+ * mesmo conflito pelo outro lado e não acrescenta camada nenhuma: a parede vira
+ * TEXTURA, que é o papel dela (ela prova que há trabalho, não mostra qual), e a
+ * cor da página passa a ser só o clarão do fundo e os acentos.
+ *
+ * O `contrast`/`brightness` acompanham o `grayscale`: dessaturar sozinho achata
+ * os prints num cinza médio, e eles somem no fundo escuro.
+ */
 export function DriftWall({ className = '' }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const planeRef = useRef<HTMLDivElement>(null)
@@ -252,7 +269,7 @@ export function DriftWall({ className = '' }: { className?: string }) {
                     style={{ height: UNIT }}
                   >
                     <span
-                      className="absolute overflow-hidden rounded-[14px] bg-[#0b0b12] opacity-55"
+                      className="absolute overflow-hidden rounded-[14px] bg-[#0b0b0b] opacity-55"
                       style={{ inset: GAP / 2 }}
                     >
                       <img
@@ -261,12 +278,17 @@ export function DriftWall({ className = '' }: { className?: string }) {
                         loading="lazy"
                         decoding="async"
                         draggable={false}
-                        className="block size-full select-none object-cover saturate-[0.92]"
+                        className="block size-full select-none object-cover grayscale contrast-[1.08] brightness-[0.92]"
                         style={{ objectPosition: tile.pos } as CSSProperties}
                       />
                       {/* Véu: os blocos são fundo de uma coluna de texto, e o
-                          print cru compete com ela. */}
-                      <span className="absolute inset-0 bg-[#060010] opacity-40" />
+                          print cru compete com ela.
+
+                          **Preto, e não mais o `#060010` arroxeado.** Com os
+                          prints em cinza, um véu com matiz devolve justamente o
+                          que a dessaturação tirou — a parede inteira puxaria
+                          para o roxo. */}
+                      <span className="absolute inset-0 bg-black opacity-35" />
                     </span>
                   </span>
                 )),

@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react'
 
 import { DriftWall } from '../components/metodo/DriftWall'
 import { metodo } from '../data/content'
-import { useStageProgress } from '../hooks/useStageProgress'
+import { useEnterProgress } from '../hooks/useEnterProgress'
 
 /**
  * Seção 02 — "Mostramos antes de explicar".
@@ -28,55 +28,36 @@ import { useStageProgress } from '../hooks/useStageProgress'
  * `data/content.ts`.
  */
 export function Metodo() {
-  const trackRef = useStageProgress()
+  const trackRef = useEnterProgress()
 
   return (
     <section
       ref={trackRef}
       /*
-       * Track alto + `sticky` dentro dele: é o que faz esta seção ser um
-       * QUADRO em vez de um trecho de página rolando. Era a mesma armação que
-       * o hero usava; hoje é a única da página, porque lá ela saiu.
+       * **O PALCO PRESO SAIU, e o motivo é um bug que dava para medir.**
        *
-       * A diferença importa. Com o quadro parado, o conteúdo que sobe por
-       * dentro tem contra o que se mover, e o olho lê uma chegada. Sem ele, o
-       * conteúdo acompanha a rolagem e o olho lê só a página passando — foi o
-       * que faltou nas tentativas anteriores, e é o que a narrativa antiga
-       * tinha de graça por morar dentro do card fixo do hero.
+       * Esta seção era um track de 115svh com um `sticky` de uma tela dentro:
+       * o quadro parava e o conteúdo subia por dentro dele, para o olho ler uma
+       * chegada em vez de a página passando. Isso valia enquanto cada seção
+       * tinha o seu próprio fundo.
        *
-       * **Esta seção NÃO sobe mais por cima do hero.** Ela tinha um
-       * `-mt-[80svh]` e um `z-10` que a faziam começar antes do fim do track do
-       * hero e cobri-lo como cortina opaca — e aquela margem era um par com a
-       * altura do track de lá (180svh) e com os dois fades do `useHeroScroll`.
-       * Três números que só funcionavam juntos, e que erravam em silêncio.
+       * Com o fundo passando a ser UM SÓ, do documento, os dois referenciais
+       * brigaram: o conteúdo preso na viewport e o fundo rolando com a página.
+       * Medido, entre `scrollY` 900 e 1020 o `h2` ficava congelado em y=205
+       * enquanto a luz no mesmo ponto da tela drenava de rgb(11,16,23) para
+       * rgb(1,1,2) — 120px em que o conteúdo está pregado e o fundo escorre por
+       * trás dele. Lê como fundo se mexendo sozinho, e é exatamente isso.
        *
-       * Saiu tudo. O hero é uma seção de uma tela, esta vem depois dele, e a
-       * rolagem entre as duas é a do documento — sem nada preso na travessia e
-       * sem sobreposição. A referência é o site do anime.js, que não prende
-       * nenhuma seção. O palco preso DESTA seção continua (é o `sticky` de
-       * dentro, com o track de 115svh abaixo): ele nunca teve a ver com o hero,
-       * e é o que faz o conteúdo chegar em vez de só passar.
+       * Enquanto houver `sticky` numa página de fundo único, esse descolamento
+       * volta. **Não reintroduza o palco preso sem resolver isso antes.**
        *
-       * **Não há aresta nenhuma no topo**, e isso é o ponto. Já houve uma
-       * sombra escura (herdada do `Services`) e depois um fio claro, os dois
-       * para desenhar a borda da cortina. Com o fundo da página atravessando as
-       * duas seções, qualquer marca ali divide o que deveria ser contínuo.
-       *
-       * **A altura do track é o que sobra de scroll preso depois que o card
-       * enche a tela**, e é o número que evita rolagem em falso. 115vh dão uma
-       * tela de card mais ~135px de palco preso, e é aí que o conteúdo termina
-       * de assentar: o scroll devolve algo até o fim.
-       *
-       * Foram 190vh (585px parados) e 135vh (315px). Nos dois a rolagem em
-       * falso foi sentida. O engano da primeira vez foi achar que o `hold` do
-       * hook resolvia: com o `easeOutCubic`, o grosso do movimento já acontece
-       * enquanto o card SOBE, então quando ele prende quase não resta o que
-       * animar — palco comprido é palco morto, e não só a folga do fim.
-       *
-       * No celular não há palco preso: a tela é curta demais para prender e
-       * ainda sobrar percurso.
+       * O que se perde é pequeno e estava documentado: o palco só segurava
+       * ~135px, a nota antiga já dizia que palco comprido é palco morto, e no
+       * celular ele nunca existiu. O `useStageProgress` saiu junto — esta era a
+       * única chamadora — e o `useEnterProgress`, que o `Services` usa, publica
+       * no mesmo `--enter`, então os `enter-rise` não mudam.
        */
-      className="relative isolate md:h-[115svh]"
+      className="relative isolate"
     >
       {/*
         O palco. As medidas laterais são as MESMAS que o hero usa quando o card
@@ -107,7 +88,7 @@ export function Metodo() {
         Devolver o fio resolveria o borrão e traria de volta uma divisória
         horizontal, que é o que o card tinha de errado.
       */}
-      <div className="relative flex px-4 py-5 md:sticky md:top-0 md:h-viewport md:items-center md:px-16 md:py-14">
+      <div className="relative flex px-4 py-16 md:items-center md:px-16 md:py-28">
         {/* **A FAIXA DE LUZ DO ALTO SAIU.** Era o `beam-dock`: uma barra
             branca borrada, de 56px, colada na borda de cima da seção, que
             apagava conforme ela assentava. Fazia sentido enquanto esta seção
@@ -196,41 +177,10 @@ export function Metodo() {
 
                 No celular não há grid, e aí vale o `clamp`. */}
             <div
-              className="enter-rise relative md:self-stretch"
+              className="enter-rise md:self-stretch"
               style={{ '--d': 0.14, '--r': '128px' } as CSSProperties}
             >
-              {/* A SOMBRA ATRÁS DA PAREDE.
-
-                  Os prints têm cor própria — teal, laranja, branco — e a
-                  parede cai justamente onde o `Fundo` da página tem o clarão
-                  sage. O verde vaza pelos vãos entre os blocos e passa por
-                  trás deles, e as duas cores brigam: o print deixa de ler como
-                  print e vira mancha colorida no meio de outra.
-
-                  Esta poça de preto isola a parede do clarão sem apagar o
-                  clarão em volta dela. Vem ANTES do `DriftWall` no DOM e por
-                  isso fica atrás — sem `z-index`, que aqui só criaria mais um
-                  contexto de empilhamento para alguém tropeçar depois.
-
-                  **É radial e transborda a caixa** (`-inset-12`): quadrada e
-                  rente, ela seria um retângulo preto visível sobre o fundo
-                  aceso — exatamente o tipo de borda reta que esta página já
-                  cansou de produzir.
-
-                  **Os raios são 50%/50% de propósito, e os stops foram
-                  medidos.** Com a elipse na metade exata da caixa, ela chega em
-                  transparente JUSTO na borda dela: maior que isso, o degradê é
-                  cortado ainda aceso e volta o retângulo; menor, sobra caixa
-                  sem sombra. Os 48px de folga do `-inset-12` são o que põe a
-                  aresta da parede a ~88% do raio, e é por isso que o stop de
-                  88% ainda vale 0,78 — uma primeira versão caía para 0,07 ali,
-                  e o topo da parede, que é onde o clarão bate mais forte,
-                  ficava sem sombra nenhuma. */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -inset-12 bg-[radial-gradient(50%_50%_at_50%_50%,#000_0%,rgba(0,0,0,0.95)_60%,rgba(0,0,0,0.78)_88%,transparent_100%)]"
-              />
-              <DriftWall className="relative h-[clamp(320px,52vh,560px)] rounded-xl md:h-full" />
+              <DriftWall className="h-[clamp(320px,52vh,560px)] rounded-xl md:h-full" />
             </div>
           </div>
         </div>
