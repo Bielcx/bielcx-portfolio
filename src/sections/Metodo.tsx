@@ -57,10 +57,10 @@ export function Metodo() {
        * dentro, com o track de 115svh abaixo): ele nunca teve a ver com o hero,
        * e é o que faz o conteúdo chegar em vez de só passar.
        *
-       * A aresta de cima é um fio claro, e não a sombra escura que o `Services`
-       * usava: a sombra funcionava quando o card do hero era um degradê cinza,
-       * e hoje é preto sobre preto — sem o fio, a emenda entre as duas seções
-       * some.
+       * **Não há aresta nenhuma no topo**, e isso é o ponto. Já houve uma
+       * sombra escura (herdada do `Services`) e depois um fio claro, os dois
+       * para desenhar a borda da cortina. Com o fundo da página atravessando as
+       * duas seções, qualquer marca ali divide o que deveria ser contínuo.
        *
        * **A altura do track é o que sobra de scroll preso depois que o card
        * enche a tela**, e é o número que evita rolagem em falso. 115vh dão uma
@@ -96,8 +96,8 @@ export function Metodo() {
         **E não há mais campo de estrelas atrás.** Ele ocupava a seção inteira,
         num invólucro com `overflow-hidden` que existia só para cortá-lo — o
         canvas tinha `w-screen`, e `100vw` conta a barra de rolagem. Saiu do
-        site todo, e o que separa esta seção da anterior passou a ser só a
-        costura de luz do topo e o vazio.
+        site todo, e o que separa esta seção da anterior passou a ser só o
+        vazio: o fundo da página atravessa as duas sem costura.
 
         **E não há luz colorida saindo do conteúdo.** Houve uma tentativa: o
         halo do card reancorado no topo do bloco, subindo. Não funciona, e o
@@ -196,10 +196,41 @@ export function Metodo() {
 
                 No celular não há grid, e aí vale o `clamp`. */}
             <div
-              className="enter-rise md:self-stretch"
+              className="enter-rise relative md:self-stretch"
               style={{ '--d': 0.14, '--r': '128px' } as CSSProperties}
             >
-              <DriftWall className="h-[clamp(320px,52vh,560px)] rounded-xl md:h-full" />
+              {/* A SOMBRA ATRÁS DA PAREDE.
+
+                  Os prints têm cor própria — teal, laranja, branco — e a
+                  parede cai justamente onde o `Fundo` da página tem o clarão
+                  sage. O verde vaza pelos vãos entre os blocos e passa por
+                  trás deles, e as duas cores brigam: o print deixa de ler como
+                  print e vira mancha colorida no meio de outra.
+
+                  Esta poça de preto isola a parede do clarão sem apagar o
+                  clarão em volta dela. Vem ANTES do `DriftWall` no DOM e por
+                  isso fica atrás — sem `z-index`, que aqui só criaria mais um
+                  contexto de empilhamento para alguém tropeçar depois.
+
+                  **É radial e transborda a caixa** (`-inset-12`): quadrada e
+                  rente, ela seria um retângulo preto visível sobre o fundo
+                  aceso — exatamente o tipo de borda reta que esta página já
+                  cansou de produzir.
+
+                  **Os raios são 50%/50% de propósito, e os stops foram
+                  medidos.** Com a elipse na metade exata da caixa, ela chega em
+                  transparente JUSTO na borda dela: maior que isso, o degradê é
+                  cortado ainda aceso e volta o retângulo; menor, sobra caixa
+                  sem sombra. Os 48px de folga do `-inset-12` são o que põe a
+                  aresta da parede a ~88% do raio, e é por isso que o stop de
+                  88% ainda vale 0,78 — uma primeira versão caía para 0,07 ali,
+                  e o topo da parede, que é onde o clarão bate mais forte,
+                  ficava sem sombra nenhuma. */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -inset-12 bg-[radial-gradient(50%_50%_at_50%_50%,#000_0%,rgba(0,0,0,0.95)_60%,rgba(0,0,0,0.78)_88%,transparent_100%)]"
+              />
+              <DriftWall className="relative h-[clamp(320px,52vh,560px)] rounded-xl md:h-full" />
             </div>
           </div>
         </div>
