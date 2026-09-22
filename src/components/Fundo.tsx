@@ -19,58 +19,30 @@
  *
  * O `-z-10` e o `isolate` do `<main>` são um par: sem o isolamento, este
  * elemento negativo escaparia para trás do `<body>` e sumiria.
+ *
+ * **NÃO HÁ MAIS CLARÃO NA PRIMEIRA TELA, e isso foi pedido.** Eram dois
+ * radiais (azul à esquerda, sage à direita) mais um véu frio costurando os
+ * dois, ocupando a metade de baixo da hero. O desenho original punha o centro
+ * deles 16% ABAIXO do pé da tela — a luz nascia de fora da hero —, o que
+ * deixava o pico do gradiente dentro da seção 02 e o rabo por cima da parede de
+ * trabalhos. Isso foi remendado quatro vezes: caixa de 150svh, máscara linear,
+ * corte em 66/85%, e por fim trazer o centro para dentro (80%/26%, terminando
+ * em y=884). As quatro mudaram o sintoma de nome — listra, faca, borrão — e
+ * nenhuma deixou o dono satisfeito com o resultado. Saiu inteiro.
+ *
+ * **Se voltar, volta terminando dentro da hero**: centro acima de 85% da caixa
+ * e raio vertical curto o bastante para a parada do `transparent` cair antes do
+ * pé. Máscara linear não resolve — gradiente cortado por uma reta tem borda
+ * reta, e borda reta em fundo contínuo se vê. Foi essa a lição das quatro.
  */
 export function Fundo() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-frame">
       {/*
-        AS DUAS LUZES DA PRIMEIRA TELA — e a regra que manda aqui é:
-        **a luz TERMINA dentro da hero. Sozinha, sem máscara.**
-
-        No desenho original o centro ficava em `116%`, ou seja 16% ABAIXO do pé
-        da tela, com raio vertical de 48%: a luz nascia do rodapé e o que se via
-        era a metade de cima de uma bola gigante. Isso dá um clarão bonito e um
-        problema estrutural — a parte mais acesa do gradiente cai FORA da hero,
-        em cima da seção 02. Medido, o pico ficava em y=1044, 144px dentro da
-        02, e o rabo chegava a y=1346, por cima da parede de trabalhos.
-
-        Isso foi remendado três vezes (caixa de 150svh, máscara linear, corte em
-        66/85%) e as três vezes o sintoma voltou com outro nome: listra, faca,
-        borrão. É sempre o mesmo defeito — um gradiente cortado por uma reta tem
-        uma borda reta, e borda reta no meio de um fundo contínuo se vê.
-
-        Agora o centro está em 80% e o raio vertical em 26%, então a parada de
-        70% (onde o `transparent` chega) cai em:
-
-          centro   0,80 × 900 = y 720
-          alcance  0,70 × 0,26 × 900 = 164px
-          fim      720 + 164 = y 884   →  16px ANTES do pé da hero (900)
-          início   720 − 164 = y 556
-
-        A luz vira uma poça na parte de baixo da primeira tela em vez de um
-        nascente vindo de fora dela. Nada é cortado, então não há borda; a
-        seção 02 recebe preto limpo e a parede de trabalhos não briga com cor.
-
-        **Mexeu na altura da hero, refaça essas duas contas.** Se o fim passar
-        de 900, a cor volta a invadir a 02 — e a correção é encolher o raio ou
-        subir o centro, NUNCA pôr máscara de novo.
-      */}
-      <div className="absolute inset-x-0 top-0 h-viewport">
-        <div className="absolute inset-0 bg-[radial-gradient(58%_26%_at_16%_80%,rgba(84,116,168,0.28),transparent_70%),radial-gradient(58%_26%_at_84%_80%,rgba(122,154,92,0.22),transparent_70%)]" />
-
-        {/* O véu frio que costura o azul e o sage num clarão só, em vez de dois
-            holofotes separados. Fica um pouco mais baixo e mais largo que os
-            dois, e também termina dentro da caixa. */}
-        <div className="absolute inset-0 bg-[radial-gradient(70%_20%_at_50%_82%,rgba(170,200,245,0.09),transparent_72%)]" />
-      </div>
-
-      {/*
-        O ECO, daí para baixo — o que impede a página de virar preto chapado
-        depois da primeira tela, que é o que a fazia parecer outro site.
-
-        Mesma paleta, bem mais fraca: na hero os alfas são 0,28 e 0,22 porque
-        ali o clarão é o assunto; aqui ele é textura, e passar disso compete com
-        o conteúdo.
+        O ECO — o que impede a página de virar preto chapado depois da primeira
+        tela, que é o que a fazia parecer outro site. É o único desenho que
+        sobrou aqui, e é textura, não assunto: os alfas são 0,10 e 0,08 porque
+        passar disso compete com o conteúdo.
 
         **AS DUAS BOLHAS FICAM À ESQUERDA, e isso não é composição, é uma regra
         de layout.** Da segunda seção para baixo, IMAGEM MORA À DIREITA — a
@@ -88,10 +60,9 @@ export function Fundo() {
         entra trabalho novo na grade da 03, e glow ancorado em pixel ficaria
         órfão no meio do nada. Cada ladrilho tem o centro em 50% e apaga em 70%
         do raio, então as emendas entre ladrilhos caem em transparente — é o que
-        evita trocar uma costura por outra. O primeiro ladrilho começa no pé da
-        hero, mas o centro dele fica 550px abaixo: o vão escuro entre a poça da
-        hero e a primeira bolha do eco é de propósito, é ele que separa as duas
-        seções sem desenhar linha nenhuma.
+        evita trocar uma costura por outra. Começa no pé da hero, mas o centro
+        do primeiro ladrilho fica 550px abaixo dele: a primeira tela é preta
+        inteira e a cor só aparece quando a 02 já está em quadro.
       */}
       <div className="absolute inset-x-0 top-[100svh] bottom-0 bg-[length:100%_1100px] bg-repeat-y bg-[radial-gradient(30%_26%_at_8%_50%,rgba(84,116,168,0.10),transparent_70%),radial-gradient(30%_24%_at_24%_50%,rgba(122,154,92,0.08),transparent_70%)]" />
     </div>

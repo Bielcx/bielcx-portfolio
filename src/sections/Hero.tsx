@@ -11,9 +11,12 @@ import { useHeroScroll } from '../hooks/useHeroScroll'
  * OS DOIS BOTÕES SÃO O MESMO DO RODAPÉ — o `SpecularButton` com a classe do
  * "Tirar um projeto do papel" —, e isso contraria o handoff, que os desenha
  * como retângulo chapado (`#141518` com borda `#2a2b30`). Foi decisão do dono,
- * e o fundo é TRANSPARENTE: sobre as duas luzes do fundo, qualquer cor própria
- * vira um retângulo cinza flutuando na frente do clarão. Quem desenha o botão
- * aqui é a borda e o contorno especular, não a superfície.
+ * e o fundo é TRANSPARENTE: quem desenha o botão aqui é a borda e o contorno
+ * especular, não a superfície. Isso nasceu por causa das duas luzes que havia
+ * atrás — qualquer cor própria virava um retângulo cinza flutuando na frente
+ * do clarão. As luzes saíram e a primeira tela hoje é preta, mas a escolha
+ * continua valendo por outro motivo: sobre preto, superfície chapada devolve
+ * a moldura que o handoff desenhava, e moldura foi o que tirou o card da 02.
  *
  * O preço são dois contextos WebGL a mais na primeira tela, que sobem para
  * quatro com o losango e o rodapé. Se um dia pesar em celular fraco, o

@@ -345,37 +345,39 @@ rodaram enquanto você lia" saíram do protótipo, que diz por escrito que são
 placeholders. Promessa que a primeira tela faz é a que o cliente cobra na
 reunião, e esta faz quatro. A nota está por extenso em `hero.provas`.
 
-**O fundo é só LUZ, e ele é da PÁGINA, não da hero** — mora em
-`components/Fundo.tsx`, uma camada `absolute inset-0 -z-10` sob o `<main>`, e
-todas as seções são transparentes por cima dele. Preto sólido com duas radiais
-nascendo abaixo da borda de baixo da primeira tela: azul à esquerda (automação)
-e sage à direita (landing), as mesmas cores dos cards, mais um véu frio que
-costura as duas num clarão só. Nascer do rodapé é o que puxa o olho para baixo,
-que é para onde esta hero existe para mandar. Daí para baixo o mesmo par repete
-em ladrilho, bem mais fraco, para a página não virar preto chapado.
+**O fundo é da PÁGINA, não da hero** — mora em `components/Fundo.tsx`, uma
+camada `absolute inset-0 -z-10` sob o `<main>`, e todas as seções são
+transparentes por cima dele. Hoje ele é preto sólido, e só a partir do pé da
+primeira tela entra um eco em ladrilho: azul e sage bem fracos, as mesmas cores
+dos cards, para a página não virar preto chapado.
 
-**O clarão da hero NÃO invade a seção 02, e o eco fica todo à esquerda.** As
-duas regras têm a mesma causa: da segunda seção para baixo, IMAGEM MORA À
-DIREITA — a parede de trabalhos da 02 ocupa x=711..1340, a grade da 03 começa em
-x=709, e o texto fica à esquerda nas duas. Cor de fundo por trás de print é
-conflito de cor, e é o mesmo problema que a parede em preto e branco ataca pelo
-outro lado.
+**A PRIMEIRA TELA É PRETA, e isso foi pedido.** Havia ali duas radiais (azul à
+esquerda, automação; sage à direita, landing) e um véu frio costurando as duas
+num clarão só. O desenho original as fazia nascer ABAIXO da borda de baixo da
+tela — 16% abaixo do pé —, o que puxava o olho para baixo mas deixava o pico do
+gradiente dentro da seção 02 e o rabo por cima da parede de trabalhos. Isso foi
+remendado quatro vezes, e as quatro trocaram o sintoma de nome em vez de
+resolvê-lo:
 
-- o clarão da hero **termina dentro da hero, sozinho**: centro em 80% e raio
-  vertical de 26%, então a parada de 70% cai em y=884 — 16px antes do pé (900).
-  Não há máscara. Houve, e foi o terceiro remendo do mesmo defeito: o desenho
-  original punha o centro 16% ABAIXO do pé, o que deixava o pico do gradiente em
-  y=1044 (144px dentro da 02) e o rabo em y=1346, por cima da parede. Cortar
-  isso com uma reta dá uma borda reta, e borda reta em fundo contínuo se vê —
-  virou listra, depois faca, depois borrão. **Se a cor voltar a invadir a 02, a
-  correção é encolher o raio ou subir o centro, NUNCA máscara de novo.**
-- o eco tinha uma bolha sage em x=86%, centrada em x=1238: bem no meio da
-  parede. As duas foram para 8% e 24%, com alcance real terminando em x≈648
+| tentativa | o que virou |
+|---|---|
+| caixa de 150svh | o corte a faca no pé da hero |
+| máscara linear de uma ponta | listra na borda de baixo |
+| corte em 66/85% | borrão de cor atravessando a costura |
+| centro trazido para 80%/26% | ainda "feio", e saiu |
 
-**Mexeu na altura da hero, na posição da parede ou na coluna das imagens,
-remeça os três.** O vão escuro entre a poça da hero e a primeira bolha do eco
-(y 884..1250) é de propósito: é ele que separa as duas seções sem desenhar
-linha nenhuma.
+**A lição, se um dia voltar:** gradiente cortado por uma reta tem borda reta, e
+borda reta em fundo contínuo se vê — máscara linear não é solução. Voltando,
+volta terminando dentro da hero por geometria: centro acima de 85% da caixa e
+raio vertical curto o bastante para a parada do `transparent` cair antes do pé.
+
+**O eco fica todo à esquerda**, e isso não é composição: da segunda seção para
+baixo, IMAGEM MORA À DIREITA — a parede de trabalhos da 02 ocupa x=711..1340, a
+grade da 03 começa em x=709, e o texto fica à esquerda nas duas. Cor de fundo
+por trás de print é conflito de cor, e é o mesmo problema que a parede em preto
+e branco ataca pelo outro lado. Havia uma bolha sage em x=86%, centrada em
+x=1238: bem no meio da parede. As duas foram para 8% e 24%, com alcance real
+terminando em x≈648. **Mudou a coluna das imagens de lado, mude as duas.**
 
 **Por que é da página e não da hero.** As luzes moravam dentro da hero e o
 resto era `#000`: dois fundos opacos encostando, e toda emenda entre eles
@@ -384,16 +386,15 @@ de baixo do `beam-dock`. Esfumar cada emenda conserta o sintoma; o defeito é
 ter dois fundos. Com um só, não existe borda entre seção e seção para cortar
 nada.
 
-A caixa das luzes é de **uma tela** e o gradiente se apaga antes da borda dela,
-que é o que torna o `overflow` irrelevante — a versão de 150svh existia para
-acomodar um gradiente que nascia fora da hero, e ela saiu junto com ele.
-E `absolute`, nunca `fixed`:
-preso na viewport o clarão se refaz a cada tela e a página lê como escorregando
-sobre um papel de parede parado. A primeira versão do handoff tinha uma grade quadriculada
-de 56px no lugar; a segunda a tirou, e se ela voltar é NO LUGAR das luzes —
-juntas, empastelam o miolo onde o nome mora.
+E `absolute`, nunca `fixed`: preso na viewport o desenho se refaz a cada tela e
+a página lê como escorregando sobre um papel de parede parado. A primeira versão
+do handoff tinha uma grade quadriculada de 56px na primeira tela; a segunda a
+tirou. Com a tela preta ela é a candidata óbvia a preencher o vazio — mas ela
+sai do mesmo lugar de onde as luzes saíram, e o que empastelava o miolo onde o
+nome mora era ter alguma coisa ali.
 
-As camadas, de baixo para cima: o `Fundo` da página (preto, luzes, véu frio) e,
+As camadas, de baixo para cima: o `Fundo` da página (preto, mais o eco abaixo
+da primeira tela) e,
 dentro da hero, cabos (SVG), cards, vinheta e o bloco central. **A vinheta é o que faz os cabos SAÍREM do nome**:
 os quatro terminam por volta de 50% da largura, atrás das letras, e se
 chegassem acesos até lá o desenho leria como linhas passando POR CIMA do nome.
