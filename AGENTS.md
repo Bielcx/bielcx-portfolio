@@ -354,6 +354,26 @@ costura as duas num clarão só. Nascer do rodapé é o que puxa o olho para bai
 que é para onde esta hero existe para mandar. Daí para baixo o mesmo par repete
 em ladrilho, bem mais fraco, para a página não virar preto chapado.
 
+**O clarão da hero NÃO invade a seção 02, e o eco fica todo à esquerda.** As
+duas regras têm a mesma causa: da segunda seção para baixo, IMAGEM MORA À
+DIREITA — a parede de trabalhos da 02 ocupa x=711..1340, a grade da 03 começa em
+x=709, e o texto fica à esquerda nas duas. Cor de fundo por trás de print é
+conflito de cor, e é o mesmo problema que a parede em preto e branco ataca pelo
+outro lado.
+
+- o clarão da hero ganhou uma MÁSCARA que corta só embaixo (opaca até 66% da
+  caixa, transparente em 85%). Encurtar o raio não serviria: o centro fica 16%
+  abaixo do pé da primeira tela, então raio menor apagaria o clarão dentro da
+  própria hero. Sem máscara o pico caía em y=1044 — 144px DENTRO da 02 — e a luz
+  chegava a y=1346; a parede começa em 1302. Com ela, o pé da hero (y=900, 66,7%
+  da caixa) ainda vale 0,96 e a luz morre em y≈1148, 150px antes da parede
+- o eco tinha uma bolha sage em x=86%, centrada em x=1238: bem no meio da
+  parede. As duas foram para 8% e 24%, com alcance real terminando em x≈648
+
+**Mexeu na altura da hero, na posição da parede ou na coluna das imagens,
+remeça os três.** Cedo demais apaga o clarão do rodapé, tarde demais devolve a
+cor por cima das imagens.
+
 **Por que é da página e não da hero.** As luzes moravam dentro da hero e o
 resto era `#000`: dois fundos opacos encostando, e toda emenda entre eles
 aparecia como listra — primeiro no corte a faca do pé da hero, depois na borda
