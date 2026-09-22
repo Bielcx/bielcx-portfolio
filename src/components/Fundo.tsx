@@ -24,62 +24,51 @@ export function Fundo() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-frame">
       {/*
-        AS DUAS LUZES DA PRIMEIRA TELA, e os números foram CONVERTIDOS, não
-        redesenhados.
+        AS DUAS LUZES DA PRIMEIRA TELA — e a regra que manda aqui é:
+        **a luz TERMINA dentro da hero. Sozinha, sem máscara.**
 
-        Na hero elas viviam numa caixa de 100svh, com centro em `116%` e raio
-        vertical de `48%` — ou seja, o centro 16% abaixo do pé da caixa. Isso é
-        o que faz o clarão nascer do rodapé e puxar o olho para baixo, e é a
-        razão do fundo inteiro. Também era o que produzia o corte: o gradiente
-        seguia vivo quando a caixa acabava, e o `overflow-hidden` o cortava a
-        faca.
+        No desenho original o centro ficava em `116%`, ou seja 16% ABAIXO do pé
+        da tela, com raio vertical de 48%: a luz nascia do rodapé e o que se via
+        era a metade de cima de uma bola gigante. Isso dá um clarão bonito e um
+        problema estrutural — a parte mais acesa do gradiente cai FORA da hero,
+        em cima da seção 02. Medido, o pico ficava em y=1044, 144px dentro da
+        02, e o rabo chegava a y=1346, por cima da parede de trabalhos.
 
-        A caixa aqui é de 150svh para o gradiente TERMINAR dentro dela. Com
-        isso as porcentagens mudam de denominador, e só por isso:
+        Isso foi remendado três vezes (caixa de 150svh, máscara linear, corte em
+        66/85%) e as três vezes o sintoma voltou com outro nome: listra, faca,
+        borrão. É sempre o mesmo defeito — um gradiente cortado por uma reta tem
+        uma borda reta, e borda reta no meio de um fundo contínuo se vê.
 
-          centro   116% de 100svh = 1,16 tela  →  1,16 / 1,5 = 77,33%
-          raio     48% de 100svh  = 0,48 tela  →  0,48 / 1,5 = 32%
-          véu      112% e 34%     →  74,67% e 22,67%
+        Agora o centro está em 80% e o raio vertical em 26%, então a parada de
+        70% (onde o `transparent` chega) cai em:
 
-        Nos primeiros 100svh o desenho é o MESMO de antes, pixel a pixel — é a
-        mesma geometria absoluta. O que muda é que abaixo disso ele se apaga
-        sozinho em vez de ser cortado. **Mexeu na altura da caixa, refaça as
-        três divisões.**
+          centro   0,80 × 900 = y 720
+          alcance  0,70 × 0,26 × 900 = 164px
+          fim      720 + 164 = y 884   →  16px ANTES do pé da hero (900)
+          início   720 − 164 = y 556
+
+        A luz vira uma poça na parte de baixo da primeira tela em vez de um
+        nascente vindo de fora dela. Nada é cortado, então não há borda; a
+        seção 02 recebe preto limpo e a parede de trabalhos não briga com cor.
+
+        **Mexeu na altura da hero, refaça essas duas contas.** Se o fim passar
+        de 900, a cor volta a invadir a 02 — e a correção é encolher o raio ou
+        subir o centro, NUNCA pôr máscara de novo.
       */}
-      {/*
-        A MÁSCARA é o que segura o clarão na primeira tela, e ela existe porque
-        um radial não sabe ser assimétrico.
-
-        O centro fica 16% ABAIXO do pé da primeira tela — é o que faz a luz
-        nascer do rodapé —, então encurtar o raio para o rabo não invadir a
-        seção 02 apagaria o clarão dentro da própria hero: o que se vê lá em
-        cima é justamente a metade de cima da bola. Medido, sem máscara o
-        gradiente vivia de y=742 a y=1346, com o PICO em 1044 — ou seja, o
-        ponto mais aceso do fundo caía 144px DENTRO da seção 02.
-
-        A máscara corta só embaixo: opaca até 66% da caixa (y≈891, o pé da
-        primeira tela) e transparente em 85% (y≈1148). A parede de trabalhos da
-        02 começa em y=1302, então a luz morre 150px antes de encostar nela. O
-        desenho dentro da hero fica intocado — em 66,7% a máscara ainda vale
-        ~0,96.
-
-        **Os três números são um par com a parede.** Mexeu na altura da hero ou
-        na posição da parede, remeça: cedo demais apaga o clarão do rodapé,
-        tarde demais devolve a cor por cima das imagens.
-      */}
-      <div className="absolute inset-x-0 top-0 h-[150svh] [mask-image:linear-gradient(to_bottom,#000_0%,#000_66%,transparent_85%)]">
-        <div className="absolute inset-0 bg-[radial-gradient(58%_32%_at_16%_77.33%,rgba(84,116,168,0.34),transparent_70%),radial-gradient(58%_32%_at_84%_77.33%,rgba(122,154,92,0.26),transparent_70%)]" />
+      <div className="absolute inset-x-0 top-0 h-viewport">
+        <div className="absolute inset-0 bg-[radial-gradient(58%_26%_at_16%_80%,rgba(84,116,168,0.28),transparent_70%),radial-gradient(58%_26%_at_84%_80%,rgba(122,154,92,0.22),transparent_70%)]" />
 
         {/* O véu frio que costura o azul e o sage num clarão só, em vez de dois
-            holofotes separados. Mesma conversão de denominador. */}
-        <div className="absolute inset-0 bg-[radial-gradient(70%_22.67%_at_50%_74.67%,rgba(170,200,245,0.10),transparent_72%)]" />
+            holofotes separados. Fica um pouco mais baixo e mais largo que os
+            dois, e também termina dentro da caixa. */}
+        <div className="absolute inset-0 bg-[radial-gradient(70%_20%_at_50%_82%,rgba(170,200,245,0.09),transparent_72%)]" />
       </div>
 
       {/*
         O ECO, daí para baixo — o que impede a página de virar preto chapado
         depois da primeira tela, que é o que a fazia parecer outro site.
 
-        Mesma paleta, bem mais fraca: na hero os alfas são 0,34 e 0,26 porque
+        Mesma paleta, bem mais fraca: na hero os alfas são 0,28 e 0,22 porque
         ali o clarão é o assunto; aqui ele é textura, e passar disso compete com
         o conteúdo.
 
@@ -99,9 +88,12 @@ export function Fundo() {
         entra trabalho novo na grade da 03, e glow ancorado em pixel ficaria
         órfão no meio do nada. Cada ladrilho tem o centro em 50% e apaga em 70%
         do raio, então as emendas entre ladrilhos caem em transparente — é o que
-        evita trocar uma costura por outra.
+        evita trocar uma costura por outra. O primeiro ladrilho começa no pé da
+        hero, mas o centro dele fica 550px abaixo: o vão escuro entre a poça da
+        hero e a primeira bolha do eco é de propósito, é ele que separa as duas
+        seções sem desenhar linha nenhuma.
       */}
-      <div className="absolute inset-x-0 top-[150svh] bottom-0 bg-[length:100%_1100px] bg-repeat-y bg-[radial-gradient(30%_26%_at_8%_50%,rgba(84,116,168,0.10),transparent_70%),radial-gradient(30%_24%_at_24%_50%,rgba(122,154,92,0.08),transparent_70%)]" />
+      <div className="absolute inset-x-0 top-[100svh] bottom-0 bg-[length:100%_1100px] bg-repeat-y bg-[radial-gradient(30%_26%_at_8%_50%,rgba(84,116,168,0.10),transparent_70%),radial-gradient(30%_24%_at_24%_50%,rgba(122,154,92,0.08),transparent_70%)]" />
     </div>
   )
 }

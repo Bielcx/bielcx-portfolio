@@ -361,18 +361,21 @@ x=709, e o texto fica à esquerda nas duas. Cor de fundo por trás de print é
 conflito de cor, e é o mesmo problema que a parede em preto e branco ataca pelo
 outro lado.
 
-- o clarão da hero ganhou uma MÁSCARA que corta só embaixo (opaca até 66% da
-  caixa, transparente em 85%). Encurtar o raio não serviria: o centro fica 16%
-  abaixo do pé da primeira tela, então raio menor apagaria o clarão dentro da
-  própria hero. Sem máscara o pico caía em y=1044 — 144px DENTRO da 02 — e a luz
-  chegava a y=1346; a parede começa em 1302. Com ela, o pé da hero (y=900, 66,7%
-  da caixa) ainda vale 0,96 e a luz morre em y≈1148, 150px antes da parede
+- o clarão da hero **termina dentro da hero, sozinho**: centro em 80% e raio
+  vertical de 26%, então a parada de 70% cai em y=884 — 16px antes do pé (900).
+  Não há máscara. Houve, e foi o terceiro remendo do mesmo defeito: o desenho
+  original punha o centro 16% ABAIXO do pé, o que deixava o pico do gradiente em
+  y=1044 (144px dentro da 02) e o rabo em y=1346, por cima da parede. Cortar
+  isso com uma reta dá uma borda reta, e borda reta em fundo contínuo se vê —
+  virou listra, depois faca, depois borrão. **Se a cor voltar a invadir a 02, a
+  correção é encolher o raio ou subir o centro, NUNCA máscara de novo.**
 - o eco tinha uma bolha sage em x=86%, centrada em x=1238: bem no meio da
   parede. As duas foram para 8% e 24%, com alcance real terminando em x≈648
 
 **Mexeu na altura da hero, na posição da parede ou na coluna das imagens,
-remeça os três.** Cedo demais apaga o clarão do rodapé, tarde demais devolve a
-cor por cima das imagens.
+remeça os três.** O vão escuro entre a poça da hero e a primeira bolha do eco
+(y 884..1250) é de propósito: é ele que separa as duas seções sem desenhar
+linha nenhuma.
 
 **Por que é da página e não da hero.** As luzes moravam dentro da hero e o
 resto era `#000`: dois fundos opacos encostando, e toda emenda entre eles
@@ -381,12 +384,10 @@ de baixo do `beam-dock`. Esfumar cada emenda conserta o sintoma; o defeito é
 ter dois fundos. Com um só, não existe borda entre seção e seção para cortar
 nada.
 
-Dois números não são estilo: a caixa das luzes tem **150svh** para o gradiente
-terminar dentro dela (a 100svh ele ainda estava vivo quando a caixa acabava, e
-era isso que o `overflow-hidden` cortava), e as porcentagens foram
-**convertidas** para esse denominador — 116%→77,33%, 48%→32%, 112%→74,67%,
-34%→22,67%. Nos primeiros 100svh o desenho é o mesmo de antes, pixel a pixel.
-Mexeu na altura da caixa, refaça as divisões. E `absolute`, nunca `fixed`:
+A caixa das luzes é de **uma tela** e o gradiente se apaga antes da borda dela,
+que é o que torna o `overflow` irrelevante — a versão de 150svh existia para
+acomodar um gradiente que nascia fora da hero, e ela saiu junto com ele.
+E `absolute`, nunca `fixed`:
 preso na viewport o clarão se refaz a cada tela e a página lê como escorregando
 sobre um papel de parede parado. A primeira versão do handoff tinha uma grade quadriculada
 de 56px no lugar; a segunda a tirou, e se ela voltar é NO LUGAR das luzes —
