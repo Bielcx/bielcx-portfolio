@@ -289,10 +289,12 @@ configurado clica e nada acontece.
 faltando um, o `wa.me` não reclama, só abre conversa vazia, e todo CTA do site
 vira link morto sem aviso.
 
-**A cortina é de quem vem logo depois do hero.** A margem negativa `-mt-[80vh]`,
-o `z-10` e o fundo opaco moram no `Metodo`, e esse `-mt` é o ÚNICO número que
-decide quando a seção 02 chega — o hero não tem mais contrapartida a manter em
-dia. Mudou a ordem das seções, a cortina anda junto.
+**Não há mais cortina.** A seção 02 subia opaca por cima do hero preso, com um
+`-mt-[80vh]` e um `z-10` no `Metodo`. Saiu: o hero é uma seção de uma tela, a 02
+vem depois dele e a rolagem entre as duas é a do documento. A referência foi o
+site do anime.js, que não prende nenhuma seção — rolagem nativa, e quem anima é
+cada bloco conforme entra e sai de quadro. O único `sticky` que sobra na página
+é o palco do próprio `Metodo`, que nunca teve a ver com o hero.
 
 **A página é toda preta, e `--color-surface` não existe mais.** O cinza que
 separava a seção de serviços do resto saiu: quem separa uma seção da outra é a
@@ -414,19 +416,22 @@ volta a ser nome e dois botões, que é o problema que esta hero resolve. Entre
 propriedade `scale` do Tailwind v4, que COMPÕE com o `transform` do keyframe;
 um `transform: scale()` ali seria apagado pela animação no primeiro quadro.
 
-**O hero sai em DOIS TEMPOS, e os dois existem por um erro oposto.** O `--hw`
-leva o bloco de texto quando a aresta da cortina chega nele; o `--hs` leva a
-cena — luzes, fios e cards — depois, e ela SOBE 16vh enquanto apaga.
+**O hero sai em DOIS TEMPOS.** O `--hw` leva o bloco de texto, o `--hs` leva a
+cena — luzes, fios e cards — depois, e ela SOBE 16vh enquanto apaga. Os dois
+nasceram como conta contra a aresta da cortina; hoje o escalonamento fica por
+profundidade: o texto vai, o fundo o segue, e a hero se desfaz em duas camadas
+em vez de uma chapa só. `FADE` e `CENA` viraram fração de UMA TELA de rolagem e
+**não dependem mais de medida nenhuma fora do `useHeroScroll`**.
 
-- apagando tudo junto (e cedo), sobrava meia tela de preto parado esperando a
-  cortina, que também é preta até prender e mostrar o conteúdo dela;
-- não apagando a cena, a chapa opaca subia cortando quatro cards acesos no ar
-  — com o nome já fora, era isso que lia como defeito;
-- apagando a cena sem movimento, ela ainda era "comida" pela aresta: o que
-  conserta é ela sair de quadro por cima, e a cortina encontrar o vazio.
-
-Os três números (`FADE`, `CENA` e o `-mt-[80svh]` do `Metodo`) são um par só.
-Mexeu num, refaça a conta dos outros.
+**O pé do hero tem uma faixa que apaga os últimos 72px até o preto puro, e ela
+não é enfeite.** As duas luzes nascem abaixo da borda de baixo, então a parte
+mais acesa delas fica colada no pé — e o `overflow-hidden` a cortava reto.
+Medido na emenda, sem a faixa: o pixel salta de rgb(12,15,22) para rgb(0,0,0)
+de uma linha para a outra, na largura inteira, e lê como listra. A cortina
+passava por cima disso e nunca deixava aparecer; tirada a cortina, o corte
+ficou à mostra desde o primeiro pixel de rolagem. O número é curto de propósito
+— uma tentativa de 140px a 88% matou o clarão do rodapé junto com a lâmina.
+**Mexeu nas luzes, remeça.**
 
 **O nome da hero é `font-display` (Bricolage Grotesque), a mesma do h2 da seção
 02**, em duas linhas — e a quebra é da copy (`hero.wordmark` é um array), não
@@ -569,24 +574,21 @@ largura cheia repetem essas classes no call site; o losango de 18px passa
 A prop `opening` continua lá, sem ninguém passando — é o que o feixe precisaria
 se voltasse a ser dirigido por scroll, já que um uniform de shader não lê `--var`.
 
-**O `useHeroScroll` voltou, reduzido a uma variável.** Ele publica `--hw`
-(1→0) no track do hero, e o bloco de texto apaga e sobe um pouco com ela. Existe
-por causa da cortina: a seção 02 sobe opaca por cima do hero preso, e sem o fade
-ela corta o bloco na horizontal — com os dois pretos, o que se vê é só a costura
-de luz da aresta atravessando o nome, que lê como emenda de página. O fundo
-ferrofluido NÃO apaga junto, senão sobra tela preta esperando.
+**O `useHeroScroll` publica `--hw` e `--hs` no próprio hero**, e o progresso é
+a fração de UMA TELA de rolagem — a altura do hero, medida uma vez. Ele já
+dirigiu a travessia presa (track de 180svh, 100svh em `sticky`, e os fades
+calculados contra a aresta da cortina); isso saiu inteiro e o hook encolheu.
 
 O `--p` (o card fechando as bordas) e o fade em dois tempos (`--hc` para a
-moldura, `--hw` para o nome) saíram: não há mais card, e a composição de hoje é
-um bloco só.
+moldura, `--hw` para o nome) saíram antes, por outro motivo: não há mais card, e
+a composição de hoje é um bloco só.
 
-**O `-mt-[80vh]` do `Metodo` e o `FADE` do `useHeroScroll` são UM PAR**, e a
-conta está comentada nos dois. Com 180vh de track e 80vh de margem, a aresta da
-cortina já está no pé da tela no carregamento e sobe 1vh por vh de rolagem; o
-fade termina em 0.56 do percurso preso, que é 45vh de rolagem, com a cortina a
-55vh do topo. Os dois se cruzam no meio da tela.
+**O acoplamento entre o `-mt-[80vh]` do `Metodo` e o `FADE` do `useHeroScroll`
+acabou**, e era a armadilha mais cara daqui: três alturas que só funcionavam
+juntas e erravam em silêncio nos dois sentidos — cedo demais deixava meia tela
+de preto parado, tarde demais deixava a cortina cortar o nome ainda aceso.
 
-Desencontrar tem DOIS sintomas opostos, os dois silenciosos: fade cedo demais
-(ou cortina tardia) deixa meia tela de preto parado esperando — pior desde que
-o fundo animado passou a apagar junto com o texto; fade tarde demais deixa a
-cortina cortar o nome ainda aceso, que é o motivo de o fade existir.
+Sobrou uma medida a conferir, e é de outra natureza: a faixa de 72px no pé do
+hero é calibrada contra a intensidade das duas luzes. Mexeu nas luzes, meça a
+emenda de novo — curto demais e a listra volta, comprido demais e o clarão do
+rodapé apaga. Os dois sintomas continuam silenciosos.

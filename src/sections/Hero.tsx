@@ -306,6 +306,40 @@ export function Hero() {
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(44%_48%_at_50%_52%,rgba(3,3,4,0.97)_0%,rgba(3,3,4,0.86)_38%,rgba(3,3,4,0.45)_72%,rgba(3,3,4,0)_88%)]"
           />
 
+          {/* O PÉ, e ele conserta um corte a faca.
+
+              As duas luzes nascem abaixo da borda de baixo, então a parte mais
+              acesa delas fica justamente no pé da seção — e o `overflow-hidden`
+              a corta reto. Medido na emenda: o pixel salta de rgb(12,15,22)
+              para rgb(0,0,0) de uma linha para a outra, na largura inteira. Lê
+              como listra, e foi assim que apareceu.
+
+              Isso é novo, e não é regressão do fundo: a cortina antiga passava
+              POR CIMA desta borda e nunca a deixava aparecer. Tirada a cortina,
+              o corte ficou à mostra desde o primeiro pixel de rolagem.
+
+              Esta faixa apaga os últimos 72px até o preto da página. **O
+              número é curto de propósito, e foi medido.** O clarão do rodapé
+              vive em rgb(13,15,19)–rgb(16,18,22) nos últimos 200px e é mais
+              forte justamente colado na borda — é ele que puxa o olho para
+              baixo, e é a razão do fundo inteiro. Uma primeira tentativa de
+              140px a 88% matou o clarão junto com a lâmina: o pé virou preto
+              chapado a 120px do fim. Com 72px o degradê cai ~15 níveis, que o
+              olho lê como esfumado e não como linha, e o clarão continua.
+
+              **Mexeu nas luzes, remeça.** Curto demais e a listra volta;
+              comprido demais e o rodapé apaga.
+
+              **Não segue o `--hs`, de propósito.** Com a cena apagada o fundo
+              do hero ainda é #030304 e o da seção 02 é #000 — três níveis de
+              diferença, que numa borda reta de 1440px ainda se enxergam. Esta
+              faixa termina em preto puro e fecha os dois casos com um elemento
+              só. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[72px] bg-linear-[180deg,transparent,rgba(0,0,0,0.30)_50%,#000]"
+          />
+
           {/* `--hw` também move o bloco: parado, o fade lê como a luz caindo;
               com o deslocamento, lê como saída. */}
           <div
