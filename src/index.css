@@ -180,23 +180,6 @@
   initial-value: 1;
 }
 
-/**
- * Acende a faixa de luz no alto da seção 02: cheia enquanto a seção chega,
- * apagada quando ela assenta. É a CHEGADA, e não um efeito permanente.
- *
- * O `0.85` é onde a subida termina, medido; o `3.3` é o que mantém a faixa em 1
- * até quase lá, em vez de ir esmaecendo o caminho todo.
- *
- * No `sopa-agency`, de onde isto veio, a faixa era a costura com o hero: o
- * feixe de lá se rasgava ao meio e a metade de baixo encontrava esta luz. Aqui
- * o hero não tem feixe, então ela é a luz própria da seção — mesma paleta do
- * feixe (frio à esquerda, quente à direita, branco no meio), sem a passagem de
- * bastão. É por isso que o comentário no `Metodo.tsx` fala de um feixe que este
- * site não tem.
- */
-@utility beam-dock {
-  opacity: clamp(0, (0.85 - var(--enter, 1)) * 3.3, 1);
-}
 
 /**
  * O losango do Ethereum girando no próprio eixo, no botão do portfólio web3.

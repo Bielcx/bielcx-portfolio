@@ -302,9 +302,15 @@ são objetos, não seções — o cartão do rodapé, que precisa do preto atrá
 ondas, e a cobertura do `Menu`. Continua havendo `--color-surface-raised`, que
 é de botão.
 
-A faixa do `beam-dock` no alto da 02 continua, e a máscara dela apaga nas DUAS
-pontas: com um lado só, a borda de baixo era um corte reto na largura inteira —
-medido, a luminância caía de 15,6 para 0,0 de uma linha para a outra.
+**A faixa do `beam-dock` no alto da 02 SAIU**, e o utilitário dela também —
+era o último chamador. Ela era a aresta da cortina: enquanto a 02 subia como
+chapa opaca por cima do hero, sem aquela luz a chapa subia invisível, preto
+sobre preto. Sem cortina e com um fundo só, ela deixou de marcar chegada e
+virou uma faca dividindo o que deveria ser contínuo — medida, era 2,5 vezes
+mais clara que a vizinhança (49 contra 19 de luminância, num vão de 70px logo
+abaixo da fronteira). Houve antes uma tentativa de salvá-la apagando a máscara
+nas duas pontas; tirou a borda dura e manteve a barra. **O que separa uma seção
+da outra agora é só o vazio — o fundo atravessa.**
 
 **Não há campo de estrelas.** O `Starfield` rodava no hero e na seção 02 e saiu
 do site inteiro a pedido. O `sopa-agency`, de onde esta base veio, ainda o tem

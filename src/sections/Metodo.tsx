@@ -108,36 +108,21 @@ export function Metodo() {
         horizontal, que é o que o card tinha de errado.
       */}
       <div className="relative flex px-4 py-5 md:sticky md:top-0 md:h-viewport md:items-center md:px-16 md:py-14">
-        {/*
-          A luz que marca a chegada da seção: ocupa o alto do palco e some para
-          cima. O `beam-dock` a apaga conforme a seção assenta — ela é a
-          CHEGADA, e não o efeito permanente da seção.
+        {/* **A FAIXA DE LUZ DO ALTO SAIU.** Era o `beam-dock`: uma barra
+            branca borrada, de 56px, colada na borda de cima da seção, que
+            apagava conforme ela assentava. Fazia sentido enquanto esta seção
+            era uma CORTINA subindo por cima do hero — a faixa era a aresta da
+            chapa, e sem ela a chapa subia invisível, preto sobre preto.
 
-          **Ela é branca, e não mais um degradê frio-para-quente.** A cor
-          vinha do `sopa-agency`, onde esta faixa é a costura com um feixe de
-          luz do hero que tem aberração cromática — ali o azul e o laranja
-          continuavam o feixe. Este hero não tem feixe: tem o ferrofluido, que
-          desenha em branco puro. A aresta que sobe por cima dele é a mesma luz
-          que ele emite, então é branca, e o degradê só controla a intensidade
-          — apagada nas pontas, cheia no meio.
+            Não há mais cortina, e o fundo agora é um só, da página inteira:
+            hero e seção 02 são o mesmo material continuando. Uma barra de luz
+            na costura entre as duas deixou de marcar chegada e passou a ser
+            uma faca dividindo o que deveria ser contínuo — medida, a faixa era
+            2,5 vezes mais clara que a vizinhança (49 contra 19 de luminância,
+            num vão de 70px logo abaixo da fronteira).
 
-          Sem ela e sem o campo de estrelas que saiu, esta seção encostaria na
-          anterior sem nada entre as duas.
-
-          **A máscara apaga nas DUAS pontas, e isso e um conserto.** Ela era
-          `linear-gradient(0deg,#000 0%,transparent 100%)`: cheia ate o ultimo
-          pixel de baixo e sumindo so para cima. Sobre a cortina isso nao
-          aparecia — havia hero aceso atras. Sobre o preto chapado da secao, a
-          borda de baixo virou um corte reto na largura inteira: medido, a
-          luminancia caia de 15,6 para 0,0 de uma linha para a outra, 56px
-          abaixo da emenda. Era ISSO que se via como listra no alto da secao que
-          sobe, e nao a emenda em si. Apagando nas duas pontas, a faixa nao tem
-          mais borda nenhuma.
-        */}
-        <span
-          aria-hidden
-          className="beam-dock pointer-events-none absolute inset-x-4 top-0 h-5 bg-linear-[90deg,transparent,rgba(255,255,255,0.10)_22%,rgba(255,255,255,0.26)_50%,rgba(255,255,255,0.10)_78%,transparent] blur-[12px] [mask-image:linear-gradient(0deg,transparent_0%,#000_40%,transparent_100%)] md:inset-x-16 md:h-14"
-        />
+            O utilitário `beam-dock` do `index.css` saiu junto: este era o
+            único chamador. */}
 
         <div
           /*
