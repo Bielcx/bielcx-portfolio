@@ -93,13 +93,15 @@
    barra recolhe: ele é o elemento fixo da tela, e mudar de altura no meio da
    rolagem empurra o conteúdo — era o "scroll esquisito" no celular.
    
-   Com `svh` o layout não se mexe, e quem passou a se adaptar foi o JS: o
-   `useHeroScroll` mede o próprio elemento preso em vez de `window.innerHeight`.
-   Layout estável, conta certa.
+   Com `svh` o layout não se mexe, e quem passou a se adaptar foi o JS: os hooks
+   medem o próprio elemento em vez de `window.innerHeight`. Layout estável,
+   conta certa.
    
-   **Os três lugares que descrevem esta mesma tela têm de usar a MESMA unidade**:
-   este utilitário, o `h-[180svh]` do track do hero e o `-mt-[80svh]` da cortina
-   do `Metodo`. Misturar `vh` com `dvh` foi exatamente o bug.
+   **Quem descreve esta mesma tela tem de usar a MESMA unidade**: este
+   utilitário e o track de 115svh do `Metodo`. Misturar `vh` com `dvh` foi
+   exatamente o bug. O hero também descrevia — tinha um track de 180svh e o
+   `Metodo` subia por cima com `-mt-[80svh]` —, e os dois saíram junto com a
+   travessia presa; o hero hoje é uma tela e usa este utilitário direto.
    
    O `vh` fica de reserva para navegador sem `svh`; o minificador descarta a
    linha quando todos os alvos do build já suportam a unidade. */

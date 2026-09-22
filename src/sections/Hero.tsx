@@ -173,23 +173,23 @@ const PALCO =
  * é o que o design pede; o `text-shine` e o `breathe` do `index.css` saíram
  * junto, sem chamador. Está tudo no git.
  *
- * **A saída para a seção 02 acontece em dois tempos.** Primeiro o bloco de
- * texto (`--hw`), no instante em que a aresta da cortina chega nele; depois a
- * cena — luzes, fios e cards (`--hs`) —, enquanto a cortina sobe por cima.
- * Apagar tudo junto deixava meia tela de preto parado esperando a cortina, que
- * também é preta até prender; não apagar a cena deixava a chapa opaca cortando
- * quatro cards acesos no ar, e com o nome já fora era isso que lia como
- * defeito. Ver o `FADE` e o `CENA` do `useHeroScroll`: os números são uma
- * conta contra a aresta, não gosto.
+ * **A saída para a seção 02 acontece em dois tempos**, e é só isso — não há
+ * mais travessia. Primeiro o bloco de texto (`--hw`), depois a cena — luzes,
+ * fios e cards (`--hs`). O escalonamento virou profundidade: o texto vai, o
+ * fundo o segue, e a hero se desfaz em duas camadas em vez de uma chapa só.
  *
- * **O que FICOU, e não é decoração:** o track alto com `sticky` e o `--hw`.
- * Eles não são do hero, são da página — quem depende deles é o `-mt-[80svh]`
- * do `Metodo`, que sobe como cortina por cima deste bloco preso. Com o hero
- * numa tela normal, aquela margem negativa cobriria 70% dele já no
- * carregamento. Os 180vh vêm daí: o `Metodo` começa a 180−80 = 100svh do topo
- * do track, e o hero fica preso até 80vh, apagando no caminho. Mexeu aqui,
- * confira o `-mt` de lá E o `FADE` do `useHeroScroll` — os três descrevem a
- * mesma travessia, e os três erram em silêncio.
+ * **O que SAIU, e é a mudança grande.** Isto era um track de 180svh com 100svh
+ * em `sticky`, e a seção 02 subia por cima como cortina opaca (o `-mt-[80svh]`
+ * do `Metodo`). Três alturas acopladas, e os dois fades eram uma conta contra a
+ * posição da aresta dessa cortina na tela — mexer numa exigia refazer as
+ * outras, e os três erravam em silêncio.
+ *
+ * Hoje o hero é uma seção de UMA TELA e a página rola como documento, sem nada
+ * preso e sem ninguém subindo por cima de ninguém. A referência é o site do
+ * anime.js: nenhuma seção presa, rolagem nativa, e quem anima é cada bloco
+ * conforme entra e sai de quadro. Os fades do `useHeroScroll` passaram a ser
+ * frações de uma tela de rolagem, e não dependem mais de medida nenhuma de
+ * fora deste componente.
  */
 export function Hero() {
   const { trackRef, contentRef } = useHeroScroll()
@@ -216,22 +216,17 @@ export function Hero() {
   }
 
   return (
-    <div ref={trackRef} id="topo" className="relative isolate h-[180svh] bg-frame">
-      <div className="sticky top-0 h-viewport bg-frame">
-        {/* **O `--hw` apaga SÓ O BLOCO DE TEXTO**, e isto já foi o contrário.
+    <div ref={trackRef} id="topo" className="relative isolate h-viewport bg-frame">
+        {/* **O `--hw` apaga SÓ O BLOCO DE TEXTO, e o `--hs` leva a cena
+            depois.** Os dois tempos vêm da versão com cortina, mas a razão
+            mudou: lá o nome precisava sair antes porque a aresta de uma chapa
+            opaca o cortava na horizontal. Aqui não há chapa — o escalonamento
+            ficou porque apagar tudo junto lê como a luz do quarto sendo
+            desligada, e em duas camadas lê como a cena se afastando.
 
-            Apagando a cena inteira, o que se via na travessia para a seção 02
-            era uma tela PRETA de quase 500px de rolagem: o hero terminava de
-            sumir por volta de 385px e a cortina do `Metodo` só tem conteúdo
-            para mostrar quando prende, a 860px — no meio, cortina preta vazia
-            sobre hero apagado, sem nada em quadro.
-
-            Luzes, cabos e cards ficam acesos e são COBERTOS pela cortina, que
-            é o que uma cortina faz. Quem precisa se despedir antes é só o
-            nome: ele é grande, centrado, e a aresta de luz da cortina o corta
-            na horizontal — é disso que o fade nasceu. Um card sendo encoberto
-            lê como objeto atrás de um painel; uma palavra cortada ao meio lê
-            como emenda de página. */}
+            Uma altura só (`h-viewport`), e é o que o `useHeroScroll` mede para
+            calcular o progresso. Não há mais track, nem `sticky`, nem número
+            combinado com o `Metodo`. */}
         <section className="relative h-full w-full overflow-hidden bg-[#030304]">
           {/* AS DUAS LUZES, e elas são o argumento do fundo inteiro.
 
@@ -436,7 +431,6 @@ export function Hero() {
             <span className="h-[26px] w-px bg-linear-[180deg,#5a5c62,transparent]" />
           </div>
         </section>
-      </div>
 
       {portal && <Portal href={hero.actions.web3.href} />}
     </div>

@@ -34,8 +34,9 @@ export function Metodo() {
     <section
       ref={trackRef}
       /*
-       * Track alto + `sticky` dentro dele: é a mesma armação do hero, e é o que
-       * faz esta seção ser um QUADRO em vez de um trecho de página rolando.
+       * Track alto + `sticky` dentro dele: é o que faz esta seção ser um
+       * QUADRO em vez de um trecho de página rolando. Era a mesma armação que
+       * o hero usava; hoje é a única da página, porque lá ela saiu.
        *
        * A diferença importa. Com o quadro parado, o conteúdo que sobe por
        * dentro tem contra o que se mover, e o olho lê uma chegada. Sem ele, o
@@ -43,32 +44,23 @@ export function Metodo() {
        * que faltou nas tentativas anteriores, e é o que a narrativa antiga
        * tinha de graça por morar dentro do card fixo do hero.
        *
-       * Esta seção sobe POR CIMA do hero em vez de empurrá-lo para fora: a
-       * margem negativa a faz começar antes do fim do track dele, o `z-10` a
-       * põe na frente e o fundo opaco cobre.
+       * **Esta seção NÃO sobe mais por cima do hero.** Ela tinha um
+       * `-mt-[80svh]` e um `z-10` que a faziam começar antes do fim do track do
+       * hero e cobri-lo como cortina opaca — e aquela margem era um par com a
+       * altura do track de lá (180svh) e com os dois fades do `useHeroScroll`.
+       * Três números que só funcionavam juntos, e que erravam em silêncio.
        *
-       * **Os 80svh decidem QUANDO este card aparece**, e são o único número que
-       * controla isso: o card fica visível quando o track dele encosta no pé da
-       * tela, ou seja `altura do track do hero − 80svh − uma tela` de rolagem.
-       * Com os 180vh de lá, isso dá ZERO: a aresta já está encostada no pé da
-       * tela quando a página abre, e começa a subir no primeiro pixel de
-       * rolagem. Aumentar mais faria a cortina aparecer JÁ COBRINDO um pedaço
-       * da tela no carregamento.
-       *
-       * Eram 70vh, e a cortina levava 10vh de rolagem só para encostar. Isso
-       * somado ao fade do hero — que apaga texto E fundo — deixava a tela preta
-       * e parada esperando a cortina chegar. Subiu para 80vh junto com o atraso
-       * do `FADE` no `useHeroScroll`: a cortina sai antes e o hero fica mais
-       * tempo, e os dois se cruzam no meio da tela em vez de haver um vão entre
-       * um e outro.
-       *
-       * **Estes dois números são um par.** Mexeu aqui, refaça a conta de lá, e
-       * vice-versa — o sintoma de desencontrar é ou o preto de volta, ou a
-       * cortina cortando o nome ainda aceso.
+       * Saiu tudo. O hero é uma seção de uma tela, esta vem depois dele, e a
+       * rolagem entre as duas é a do documento — sem nada preso na travessia e
+       * sem sobreposição. A referência é o site do anime.js, que não prende
+       * nenhuma seção. O palco preso DESTA seção continua (é o `sticky` de
+       * dentro, com o track de 115svh abaixo): ele nunca teve a ver com o hero,
+       * e é o que faz o conteúdo chegar em vez de só passar.
        *
        * A aresta de cima é um fio claro, e não a sombra escura que o `Services`
        * usava: a sombra funcionava quando o card do hero era um degradê cinza,
-       * e hoje é preto sobre preto — sem o fio, a cortina sobe invisível.
+       * e hoje é preto sobre preto — sem o fio, a emenda entre as duas seções
+       * some.
        *
        * **A altura do track é o que sobra de scroll preso depois que o card
        * enche a tela**, e é o número que evita rolagem em falso. 115vh dão uma
@@ -84,7 +76,7 @@ export function Metodo() {
        * No celular não há palco preso: a tela é curta demais para prender e
        * ainda sobrar percurso.
        */
-      className="relative isolate z-10 -mt-[80svh] bg-frame md:h-[115svh]"
+      className="relative isolate bg-frame md:h-[115svh]"
     >
       {/*
         O palco. As medidas laterais são as MESMAS que o hero usa quando o card
