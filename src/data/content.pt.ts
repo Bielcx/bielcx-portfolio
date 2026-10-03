@@ -326,102 +326,33 @@ const services = {
     { slug: 'oshima', name: 'Dr. Mario Oshima', href: 'https://drmariooshima.vercel.app' },
   ],
   /**
-   * A conversa de demonstração do painel da faixa de Automação.
+   * O vídeo do painel da faixa de Automação: um atendimento inteiro em 15
+   * segundos, em loop — a pergunta chega, o agente consulta a agenda, responde
+   * com horário de verdade, reserva, e do outro lado a agenda do negócio se
+   * preenche sozinha.
    *
-   * **É roteiro, e a `note` diz isso.** O site é estático: modelo de verdade
-   * nesta caixa é função serverless, chave de API, custo por visita e campo de
-   * texto aberto para desconhecido. O que o painel precisa provar é o FORMATO
-   * da conversa — consulta antes de responder, frase em vez de menu, e passa
-   * para uma pessoa quando sai do que resolve —, e isso um roteiro prova
-   * igual, sem alucinar na frente de cliente.
+   * **É simulação, e a `note` diz isso.** O negócio é fictício de propósito:
+   * nome de cliente real aqui é promessa de que aquele agente está no ar, e é
+   * cobrável. Se um dia um cliente autorizar, troque — e aí o vídeo tem de ser
+   * a gravação de verdade.
    *
-   * O negócio é fictício de propósito: nome de cliente real aqui é promessa de
-   * que aquele agente está no ar, e é cobrável. Se um dia um cliente autorizar,
-   * troque — e aí a conversa tem de ser a de verdade.
-   *
-   * **Cada pergunta se sustenta sozinha**, em qualquer ordem: os chips somem
-   * conforme são usados, então não há como garantir que a de reservar venha
-   * depois da de horário. Nenhuma resposta pode depender da anterior.
-   *
-   * No lugar disto havia a `process` — a rede de nós que DESENHAVA a automação
-   * em vez de demonstrá-la. Saiu junto com o componente.
+   * Antes do vídeo havia aqui uma conversa clicável, com perguntas prontas e
+   * respostas roteirizadas. Está no git.
    */
   agente: {
     eyebrow: 'veja funcionando',
-    /** Negócio fictício. Ver a nota acima antes de trocar por um real. */
-    negocio: 'Estúdio Vélo · pilates',
-    status: 'responde na hora, 24h',
-    /** O separador de data no alto da conversa, como o do WhatsApp. */
-    divisor: 'hoje',
+    /** Vídeo em loop precisa de como parar (WCAG 2.2.2). */
+    pausar: 'pausar vídeo',
+    continuar: 'continuar vídeo',
+    /** O que o leitor de tela anuncia no lugar do vídeo. */
+    video:
+      'Vídeo: um cliente pergunta por horário na quinta de manhã, o atendimento consulta a agenda, oferece 8h e 10h30, reserva às 8h e envia a confirmação; do lado do estúdio, a reserva entra sozinha na agenda e a equipe é avisada.',
     /**
-     * A conversa NÃO começa vazia: o cliente já disse oi e o agente já
-     * respondeu. Tela de mensagens com um balão só, no alto de um aparelho de
-     * 600px, é meia tela de vazio — e aplicativo nenhum se parece com isso. A
-     * saudação é do visitante (balão verde, à direita), que é o papel em que
-     * ele entra ao clicar nos chips.
+     * Duas coisas numa linha só, e as duas obrigatórias: dizer que é uma
+     * simulação (senão é propaganda enganosa) e dizer o que muda num agente de
+     * verdade — ele lê a SUA agenda, o SEU preço, no SEU tom.
      */
-    saudacao: 'Oi, bom dia! Vocês têm aula hoje?',
-    /**
-     * **A abertura RESPONDE a saudação**, e essa é a regra mais importante
-     * desta copy inteira. Ela já foi um cartão de visita — "sou o atendimento
-     * do Estúdio Vélo, vejo horário, preço e agendo" — depois de uma pergunta
-     * direta sobre ter aula hoje: o cliente perguntou uma coisa e ouviu outra,
-     * que é exatamente o robô de menu que este painel existe para desmentir.
-     *
-     * Toda resposta daqui obedece à mesma ordem: responde primeiro, com dado
-     * concreto, e só então oferece o passo seguinte. Se uma resposta nova não
-     * couber nessa ordem, ela está errada.
-     */
-    abertura:
-      'Bom dia! Temos, sim — hoje ainda estão livres 12h, 17h e 19h. Quer que eu segure alguma para você?',
-    /**
-     * `label` é o que vai no chip (curto, do jeito que o cliente escreveria);
-     * `pergunta` é o que entra no balão; `passo` é o que o agente consultou
-     * antes de responder — é essa linha que separa um agente de um menu de
-     * respostas prontas.
-     */
-    perguntas: [
-      {
-        label: 'Quanto custa?',
-        pergunta: 'Quanto custa a aula?',
-        passo: 'consultando a tabela',
-        resposta:
-          'A avulsa sai R$ 70. No plano de 2x por semana a aula fica R$ 48, e a primeira é de graça para você experimentar. Quer que eu marque a experimental?',
-      },
-      {
-        label: 'Tem horário quinta de manhã?',
-        pergunta: 'Tem horário quinta de manhã?',
-        passo: 'consultando a agenda',
-        resposta:
-          'Quinta tem 7h, 8h e 10h30 livres. O de 8h é o mais tranquilo, com três pessoas na sala.',
-      },
-      {
-        label: 'Quero reservar quinta, 8h',
-        pergunta: 'Quero reservar quinta, 8h',
-        passo: 'reservando e avisando a equipe',
-        resposta:
-          'Reservado para quinta às 8h. Mandei o endereço no seu WhatsApp e avisei a Marina, que dá essa aula. Se precisar desmarcar, é só me escrever.',
-      },
-      {
-        label: 'Posso parcelar em 3x?',
-        pergunta: 'Posso parcelar o plano em 3x?',
-        passo: 'isto sai do que eu resolvo',
-        /**
-         * A única que não resolve — e ainda assim responde ao que foi
-         * perguntado antes de passar adiante. "Não sei, vou chamar alguém" sem
-         * dizer o que sabe é o robô de menu de novo, só que educado.
-         */
-        resposta:
-          'Em 3x não é uma condição que eu feche sozinho — a recepção avalia caso a caso. Chamei a Ana e passei a nossa conversa; ela responde neste mesmo número em alguns minutos.',
-      },
-    ],
-    reiniciar: 'conversar de novo',
-    /**
-     * Duas coisas numa linha só, e as duas obrigatórias: dizer que a conversa
-     * é uma demonstração (senão é propaganda enganosa) e dizer o que muda num
-     * agente de verdade — ele lê a SUA agenda, o SEU preço, no SEU tom.
-     */
-    note: 'Conversa de demonstração, com um negócio inventado. O seu agente lê a sua agenda, a sua tabela de preços e responde no seu tom — no WhatsApp, no site ou nos dois.',
+    note: 'Simulação de um atendimento real, com um negócio inventado. O seu agente lê a sua agenda, a sua tabela de preços e responde no seu tom — no WhatsApp, no site ou nos dois.',
   },
 } as const
 

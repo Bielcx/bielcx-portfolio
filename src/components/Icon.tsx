@@ -4,9 +4,7 @@ type IconName =
   | 'target'
   | 'layers'
   | 'sparkle'
-  | 'bolt'
   | 'cube'
-  | 'check'
   | 'clock'
   | 'users'
   | 'doc'
@@ -35,14 +33,7 @@ const PATHS: Record<IconName, React.ReactNode> = {
   ),
   layers: <path d="M12 3 3 8l9 5 9-5-9-5ZM3 14l9 5 9-5" />,
   sparkle: <path d="M12 3.5 13.8 10 20 12l-6.2 2L12 20.5 10.2 14 4 12l6.2-2z" />,
-  bolt: <path d="M13.5 3 5.5 13.5H11l-.5 7.5 8-10.5H13z" />,
   cube: <path d="M12 3.2 20 7.6v8.8L12 20.8 4 16.4V7.6zM4 7.6l8 4.4 8-4.4M12 12v8.8" />,
-  check: (
-    <>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="m8.5 12 2.4 2.5 4.6-5" />
-    </>
-  ),
   clock: (
     <>
       <circle cx="12" cy="12" r="8.5" />

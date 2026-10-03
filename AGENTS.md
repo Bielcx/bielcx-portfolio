@@ -164,71 +164,27 @@ percebe. Por isso o `EthMark` testa o WebGL2 num canvas descartável, uma vez.
 `rotateY` sem perspectiva num ancestral achata o giro do SVG. O caminho 3D não
 a usa — a projeção é do shader.
 
-**O painel da faixa de automação é o `AgentDemo`: uma conversa que funciona.**
-A linha "Agente de IA" é a mais difícil de vender por escrito — quem lê imagina
-um menu de robô —, então o painel deixa o visitante conversar com um, no lugar
-do cliente DELE. Os quatro chips provam o que separa um agente de um menu: a
-linha de passo ("consultando a agenda") mostra que ele consulta algo antes de
-responder, a resposta é frase e não opção numerada, e a última pergunta cai no
-caso em que ele chama uma pessoa.
+**O painel da faixa de automação é o `AgentDemo`: um celular rodando, em loop,
+um vídeo de 15s** (`src/assets/automacao/agente.mp4` + `agente-poster.webp`) —
+o cliente pergunta horário, o agente consulta a agenda, responde com dado
+concreto, reserva, e do outro lado a agenda do Estúdio Vélo se preenche
+sozinha. Substituiu a conversa clicável por decisão do dono: o vídeo explica
+num relance, sem pedir clique. O negócio continua inventado e a nota embaixo
+do aparelho diz que é simulação — sem ela é propaganda enganosa.
 
-**As respostas são roteiro, escritas à mão em `services.agente`, e a nota do
-rodapé do painel diz isso** — sem ela é propaganda enganosa. Modelo de verdade
-aqui é função serverless, chave de API, custo por visita e campo de texto
-aberto para desconhecido, num site que não tem backend. Se um dia virar
-modelo, o que muda é de onde `resposta` vem. **Sem campo de texto livre, de
-propósito**: campo aberto convida a testar o que o roteiro não responde, e o
-que o visitante leva embora é a falha.
+O vídeo é RENDERIZADO, não gravado: animação HTML com relógio determinístico,
+fotografada quadro a quadro e codificada em H.264 (yuv420p, faststart, sem
+áudio). O fonte da animação não mora no repo; refazer é refazer o vídeo. Ele
+tem 540×1170, a proporção exata da tela, com respiro no alto para a ilhota e
+embaixo para a barra de gesto. O último quadro é idêntico ao primeiro — é o
+que faz o loop não ter emenda.
 
-O negócio é inventado. Nome de cliente real ali é promessa de que aquele agente
-está no ar, e promessa que a página faz o cliente cobra.
-
-**Toda resposta responde primeiro, com dado concreto, e só então oferece o
-passo seguinte** — inclusive a que ele não resolve, que diz o que sabe antes de
-chamar uma pessoa. A abertura já foi um cartão de visita ("sou o atendimento
-do Estúdio Vélo, vejo horário, preço e agendo") logo depois de "vocês têm aula
-hoje?": o cliente perguntou uma coisa e ouviu outra, que é o robô de menu que
-este painel existe para desmentir. Resposta nova que não caiba nessa ordem está
-errada.
-
-**A moldura de iPhone é porte do Magic UI**, como o `LightBeam` e o
-`DriftWall` são portes do React Bits — SVG, sem dependência e sem imagem. Ela
-existe para a conversa ler como o WhatsApp DO CLIENTE do visitante, que é onde
-o serviço roda, sem pôr o logo do WhatsApp numa faixa que proíbe logo de
-ferramenta.
-
-**O original só sabe pôr `src` ou `videoSrc` na tela**, e a nossa tela é HTML
-vivo — botão, rolagem, `aria-live`. As duas props saíram e a máscara dele
-mudou de função: o `furo` vaza o retângulo da tela do corpo do aparelho e a
-conversa aparece por baixo; a ilhota fica fora do grupo mascarado e por isso
-continua por cima dela. Três coisas quebram em silêncio se forem mexidas:
-
-- **`pointer-events-none` no SVG.** Ele cobre o aparelho inteiro, furo
-  incluído — sem isso os chips não recebem clique, e nada no visual acusa.
-- **A tela é posicionada em % das constantes do desenho** (`LARGURA`,
-  `TELA_X`…), nunca em pixel, e o raio vai em `X% / Y%`: com um valor só o
-  canto sai oval, porque a tela não é quadrada.
-- **O `pt-12` do cabeçalho é a ilhota** e o `pb-7` dos chips é a barra de
-  gesto. São respiro de aparelho, não espaçamento à toa.
-
-A largura de 272px é um TETO: os balões foram escritos para caber em linha de
-celular, então alargar a moldura é reescrever a conversa. O halo por trás não é
+**A moldura de iPhone é porte do Magic UI**, SVG sem dependência: tela em % das
+constantes (`TELA_X`…), raio em `X% / Y%` (com um valor só o canto sai oval),
+e `pointer-events-none` no SVG. Com `prefers-reduced-motion` entra só o cartaz
+(`<img>`), e fora de quadro o vídeo pausa (IntersectionObserver). A descrição
+para leitor de tela vem de `services.agente.video`. O halo por trás não é
 enfeite — o aparelho é preto como a página, e sem ele some no fundo.
-
-**Dentro do furo a paleta é a do WhatsApp no escuro** (`ZAP`, no componente), e
-é a única coisa do site fora dos tokens do tema. É deliberado: o que está na
-tela não é o site, é OUTRO aplicativo aberto no telefone do cliente — pintado
-com o preto e o azul da página, o mockup vira mais um painel do portfólio. O
-verde não vaza para fora do furo, e continua não havendo logo nem a palavra
-WhatsApp na faixa; quem nomeia o canal é a nota em texto, embaixo do aparelho.
-
-Duas coisas fazem a tela parar de parecer maquete, e as duas foram descobertas
-olhando: **a conversa cresce de baixo para cima** (`min-h-full` + `justify-end`
-no miolo do log) e **já começa em andamento**, com o oi do cliente e a resposta
-do agente. Com um balão só no alto sobravam uns 400px de vazio, e aplicativo de
-mensagem nenhum se parece com isso. O tique duplo é desenhado à mão pelo
-`Tique`: o `check` do `Icon` é um certo dentro de um círculo, e dois círculos
-sobrepostos viram um diagrama de Venn no canto do balão.
 
 **A moldura de painel saiu do `Services.tsx` e foi para o `WorkGrid`.** O
 wrapper das faixas era `rounded-2xl border bg-card` para os dois painéis, e em
@@ -269,7 +225,7 @@ progresso em vez de por tempo. Quem escreve o `uB` é o `Portal.tsx`, que també
 decide a hora de navegar.
 
 **Nada de three.js.** Ele foi considerado e recusado para este losango: ~120 KB
-gzip contra os 77 KB do site inteiro, para desenhar um ícone de 18px que o
+gzip contra os 77 KB que o site tinha (hoje ~105 KB, quase tudo anime.js), para desenhar um ícone de 18px que o
 casco WebGL2 daqui já desenha de graça.
 
 O ícone do WhatsApp fica só no rodapé: repetido em todo CTA vira textura, e no
@@ -299,9 +255,9 @@ ponto da tela drenava de rgb(11,16,23) para rgb(1,1,2) — 120px de conteúdo
 pregado com o fundo escorrendo por trás. Lê como fundo se mexendo sozinho.
 
 **Enquanto o fundo for único, `sticky` volta a produzir isso.** O
-`useStageProgress` saiu (o `Metodo` era a única chamadora) e a seção passou a
-usar o `useEnterProgress`, que o `Services` já usava e publica no mesmo
-`--enter` — os `enter-rise` não mudaram.
+`useStageProgress` saiu (o `Metodo` era a única chamadora), e depois dele o
+`useEnterProgress` e o `enter-rise`: a entrada das seções é anime.js (ver
+"O movimento de entrada" abaixo).
 
 **Não há mais cortina.** A seção 02 subia opaca por cima do hero preso, com um
 `-mt-[80vh]` e um `z-10` no `Metodo`. Saiu: o hero é uma seção de uma tela, a 02
@@ -453,9 +409,25 @@ começava no ar, porque com `rounded-[14px]` a borda pintada curva para dentro
 e o vértice cai a uns 4px de qualquer traço. Recuado 9px a distância mede zero
 e ainda assim lê como fresta: o traço termina em cima da borda de 1px e o
 antialias das duas coisas no mesmo pixel desenha uma linha clara entre elas.
-Do centro não há o que alinhar — o trecho inicial fica coberto pelo card
-(opaco, e desenhado depois do SVG), e o que se vê é a linha saindo de trás
-dele. Vale em qualquer ângulo, raio de borda e altura do flutuar.
+Do centro não há o que alinhar, e vale em qualquer ângulo, raio de borda e
+altura do flutuar.
+
+**Os cards são VIDRO** (`VIDRO` no `Hero.tsx`: cantos retos, fundo translúcido,
+`backdrop-blur-[22px]`). O trecho do fio sob o card é desfocado pelo vidro e lê
+como luz entrando nele — abaixo de ~14px de blur a linha volta nítida por cima
+do número.
+
+**Nenhum ancestral dos cards pode ter opacidade**, nem `will-change: opacity`:
+no Chromium isso desliga o `backdrop-filter` e o fio atravessa o card nítido.
+Por isso o palco só leva o `transform` do `--hs`, e o fade vai em cada filho (o
+SVG do `Cables` e o `style` de cada card). No celular os fios e a grade moram no
+bloco de texto, então abaixo de 820px o bloco fica com opacidade 1 e sem
+`will-change: opacity`, e o `--hw` vai em cada filho (`FADE_CELULAR` no
+`Hero.tsx`: nome, botões, cada card, subtítulo); o SVG dos fios apaga com
+`--hw` ao quadrado, antes dos cards, para o card translúcido do meio do fade
+quase não deixar o fio passar. Medido num teste isolado; se alguém
+devolver o `opacity` ao palco, o defeito volta em silêncio. Durante o fade de
+saída o próprio card fica translúcido e o fio aparece de leve — é o preço.
 
 Hoje o `PALCO` é uma caixa com a proporção exata do `viewBox`, e daí sai tudo:
 o SVG encaixa nela sem distorcer e uma coordenada do desenho vira porcentagem
@@ -475,12 +447,21 @@ Dois números mandam nisso e não são estilo:
   margem um dia, estes viram unidades de container (`cqw`/`cqh`), senão o
   palco descola da seção e o alinhamento erra de novo — em silêncio.
 
-**Abaixo de 820px os cabos e os cards somem** e entra uma grade 2×2 com os
-mesmos quatro ganchos (`curto`, na copy). Sem ela a primeira tela do celular
-volta a ser nome e dois botões, que é o problema que esta hero resolve. Entre
-820 e 1100 os cards encostam nas bordas e encolhem com `scale-[0.86]` — a
-propriedade `scale` do Tailwind v4, que COMPÕE com o `transform` do keyframe;
-um `transform: scale()` ali seria apagado pela animação no primeiro quadro.
+**Abaixo de 820px o palco some e entra a grade 2×2** (`curto`, na copy), ligada
+ao nome pelos MESMOS fios: `<Cables celular />` mora no bloco de texto e mede
+tudo — o `[data-plug]` no centro de cada card e o `h1` (`[data-no]`) —, sem
+`viewBox`, em px. Cada fio sai do card para fora, sobe pela margem (pelo meio
+cruzaria os botões) e termina dentro de uma linha do nome; a linha de baixo da
+grade faz a curva mais aberta e entra em "Gabriel", sem cruzar a de cima. Mesmo
+loop, mesma boia (×0,3, porque o vão da grade é 10px). O SVG precisa estar no
+MESMO ancestral dos cards para o vidro desfocá-lo. A rota é calibrada pelo
+`CELULAR` do `Cables.tsx` (margem fora da grade, piso de 8px até a beira,
+controles passando das quinas) e pelo `max-[440px]:px-1.5` da grade — medidos
+a 360, 390, 600 e 760px; mexeu num, meça de novo.
+
+Entre 820 e 1100 os cards do palco encolhem com `scale-[0.86]`, a propriedade
+`scale` do Tailwind v4, que COMPÕE com o `transform` escrito pelo loop; um
+`transform: scale()` ali seria apagado no primeiro quadro.
 
 **O hero sai em DOIS TEMPOS.** O `--hw` leva o bloco de texto, o `--hs` leva a
 cena — luzes, fios e cards — depois, e ela SOBE 16vh enquanto apaga. Os dois
@@ -625,6 +606,22 @@ contexto.
 
 **Efeitos de scroll leem a posição a cada frame** e devem funcionar nos dois
 sentidos — nada de estado acumulado que só avança.
+
+**O movimento de entrada das seções 02, 03 e do cartão do rodapé é anime.js
+v4** (`hooks/useScrollMotion.ts`): cada bloco tem uma timeline amarrada à
+rolagem (`naRolagem`, `onScroll` com `sync: 0.35`), nos dois sentidos, montada
+num `createScope` cujo `revert()` desfaz animações, observadores e o
+`splitText` dos títulos. Com `prefers-reduced-motion` o hook nem monta, e nada
+no CSS esconde conteúdo.
+
+- **Toda timeline nova termina com `assentar(tl)`.** O anime só escreve o valor
+  inicial de um tween quando o progresso chega ao começo dele; até lá o
+  elemento fica visível e "pisca ao contrário" (a palavra aparece e some quando
+  a vez dela chega).
+- **Sem `splitText` com `wrap: 'clip'` nos títulos**: com o `leading` apertado
+  o recorte come as descendentes ("ç", "g").
+- **O `transform` de elemento com `transition`** (ex.: `SpecularButton`) não se
+  anima por quadro — use opacidade e `filter`.
 
 **O `LightBeam` virou casco genérico, e o feixe é só um dos shaders.** A prop
 `frag` é OBRIGATÓRIO — não há shader padrão. São DOIS na página: o

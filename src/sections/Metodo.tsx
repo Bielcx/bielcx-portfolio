@@ -1,8 +1,8 @@
-import type { CSSProperties } from 'react'
+import { splitText, stagger } from 'animejs'
 
 import { DriftWall } from '../components/metodo/DriftWall'
 import { metodo } from '../data/content'
-import { useEnterProgress } from '../hooks/useEnterProgress'
+import { assentar, naRolagem, useScrollMotion } from '../hooks/useScrollMotion'
 
 /**
  * Seção 02 — "Mostramos antes de explicar".
@@ -28,7 +28,7 @@ import { useEnterProgress } from '../hooks/useEnterProgress'
  * `data/content.ts`.
  */
 export function Metodo() {
-  const trackRef = useEnterProgress()
+  const trackRef = useScrollMotion(entrada)
 
   return (
     <section
@@ -54,8 +54,8 @@ export function Metodo() {
        * O que se perde é pequeno e estava documentado: o palco só segurava
        * ~135px, a nota antiga já dizia que palco comprido é palco morto, e no
        * celular ele nunca existiu. O `useStageProgress` saiu junto — esta era a
-       * única chamadora — e o `useEnterProgress`, que o `Services` usa, publica
-       * no mesmo `--enter`, então os `enter-rise` não mudam.
+       * única chamadora. A entrada hoje é a timeline `entrada`, no fim deste
+       * arquivo, dirigida pela rolagem.
        */
       className="relative isolate"
     >
@@ -107,15 +107,13 @@ export function Metodo() {
 
         <div
           /*
-           * O bloco inteiro sobe 18vh enquanto o quadro está parado, e por cima
-           * disso cada elemento tem o seu próprio curso e atraso. São duas
-           * camadas de movimento: esta é a que faz a composição ENTRAR no
-           * quadro, e a de cima é a que dá profundidade entre as partes.
+           * O bloco inteiro sobe enquanto a seção entra, e por cima disso cada
+           * elemento tem o seu próprio curso e atraso. São duas camadas de
+           * movimento: esta é a que faz a composição ENTRAR no quadro, e a de
+           * dentro é a que dá profundidade entre as partes. Ver `entrada`.
            */
+          data-m="bloco"
           className="relative mx-auto w-full max-w-[1240px] will-change-transform"
-          style={{
-            transform: 'translate3d(0, calc((1 - var(--enter, 1)) * 18vh), 0)',
-          }}
         >
           <div className="flex flex-col gap-7 md:grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:items-center md:gap-14 lg:gap-24">
             {/* `contents` no celular: os filhos viram itens do flex de fora,
@@ -124,15 +122,15 @@ export function Metodo() {
                   a existir e o rodapé volta para o lugar dele. */}
             <div className="contents md:flex md:flex-col md:gap-[34px]">
               <p
-                className="enter-rise font-mono text-[11px] uppercase tracking-[0.18em] text-accent-warm md:text-[13px]"
-                style={{ '--d': 0, '--r': '72px' } as CSSProperties}
+                data-m="eyebrow"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent-warm md:text-[13px]"
               >
                 {metodo.eyebrow}
               </p>
 
               <h2
-                className="enter-rise font-display text-[clamp(38px,9vw,74px)] font-medium leading-[0.96] tracking-[-0.038em] text-ink-bright"
-                style={{ '--d': 0.05, '--r': '64px' } as CSSProperties}
+                data-m="titulo"
+                className="font-display text-[clamp(38px,9vw,74px)] font-medium leading-[0.96] tracking-[-0.038em] text-ink-bright"
               >
                 {metodo.title}
               </h2>
@@ -140,16 +138,16 @@ export function Metodo() {
               {/* Os dois parágrafos vão ao DOM e o CSS escolhe: media query não
                     troca texto, e um listener de resize seria caro para isso. */}
               <p
-                className="enter-rise max-w-[460px] text-[17px] leading-[1.55] text-ink/70 [text-wrap:pretty] md:text-[21px] md:leading-[1.6]"
-                style={{ '--d': 0.1, '--r': '56px' } as CSSProperties}
+                data-m="texto"
+                className="max-w-[460px] text-[17px] leading-[1.55] text-ink/70 [text-wrap:pretty] md:text-[21px] md:leading-[1.6]"
               >
                 <span className="md:hidden">{metodo.paragraphCurto}</span>
                 <span className="hidden md:inline">{metodo.paragraph}</span>
               </p>
 
               <div
-                className="enter-rise order-last flex flex-col gap-3 border-t border-[#1e1d1b] pt-6 md:order-none font-mono text-[11px] uppercase leading-[1.2] tracking-[0.1em] text-[#6f6b67] md:gap-3 md:pt-[26px] md:text-[12px]"
-                style={{ '--d': 0.16, '--r': '48px' } as CSSProperties}
+                data-m="notas"
+                className="order-last flex flex-col gap-3 border-t border-[#1e1d1b] pt-6 md:order-none font-mono text-[11px] uppercase leading-[1.2] tracking-[0.1em] text-[#6f6b67] md:gap-3 md:pt-[26px] md:text-[12px]"
               >
                 {metodo.notas.map((nota, i) => (
                   <p
@@ -177,8 +175,8 @@ export function Metodo() {
 
                 No celular não há grid, e aí vale o `clamp`. */}
             <div
-              className="enter-rise md:self-stretch"
-              style={{ '--d': 0.14, '--r': '128px' } as CSSProperties}
+              data-m="parede"
+              className="md:self-stretch"
             >
               <DriftWall className="h-[clamp(320px,52vh,560px)] rounded-xl md:h-full" />
             </div>
@@ -187,4 +185,52 @@ export function Metodo() {
       </div>
     </section>
   )
+}
+
+/**
+ * A entrada da seção, amarrada à rolagem: de quando o topo dela encosta no pé
+ * da janela até ele chegar a 45% da altura da tela. As posições na timeline
+ * (0, 80, 260…) são fração desse curso, não tempo.
+ *
+ * Profundidade é velocidade diferente: o bloco sobe 120px, e cada parte anda
+ * um pouco mais por dentro dele. O título entra palavra por palavra — o
+ * `splitText` parte o `h2` em `<span>`s e o `revert()` do escopo o devolve
+ * inteiro. Sem `wrap: 'clip'`: com o `leading-[0.96]` o recorte comeria as
+ * descendentes ("ç", "g").
+ *
+ * A parede abre por `clip-path` em vez de crescer: escalar o plano 3D dela
+ * mexeria na perspectiva, e o recorte só revela.
+ */
+function entrada(root: HTMLElement) {
+  const q = (m: string) => root.querySelector<HTMLElement>(`[data-m="${m}"]`)!
+  const { words } = splitText(q('titulo'), { words: true })
+
+  const tl = naRolagem(root)
+    .add(q('bloco'), { translateY: [120, 0], duration: 1000, ease: 'outCubic' }, 0)
+    .add(q('eyebrow'), { opacity: [0, 1], translateX: [-24, 0] }, 0)
+    .add(
+      words,
+      {
+        opacity: [0, 1],
+        translateY: ['0.45em', '0em'],
+        filter: ['blur(10px)', 'blur(0px)'],
+        delay: stagger(45),
+      },
+      80,
+    )
+    .add(q('texto'), { opacity: [0, 1], translateY: [40, 0], filter: ['blur(6px)', 'blur(0px)'] }, 260)
+    .add(q('notas').children, { opacity: [0, 1], translateX: [-20, 0], delay: stagger(70) }, 400)
+    .add(
+      q('parede'),
+      {
+        opacity: [0.2, 1],
+        translateY: [80, 0],
+        clipPath: ['inset(12% 10% 12% 10% round 24px)', 'inset(0% 0% 0% 0% round 12px)'],
+        duration: 800,
+        ease: 'outCubic',
+      },
+      120,
+    )
+
+  assentar(tl)
 }

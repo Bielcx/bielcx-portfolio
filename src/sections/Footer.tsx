@@ -1,8 +1,11 @@
+import { splitText, stagger } from 'animejs'
+
 import { Icon } from '../components/Icon'
 import { SpecularButton } from '../components/SpecularButton'
 import { LightBeam } from '../components/hero/LightBeam'
 import { WAVES_FRAG } from '../components/footer/wavesShaders'
 import { footer } from '../data/content'
+import { assentar, naRolagem, useScrollMotion } from '../hooks/useScrollMotion'
 
 /**
  * Rodapé em RETÂNGULO: um cartão de cantos arredondados dentro da página, com
@@ -34,6 +37,8 @@ import { footer } from '../data/content'
  * nas duas pontas ela deixava de ser o retrato da marca e virava textura.
  */
 export function Footer() {
+  const ref = useScrollMotion<HTMLDivElement>(entrada)
+
   return (
     /* O padding do <footer> é a moldura preta. Ele fica FORA do cartão, e não
        como margem do cartão, para o `id="contato"` do menu continuar levando
@@ -43,7 +48,9 @@ export function Footer() {
        terminam. Mexeu lá, mexa aqui — são dois arquivos dizendo a mesma
        largura, e o desalinhamento não aparece em nenhum dos dois sozinho. */
     <footer id="contato" className="px-6 pt-3 sm:px-10 md:pt-5">
-      <div className="relative isolate mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-[28px] border border-white/8 bg-frame px-6 py-[clamp(34px,5vh,64px)] md:rounded-[36px] md:px-12">
+      <div
+        ref={ref}
+        className="relative isolate mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-[28px] border border-white/8 bg-frame px-6 py-[clamp(34px,5vh,64px)] md:rounded-[36px] md:px-12">
         <LightBeam
           className="pointer-events-none absolute inset-0 z-0"
           frag={WAVES_FRAG}
@@ -71,7 +78,7 @@ export function Footer() {
             ))}
           </h2>
 
-          <p className="mb-7 text-[13px] leading-relaxed text-ink/60">
+          <p data-m="lede" className="mb-7 text-[13px] leading-relaxed text-ink/60">
             {footer.lede.map((line) => (
               <span key={line} className="block">
                 {line}
@@ -80,6 +87,7 @@ export function Footer() {
           </p>
 
           <SpecularButton
+            data-m="cta"
             href={footer.cta.href}
             target="_blank"
             rel="noreferrer"
@@ -91,7 +99,7 @@ export function Footer() {
 
           {/* Link de texto, e não um segundo botão — a razão está no
               `content.pt.ts`, junto da copy. */}
-          <p className="mt-4 text-[12px] text-ink/60">
+          <p data-m="email" className="mt-4 text-[12px] text-ink/60">
             {footer.email.prefix}{' '}
             <a
               href={`mailto:${footer.email.address}`}
@@ -127,4 +135,30 @@ export function Footer() {
       </div>
     </footer>
   )
+}
+
+/**
+ * O cartão chegando: cresce de 92% e sobe enquanto entra, e o conteúdo vem
+ * por cima dele — título por palavras, lede linha a linha, botão e e-mail.
+ *
+ * O curso termina quando o pé do cartão encosta no pé da janela, e não mais
+ * acima: é o fim da página, e a rolagem máxima deixa o cartão só a linha de
+ * links acima do pé. Um `leave` mais alto nunca chegaria a 1 e o cartão
+ * ficaria meio encolhido para sempre.
+ *
+ * No botão, só opacidade e `filter`: o `SpecularButton` tem `transition` no
+ * `transform` (o afundar do clique), e animar o `transform` dele por quadro
+ * faria a transição correr atrás de cada valor.
+ */
+function entrada(card: HTMLElement) {
+  const { words } = splitText(card.querySelector('h2')!, { words: true })
+
+  const tl = naRolagem(card, 'bottom bottom')
+    .add(card, { scale: [0.92, 1], translateY: [60, 0], duration: 1000, ease: 'outCubic' }, 0)
+    .add(words, { opacity: [0, 1], translateY: ['0.5em', '0em'], filter: ['blur(8px)', 'blur(0px)'], delay: stagger(50) }, 200)
+    .add(card.querySelectorAll('[data-m="lede"] > span'), { opacity: [0, 1], translateY: [16, 0], delay: stagger(80) }, 450)
+    .add(card.querySelector('[data-m="cta"]')!, { opacity: [0, 1], filter: ['blur(6px)', 'blur(0px)'] }, 600)
+    .add(card.querySelector('[data-m="email"]')!, { opacity: [0, 1], translateY: [10, 0] }, 700)
+
+  assentar(tl)
 }

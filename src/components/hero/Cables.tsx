@@ -186,18 +186,24 @@ const tangente = (p: Ponto[], t: number): Ponto => {
   ]
 }
 
-/** O fio inteiro num instante: a curva com a onda somada na perpendicular. */
-function tracar(p: Ponto[], fase: number, tempo: number) {
+/** Um ponto do fio ondulado no parâmetro `t` — a curva com a onda somada na
+ *  perpendicular. O traço e a bolinha passam pela MESMA conta. */
+const ponto = (p: Ponto[], t: number, fase: number, tempo: number, amplitude: number): Ponto => {
+  const [x, y] = bezier(p, t)
+  const [tx, ty] = tangente(p, t)
+  const norma = Math.hypot(tx, ty) || 1
+  // amplitude morre nas pontas: o fio fica preso no card e no nome
+  const amp = amplitude * Math.sin(Math.PI * t)
+  const onda = Math.sin(t * ONDAS * Math.PI * 2 + fase - tempo * VELOCIDADE) * amp
+  return [x + (-ty / norma) * onda, y + (tx / norma) * onda]
+}
+
+/** O fio inteiro num instante. */
+function tracar(p: Ponto[], fase: number, tempo: number, amplitude: number) {
   let d = ''
   for (let i = 0; i <= PONTOS; i++) {
-    const t = i / PONTOS
-    const [x, y] = bezier(p, t)
-    const [tx, ty] = tangente(p, t)
-    const norma = Math.hypot(tx, ty) || 1
-    // amplitude morre nas pontas: o fio fica preso no card e no nome
-    const amp = AMPLITUDE * Math.sin(Math.PI * t)
-    const onda = Math.sin(t * ONDAS * Math.PI * 2 + fase - tempo * VELOCIDADE) * amp
-    d += `${i ? 'L' : 'M'}${(x + (-ty / norma) * onda).toFixed(2)} ${(y + (tx / norma) * onda).toFixed(2)}`
+    const [x, y] = ponto(p, i / PONTOS, fase, tempo, amplitude)
+    d += `${i ? 'L' : 'M'}${x.toFixed(2)} ${y.toFixed(2)}`
   }
   return d
 }
@@ -206,7 +212,31 @@ function tracar(p: Ponto[], fase: number, tempo: number) {
 const boiar = (cabo: (typeof CABOS)[number], tempo: number) =>
   (-cabo.boia / 2) * (1 - Math.cos(((tempo + cabo.atraso) / cabo.pulso) * Math.PI))
 
-export function Cables() {
+/**
+ * O CELULAR, abaixo de 820px: os mesmos fios, ligando a grade 2×2 ao nome.
+ *
+ * Lá não há palco nem desenho do handoff — a grade é fluxo de página e muda
+ * com a fonte, a largura e a copy. Então a rota inteira é MEDIDA, não só a
+ * ponta: o centro de cada card (`[data-plug]`) e a caixa do nome (`[data-no]`),
+ * em px do bloco de texto, que contém os dois. Sem `viewBox`, uma unidade do
+ * SVG é um px.
+ *
+ * O fio sai do card para FORA, sobe pela margem e entra no nome pelo lado,
+ * como no desktop: pelo meio ele cruzaria os botões. A linha de baixo faz a
+ * curva mais aberta e entra mais alto no nome, a de cima a mais fechada e
+ * entra mais baixo — uma dentro da outra, sem se cruzar.
+ *
+ * Onda e flutuar encolhem: a grade tem 10px de vão, e a boia de 10px do
+ * desktop encostaria um card no outro. `margem` é quanto a curva passa para
+ * fora da grade, [linha de cima, linha de baixo]; `piso` é o mínimo até a
+ * beira da tela (a 360px a margem da grade é 20px, e as duas curvas dividem
+ * isso); `quina` é quanto os controles passam das pontas, em fração da altura
+ * do fio. Medidos a 360, 390, 600 e 760px contra os outros cards, os botões e
+ * a beira — mexeu, meça de novo.
+ */
+const CELULAR = { amplitude: 0.3, boia: 0.3, margem: [10, 18], piso: 8, quina: 0.4 } as const
+
+export function Cables({ celular = false }: { celular?: boolean }) {
   const svg = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
@@ -230,25 +260,65 @@ export function Cables() {
      * resize, nunca por quadro — a regra do `AGENTS.md` sobre não ler layout
      * dentro de loop de scroll vale igual aqui.
      */
-    const plugs: (readonly [number, number])[] = CABOS.map((c) => [c.p[0][0], c.p[0][1]])
+    const rotas: Ponto[][] = CABOS.map((c) => [...c.p])
     let porPx = { x: VB_W / 1240, y: VB_H / 700 }
+    const amplitude = celular ? AMPLITUDE * CELULAR.amplitude : AMPLITUDE
+    const repouso = (i: number) => (celular ? '' : `rotate(${CABOS[i].giro}deg)`)
+    const nome = palco.querySelector<HTMLElement>('[data-no]')
 
     const medir = () => {
       const caixa = palco.getBoundingClientRect()
       if (!caixa.width || !caixa.height) return
-      porPx = { x: VB_W / caixa.width, y: VB_H / caixa.height }
+      porPx = celular ? { x: 1, y: 1 } : { x: VB_W / caixa.width, y: VB_H / caixa.height }
 
-      cards.forEach((card, i) => {
-        if (!card) return
+      const centros = cards.map((card, i): Ponto | null => {
+        if (!card) return null
         const antes = card.style.transform
         // sem o flutuar: a medida é a do card em repouso
-        card.style.transform = `rotate(${CABOS[i].giro}deg)`
-        const plug = card.querySelector<HTMLElement>('[data-plug]')
-        if (plug) {
-          const r = plug.getBoundingClientRect()
-          plugs[i] = [(r.left - caixa.left) * porPx.x, (r.top - caixa.top) * porPx.y]
-        }
+        card.style.transform = repouso(i)
+        const r = card.querySelector<HTMLElement>('[data-plug]')?.getBoundingClientRect()
         card.style.transform = antes
+        return r ? [(r.left - caixa.left) * porPx.x, (r.top - caixa.top) * porPx.y] : null
+      })
+
+      if (!celular) {
+        centros.forEach((c, i) => c && (rotas[i][0] = c))
+        return
+      }
+
+      const n = nome?.getBoundingClientRect()
+      const caixas = cards.map((c) => c?.getBoundingClientRect())
+      if (!n?.width || caixas.some((c) => !c?.width)) return
+      const nx = n.left - caixa.left + n.width / 2
+      const ny = n.top - caixa.top + n.height / 2
+      const esquerda = Math.min(...caixas.map((c) => c!.left)) - caixa.left
+      const direita = Math.max(...caixas.map((c) => c!.right)) - caixa.left
+      const meioY = centros.reduce((s, c) => s + (c?.[1] ?? 0), 0) / centros.length
+
+      centros.forEach((p0, i) => {
+        if (!p0) return
+        const lado = p0[0] < nx ? -1 : 1
+        const externo = p0[1] > meioY
+        // termina DENTRO de uma linha do nome (±¼ da altura é o meio de cada
+        // uma), atrás das letras e da sombra delas — no vão entre as duas o
+        // fio aparece. A linha de baixo da grade entra na de cima do nome.
+        const p3: Ponto = [nx + lado * n.width * 0.16, ny + (externo ? -0.25 : 0.25) * n.height]
+        // onde a curva deve encostar na margem, fora da grade
+        // — mas nunca a menos de `piso` da beira da tela, onda incluída
+        const piso = CELULAR.piso + amplitude
+        const borda = Math.min(
+          Math.max((lado < 0 ? esquerda : direita) + lado * CELULAR.margem[externo ? 1 : 0], piso),
+          caixa.width - piso,
+        )
+        // o x dos dois controles que leva o ponto mais aberto da bézier até a
+        // `borda` (em t=½ ele vale ⅛·p0 + ¾·controle + ⅛·p3)
+        const cx = (borda - (p0[0] + p3[0]) / 8) / 0.75
+        // os controles passam das quinas — abaixo do card, acima do nome —, e
+        // a curva fica mais "caixa": chega na margem antes de subir (sem isso a
+        // de baixo corta a quina do card de cima) e desce no nome por cima, em
+        // vez de varrer o canto dos botões
+        const folga = CELULAR.quina * (p0[1] - p3[1])
+        rotas[i] = [p0, [cx, p0[1] + folga], [cx, p3[1] - folga], p3]
       })
     }
 
@@ -257,18 +327,14 @@ export function Cables() {
     const desenhar = (tempo: number) => {
       CABOS.forEach((cabo, i) => {
         // o MESMO número move o card e a ponta do fio
-        const boia = boiar(cabo, tempo)
+        const boia = boiar(cabo, tempo) * (celular ? CELULAR.boia : 1)
         const card = cards[i]
-        if (card) card.style.transform = `translateY(${boia.toFixed(2)}px) rotate(${cabo.giro}deg)`
+        if (card) card.style.transform = `translateY(${boia.toFixed(2)}px) ${repouso(i)}`
 
         // a curva começa onde o card está AGORA, não onde o desenho o pôs
-        const p: Ponto[] = [
-          [plugs[i][0], plugs[i][1] + boia * porPx.y],
-          cabo.p[1],
-          cabo.p[2],
-          cabo.p[3],
-        ]
-        const d = tracar(p, cabo.fase, tempo)
+        const r = rotas[i]
+        const p: Ponto[] = [[r[0][0], r[0][1] + boia * porPx.y], r[1], r[2], r[3]]
+        const d = tracar(p, cabo.fase, tempo, amplitude)
         // as três camadas do mesmo fio compartilham o caminho
         for (let camada = 0; camada < CAMADAS.length; camada++) {
           fios[i * CAMADAS.length + camada]?.setAttribute('d', d)
@@ -279,21 +345,23 @@ export function Cables() {
         // a bolinha anda pelo MESMO fio ondulado: percorre o parâmetro e é
         // posicionada pela mesma conta, senão ela desliza ao lado da luz
         const ciclo = (tempo % cabo.pulso) / cabo.pulso
-        const [x, y] = bezier(p, ciclo)
-        const [tx, ty] = tangente(p, ciclo)
-        const norma = Math.hypot(tx, ty) || 1
-        const amp = AMPLITUDE * Math.sin(Math.PI * ciclo)
-        const onda = Math.sin(ciclo * ONDAS * Math.PI * 2 + cabo.fase - tempo * VELOCIDADE) * amp
-        bola.setAttribute('cx', String(x + (-ty / norma) * onda))
-        bola.setAttribute('cy', String(y + (tx / norma) * onda))
+        const [x, y] = ponto(p, ciclo, cabo.fase, tempo, amplitude)
+        bola.setAttribute('cx', x.toFixed(2))
+        bola.setAttribute('cy', y.toFixed(2))
         // some nas duas pontas: aparecer de estalo lê como defeito de render
         bola.setAttribute('opacity', String(Math.sin(Math.PI * ciclo) ** 0.6))
       })
     }
 
     medir()
-    const regua = new ResizeObserver(medir)
+    // no celular a grade anda sem o bloco mudar de tamanho — a fonte do nome
+    // chegando, a copy quebrando linha —, então o nome e os cards também
+    const regua = new ResizeObserver(() => {
+      medir()
+      if (parado) desenhar(0)
+    })
     regua.observe(palco)
+    if (celular) [nome, ...cards].forEach((el) => el && regua.observe(el))
 
     if (parado) {
       desenhar(0)
@@ -307,7 +375,9 @@ export function Cables() {
     const quadro = (agora: number) => {
       raf = 0
       if (!visivel) return
-      desenhar((agora - inicio) / 1000)
+      // o primeiro quadro pode ter carimbo ANTERIOR ao `inicio`, e tempo
+      // negativo dá `ciclo` negativo e opacidade `NaN` na bolinha
+      desenhar(Math.max(0, agora - inicio) / 1000)
       raf = requestAnimationFrame(quadro)
     }
 
@@ -315,7 +385,11 @@ export function Cables() {
     const olho = new IntersectionObserver(
       ([entrada]) => {
         visivel = entrada.isIntersecting
-        if (visivel && !raf) raf = requestAnimationFrame(quadro)
+        if (visivel && !raf) {
+          // escondido (`display: none` do outro lado dos 820px) mediu zero
+          medir()
+          raf = requestAnimationFrame(quadro)
+        }
       },
       { rootMargin: '120px' },
     )
@@ -327,15 +401,20 @@ export function Cables() {
       olho.disconnect()
       regua.disconnect()
     }
-  }, [])
+  }, [celular])
 
   return (
     <svg
       ref={svg}
-      viewBox={`0 0 ${VB_W} ${VB_H}`}
+      viewBox={celular ? undefined : `0 0 ${VB_W} ${VB_H}`}
       aria-hidden
       fill="none"
-      className="absolute inset-0 size-full"
+      // o fade é por filho, nunca num ancestral dos cards — a razão está no
+      // `Hero.tsx`. No celular o fio vai com o bloco de texto (`--hw`), ao
+      // QUADRADO: no meio do fade o próprio card está translúcido e deixa
+      // passar o fio sem desfoque; apagando antes dos cards, sobra pouco
+      style={{ opacity: celular ? 'calc(var(--hw, 1) * var(--hw, 1))' : 'var(--hs, 1)' }}
+      className={`absolute inset-0 size-full overflow-visible ${celular ? 'hidden max-[820px]:block' : ''}`}
     >
       {CABOS.map((cabo) =>
         CAMADAS.map(([mult, opacidade]) => (

@@ -120,68 +120,6 @@
 }
 
 /**
- * Entrada da seção 02, derivada do `--enter` que o `useEnterProgress` publica.
- *
- * Cada elemento sobe de `--r` até o lugar enquanto aparece. O curso é grande de
- * propósito, e em duas velocidades — o mesmo recurso que o `Services` usa com
- * 40px e 96px: o conteúdo anda MAIS do que a seção que o carrega, então ele
- * sobe POR DENTRO dela em vez de só acompanhar a rolagem. É o que dava à
- * narrativa antiga a sensação de entrar subindo, e ela tinha por passar dentro
- * do card parado do hero.
- *
- * `--d` é o atraso de cada um, em fração do progresso. O `* 2.2` dá a cada
- * elemento quase metade do percurso: janelas curtas demais (estava em `* 4`)
- * fazem cada coisa piscar no lugar em vez de subir, e o efeito vira fade.
- *
- * Sem `@keyframes` e sem estado: quem dirige é a posição de scroll, então subir
- * de volta desfaz o movimento — a regra de efeito de scroll deste projeto. Com
- * movimento reduzido o hook já escreve `--enter: 1` e tudo nasce assentado; o
- * fallback `1` no `var()` cobre o caso de o script nem rodar.
- */
-@utility enter-rise {
-  --t: clamp(0, (var(--enter, 1) - var(--d, 0)) * 2.2, 1);
-  opacity: var(--t);
-  transform: translate3d(0, calc((1 - var(--t)) * var(--r, 56px)), 0);
-}
-
-/**
- * A linha do tempo do painel da seção 02 se traçando, em loop.
- *
- * Infinita e por keyframes, ao contrário do resto dos efeitos desta página, que
- * são dirigidos por scroll — é a mesma exceção que o pulso antigo tinha, e pela
- * mesma razão: o painel precisa dizer que está VIVO enquanto a pessoa lê, e um
- * efeito de scroll não diz isso a quem parou de rolar. Foi essa a tentativa
- * anterior: amarrar o traçado ao `--enter`. Não funcionou, e o motivo é
- * mensurável — com o track de 115vh o `sticky` prende em progress 0.887, e o
- * `easeOutCubic` do `useStageProgress` já entregou `--enter` ≈ 0.999 nesse
- * ponto. O traçado inteiro acontecia enquanto o card ainda subia, e quem parava
- * no painel via a linha pronta e parada.
- *
- * Quem conduz é `--linha` (0 → 1), uma propriedade REGISTRADA — sem o
- * `@property` ela seria um token de texto e não interpolaria. Está no `<ol>` e
- * desce por herança; cada parada lê a mesma variável e decide o seu estado com
- * `--d` (quando entra) e `--v` (com que rapidez). Uma variável só é o que faz o
- * reset do loop ser simultâneo em todo mundo: com uma animação por elemento e
- * atrasos diferentes, cada trecho reiniciava na sua hora e o ciclo virava
- * bagunça.
- *
- * `--fade` é o apagar do fim do ciclo, e existe para o reset não ser um corte
- * seco. Vai junto no mesmo keyframe porque também precisa ser simultâneo.
- */
-@property --linha {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 1;
-}
-
-@property --fade {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 1;
-}
-
-
-/**
  * O losango do Ethereum girando no próprio eixo, no botão do portfólio web3.
  *
  * `rotateY`, e não `rotate`: girar no plano faria um losango dar voltas, que
@@ -192,8 +130,8 @@
  * 4s porque o ícone é a única coisa em movimento numa tela parada: mais rápido
  * vira aviso piscando, e o botão não é urgente — é um convite lateral.
  *
- * Infinito e por keyframes, como o `linha-traca`: não conta nada sobre a
- * posição da página, só diz que há outro site ali.
+ * Infinito e por keyframes: não conta nada sobre a posição da página, só
+ * diz que há outro site ali.
  */
 @keyframes eth-spin {
   to {

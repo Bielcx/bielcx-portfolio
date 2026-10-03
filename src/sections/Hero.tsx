@@ -56,13 +56,49 @@ const TONS = {
     ponto: 'bg-accent-sky',
     label: 'text-[#8fa4c4]',
     unidade: 'text-[#9fb4d4]',
+    vidro: 'border-[#a8c7fa]/20 bg-[linear-gradient(115deg,transparent_38%,rgba(255,255,255,0.035)_50%,transparent_62%),linear-gradient(160deg,rgba(168,199,250,0.13),rgba(168,199,250,0.025)_45%,rgba(10,12,16,0.35))]',
+    fio: 'via-[#a8c7fa]/45',
   },
   sage: {
     ponto: 'bg-accent-sage',
     label: 'text-[#9aab84]',
     unidade: 'text-accent-sage',
+    vidro: 'border-[#b6c98f]/20 bg-[linear-gradient(115deg,transparent_38%,rgba(255,255,255,0.035)_50%,transparent_62%),linear-gradient(160deg,rgba(182,201,143,0.13),rgba(182,201,143,0.025)_45%,rgba(10,12,16,0.35))]',
+    fio: 'via-[#b6c98f]/45',
   },
 } as const
+
+/**
+ * O VIDRO dos cards — cantos retos, fundo translúcido e um desfoque forte do
+ * que passa por trás.
+ *
+ * **O desfoque é o que resolve o cabo**, e não é enfeite. Enquanto o card era
+ * opaco, o trecho do fio entre o centro (onde fica o `data-plug`) e a borda
+ * sumia embaixo dele. Com vidro o fio apareceria atravessando o card até o
+ * meio — e é aí que entra o `backdrop-blur`: a 22px um traço de 1,3px vira um
+ * brilho difuso na cor do cabo, e o que se lê é a luz ENTRANDO no vidro e se
+ * espalhando dentro dele. O fio continua nascendo do centro, sem fresta em
+ * borda nenhuma. Baixar o blur para menos de ~14px traz a linha nítida de
+ * volta para dentro do card, e ela passa a riscar o número.
+ *
+ * **Nenhum ancestral do card pode ter opacidade**, nem `will-change: opacity`:
+ * no Chromium isso desliga o desfoque e o fio volta nítido por cima do
+ * número. É por isso que o fade do `--hs` vai em cada filho do palco, e não no
+ * palco (ver o comentário lá).
+ *
+ * Dois realces por cima, ambos em `box-shadow` inset: uma linha clara de 1px
+ * no topo (a quina que pega luz) e um brilho fraco no lado de dentro da
+ * borda. A sombra larga de fora é a de antes, e é o que solta o card do preto.
+ */
+const VIDRO =
+  'rounded-none border backdrop-blur-[22px] backdrop-saturate-[1.6] shadow-[inset_0_1px_0_rgba(255,255,255,0.10),inset_0_0_0_1px_rgba(255,255,255,0.025),inset_0_18px_36px_-24px_rgba(255,255,255,0.08)]'
+
+/**
+ * O fade do `--hw` em cada filho do bloco de texto, só abaixo de 820px — lá o
+ * bloco contém os cards de vidro e os fios, e não pode ter opacidade própria
+ * (ver o comentário do `<Cables celular />`). No desktop quem apaga é o bloco.
+ */
+const FADE_CELULAR = 'max-[820px]:[opacity:var(--hw,1)]'
 
 /**
  * ONDE CADA CARD FICA — e a regra é: **o card não tem posição própria, ele
@@ -86,9 +122,10 @@ const TONS = {
  * como fresta: o traço termina exatamente em cima da borda de 1px, e o
  * antialias das duas coisas no mesmo pixel desenha uma linha clara entre elas.
  *
- * Do centro não há o que alinhar. O começo do fio fica escondido sob o card —
- * o SVG é desenhado antes dos cards no DOM, e o card é opaco —, e o que se vê
- * é a linha SAINDO de trás dele, cruzando a borda onde quer que ela caia. Isso
+ * Do centro não há o que alinhar. O começo do fio fica atrás do card — o SVG
+ * é desenhado antes dos cards no DOM, e o vidro o desfoca em brilho (ver
+ * `VIDRO`) —, e o que se vê é a linha ENTRANDO nele, cruzando a borda onde
+ * quer que ela caia. Isso
  * vale em qualquer ângulo, com qualquer raio de borda e a qualquer altura do
  * flutuar, que é o que as duas tentativas anteriores não davam.
  *
@@ -240,20 +277,25 @@ export function Hero() {
               para uma caixa mais alta; a conta está lá. */}
 
           {/* O palco, com os fios e os cards dentro — os dois na mesma grade,
-              que é o que os mantém plugados. Some inteiro abaixo de 820px:
-              sem os cards não há o que os fios liguem. */}
+              que é o que os mantém plugados. Some inteiro abaixo de 820px,
+              onde a grade 2×2 e os fios dela (`<Cables celular />`, no bloco
+              de texto) tomam o lugar. */}
           {/* A cena não só apaga: ela SOBE enquanto apaga. Parada, o que se via
               era uma aresta reta comendo quatro cards acesos de baixo para
               cima — a cortina cortando, não a hero saindo. Subindo, os cards
               saem de quadro por cima e a cortina só encontra o que já foi
               embora. É o mesmo par (deslocamento + fade) que o bloco de texto
-              usa com o `--hw`, e pela mesma razão. */}
+              usa com o `--hw`, e pela mesma razão.
+
+              **O fade NÃO mora aqui, e sim em cada filho** (o SVG e os
+              cards). Opacidade num ancestral — até `will-change: opacity`,
+              com ela em 1 — desliga o `backdrop-filter` dos cards no
+              Chromium: o vidro para de desfocar e o fio passa nítido por cima
+              do número. Medido, num teste isolado. O deslocamento fica, que
+              `transform` no ancestral não atrapalha. */}
           <div
-            style={{
-              opacity: 'var(--hs, 1)',
-              transform: 'translate3d(0, calc((1 - var(--hs, 1)) * -16vh), 0)',
-            }}
-            className={`${PALCO} pointer-events-none will-change-[opacity,transform] max-[820px]:hidden`}
+            style={{ transform: 'translate3d(0, calc((1 - var(--hs, 1)) * -16vh), 0)' }}
+            className={`${PALCO} pointer-events-none will-change-transform max-[820px]:hidden`}
           >
             <Cables />
 
@@ -291,9 +333,8 @@ export function Hero() {
               com o deslocamento, lê como saída. */}
           <div
             ref={contentRef}
-            className="relative flex h-full flex-col items-center justify-center gap-[clamp(20px,3vh,30px)] px-6 pb-[120px] pt-24 text-center will-change-[opacity,transform] max-[820px]:px-5 max-[820px]:pb-[110px] max-[820px]:pt-20"
+            className="relative flex h-full flex-col items-center justify-center gap-[clamp(20px,3vh,30px)] px-6 pb-[120px] pt-24 text-center will-change-[opacity,transform] [opacity:var(--hw,1)] max-[820px]:will-change-transform max-[820px]:[opacity:1] max-[820px]:px-5 max-[820px]:pb-[110px] max-[820px]:pt-20"
             style={{
-              opacity: 'var(--hw, 1)',
               transform: 'translate3d(0, calc((1 - var(--hw, 1)) * -48px), 0)',
             }}
           >
@@ -309,8 +350,19 @@ export function Hero() {
                 isto aqui: a copy guarda o nome, não a marcação. Só a ÚLTIMA
                 linha é fatiada, e `slice(0, -1)` com `slice(-1)` continua
                 correto para qualquer nome de uma letra ou mais. */}
+            {/* Os fios do celular: da grade 2×2 até o nome. Moram AQUI, como
+                irmãos dos cards, e é por isso que o `--hw` deste bloco muda de
+                casa abaixo de 820px: opacidade num ANCESTRAL dos cards — mesmo
+                no meio do fade — desliga o `backdrop-filter` e o fio passa
+                nítido por dentro do vidro. No celular o bloco fica em 1 e cada
+                filho apaga sozinho (`FADE_CELULAR`), a mesma regra do palco
+                com o `--hs`. O `relative` do `h1` é o que o põe por cima do
+                fio: elemento sem posição pinta antes do SVG absoluto. */}
+            <Cables celular />
+
             <h1
-              className={`font-display font-bold leading-[0.96] tracking-[-0.035em] text-ink-bright [text-shadow:0_0_26px_rgba(3,3,4,0.95),0_0_70px_rgba(3,3,4,0.95),0_0_130px_rgba(3,3,4,0.85)] ${WORDMARK_SIZE}`}
+              data-no
+              className={`relative ${FADE_CELULAR} font-display font-bold leading-[0.96] tracking-[-0.035em] text-ink-bright [text-shadow:0_0_26px_rgba(3,3,4,0.95),0_0_70px_rgba(3,3,4,0.95),0_0_130px_rgba(3,3,4,0.85)] ${WORDMARK_SIZE}`}
             >
               {hero.wordmark.map((linha, i) => {
                 const ultima = i === hero.wordmark.length - 1
@@ -324,7 +376,7 @@ export function Hero() {
               })}
             </h1>
 
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className={`flex flex-wrap justify-center gap-3 ${FADE_CELULAR}`}>
               <SpecularButton
                 href={whatsappUrl}
                 target="_blank"
@@ -365,17 +417,22 @@ export function Hero() {
               </SpecularButton>
             </div>
 
-            {/* A grade 2×2 do celular: os mesmos quatro ganchos dos cards, sem
-                a cena. Só existe abaixo de 820px, que é onde os cards e os
-                cabos somem — sem ela, a primeira tela do celular volta a ser
-                nome e dois botões, que é exatamente o problema que esta hero
-                foi desenhada para resolver. */}
-            <div className="hidden w-full max-w-[380px] grid-cols-2 gap-2.5 max-[820px]:grid">
+            {/* A grade 2×2 do celular: os mesmos quatro ganchos dos cards. Só
+                existe abaixo de 820px, onde o palco some — sem ela, a primeira
+                tela do celular volta a ser nome e dois botões, que é exatamente
+                o problema que esta hero foi desenhada para resolver. Cada card
+                tem o seu `data-plug` no centro, como os do palco: é dali que o
+                `<Cables celular />` puxa o fio até o nome, e é o loop dele que
+                escreve o `transform` do flutuar. */}
+            <div className="hidden w-full max-w-[380px] grid-cols-2 gap-2.5 max-[820px]:grid max-[440px]:px-1.5">
               {hero.provas.map((prova) => (
                 <div
                   key={prova.id}
-                  className="rounded-xl border border-hero-line bg-hero-card p-3 text-left"
+                  data-card={prova.id}
+                  className={`relative p-3 text-left ${FADE_CELULAR} ${VIDRO} ${TONS[prova.tom].vidro}`}
                 >
+                  <span data-plug aria-hidden className="absolute left-1/2 top-1/2 size-0" />
+                  <Quina tom={prova.tom} />
                   <span
                     className={`block font-mono text-[9px] uppercase tracking-[0.14em] ${TONS[prova.tom].label}`}
                   >
@@ -394,7 +451,7 @@ export function Hero() {
                 `AGENTS.md`. A quebra manual do protótipo virou `max-w`: a
                 medida faz o mesmo desenho e não quebra torto quando a copy
                 mudar. */}
-            <p className="max-w-[420px] font-mono text-[12px] uppercase leading-[1.9] tracking-[0.16em] text-ink/60">
+            <p className={`max-w-[420px] ${FADE_CELULAR} font-mono text-[12px] uppercase leading-[1.9] tracking-[0.16em] text-ink/60`}>
               {hero.subtitle}
             </p>
           </div>
@@ -435,6 +492,19 @@ function preconectar() {
   document.head.append(tag)
 }
 
+/**
+ * O fio de luz na aresta de cima do vidro, na cor da frente — some nas duas
+ * pontas para ler como reflexo, e não como borda colorida.
+ */
+function Quina({ tom }: { tom: keyof typeof TONS }) {
+  return (
+    <i
+      aria-hidden
+      className={`pointer-events-none absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent to-transparent ${TONS[tom].fio}`}
+    />
+  )
+}
+
 /** Um card de resultado, pendurado na ponta do cabo que o liga ao nome. */
 function Card({ prova }: { prova: (typeof hero.provas)[number] }) {
   const tom = TONS[prova.tom]
@@ -443,15 +513,15 @@ function Card({ prova }: { prova: (typeof hero.provas)[number] }) {
   return (
     <article
       data-card={prova.id}
-      style={ancora(prova.id)}
-      className={`absolute rounded-[14px] border border-hero-line bg-hero-card p-4 shadow-[0_26px_60px_rgba(0,0,0,0.6)] max-[1100px]:scale-[0.86] ${c.largura} ${c.canto}`}
+      style={{ ...ancora(prova.id), opacity: 'var(--hs, 1)' }}
+      className={`absolute p-4 max-[1100px]:scale-[0.86] ${VIDRO} ${tom.vidro} ${c.largura} ${c.canto}`}
     >
       {/* De onde o fio sai: o centro do card. Sem tamanho e sem pintura —
           existe só para o `Cables` medir o ponto já com a rotação e o flutuar
           aplicados, uma vez por resize. O trecho entre o centro e a borda fica
-          coberto pelo próprio card, e é isso que faz a linha parecer vir de
-          trás dele em vez de encostar nele. */}
+          ATRÁS do vidro, desfocado em brilho — ver `VIDRO`. */}
       <span data-plug aria-hidden className={`absolute size-0 ${c.plug}`} />
+      <Quina tom={prova.tom} />
       <div className="flex items-center gap-2">
         <i className={`no-pulsa size-[7px] rounded-full ${tom.ponto}`} />
         <span className={`font-mono text-[9px] uppercase tracking-[0.18em] ${tom.label}`}>
@@ -477,9 +547,9 @@ function Card({ prova }: { prova: (typeof hero.provas)[number] }) {
       )}
 
       {'barra' in prova && prova.barra !== undefined && (
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#1b1e24]">
+        <div className="mt-3 h-1 overflow-hidden bg-white/8">
           <i
-            className="block h-1.5 rounded-full bg-accent-sage"
+            className="block h-1 bg-accent-sage"
             style={{ width: `${prova.barra}%` }}
           />
         </div>
