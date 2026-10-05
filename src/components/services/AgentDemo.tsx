@@ -83,7 +83,7 @@ export function AgentDemo() {
     <div className="flex flex-col items-center">
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink/55">{eyebrow}</p>
 
-      <div className="relative mt-7 w-full max-w-[272px]">
+      <div className="relative mt-7 w-full max-w-[232px]">
         {/* O halo, ATRÁS do aparelho. O telefone é preto como a página, e sem
             ele a moldura some no fundo em vez de flutuar sobre ele. */}
         <div
