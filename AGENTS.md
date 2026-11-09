@@ -1,8 +1,8 @@
 # portfolios/comercial
 
 Portfólio **comercial** de Gabriel Cavalcanti — desenvolvedor full stack. Página
-única em português, fundo escuro, hero centrada sobre um canvas de automação —
-o nome como nó, quatro cards de resultado plugados nele por cabos animados.
+única em português, fundo escuro. A hero é limpa: o que é feito, um botão de
+WhatsApp e três números com fonte.
 
 ## Por que este repositório existe
 
@@ -16,14 +16,13 @@ Existem dois portfólios, e a divisão é de **público**, não de tecnologia:
 O portfólio web3 converte bem com quem é do meio e afasta quem não é: a estética
 e o vocabulário (Hive, PRs on-chain, terminal) filtram o cliente comercial na
 primeira tela. Este site é a porta desse público, e o outro continua vivo,
-intacto, para quem sabe o que procura — linkado daqui em DOIS lugares: um botão
-na hero (`hero.actions.web3`) e um link no rodapé (`footer.links`). A URL mora
-num lugar só, `web3Url` no `src/data/contact.ts`.
+intacto, para quem sabe o que procura.
 
-O botão da hero é recente e contraria a regra original, que mantinha a palavra
-"web3" fora da primeira tela para não confundir o visitante comercial. Foi
-decisão do dono, não descuido: se um dia o site voltar a soar técnico demais de
-cara, é o primeiro candidato a descer de volta para o rodapé.
+**Este site não linka para o web3 em lugar nenhum (09/11/2026).** Já houve um
+botão "Web3" na hero, com um portal animado ao clicar, e um "Web3 / blockchain"
+no rodapé; os dois saíram a pedido. Quem liga os dois portfolios agora é o site
+pessoal (`gabriel.doabridge.com`), que tem uma porta para cada um. Não traga a
+palavra "web3" de volta para cá sem pedirem.
 
 **Nunca traga projeto web3 para cá.** A lista de `services.works` é só web2. Foi
 a mistura dos dois que criou o problema que este repositório resolve.
@@ -134,36 +133,10 @@ arquivo, o slot mostra um placeholder hachurado com o domínio — é o estado a
 dos quatro.
 
 **Cada CTA tem rótulo próprio, e só o do rodapé tem ícone.** São dois pontos de
-contato — hero e rodapé. A hero tem UM CTA ("Começar uma conversa") mais o botão
-do "Web3", que não é contato: é saída para outro site, e por isso vem em
-`text-ink/60` e com `target="_blank"`.
-
-**Nada no botão avisa que ele sai do site, e isso é decisão, não esquecimento.**
-O rótulo era "Portfólio web3" e encolheu para "Web3"; havia uma seta `↗` na
-ponta direita e ela saiu, com o losango do Ethereum tomando aquele lugar. Os
-dois pedidos foram do dono, em momentos diferentes, e o efeito somado é que o
-único sinal de saída — a seta — não existe mais. Se um dia aparecer gente
-achando que era uma seção deste site, é aqui que se mexe.
-
-O "Trabalhos no ar", que levava a `#servicos`, saiu da hero — quem quiser chegar
-lá tem o menu. Não o traga de volta sem pedirem.
-
-**O losango do Ethereum é 3D de verdade, e tem três degraus.** O `EthMark`
-escolhe antes de montar: com WebGL2 e movimento permitido, um octaedro
-raymarcado (`ethShaders.ts`) girando com luz; com `prefers-reduced-motion`, o
-SVG plano PARADO; sem WebGL2, o SVG plano com a `eth-spin` de sempre, que é o
-comportamento antigo. O ícone é o único do site com cor própria
-(`text-accent-cool`) — os outros herdam o `currentColor` de quem os contém.
-
-A escolha mora no componente, e não no shader, por duas razões que não são
-estilo: um shader não tem como respeitar `prefers-reduced-motion`, e o
-`LightBeam` falha em silêncio quando não há contexto — o que serve a uma faixa
-decorativa e não a um ícone, porque botão sem a sua marca é defeito que ninguém
-percebe. Por isso o `EthMark` testa o WebGL2 num canvas descartável, uma vez.
-
-**A `perspective` do botão continua lá, e serve só ao terceiro degrau**:
-`rotateY` sem perspectiva num ancestral achata o giro do SVG. O caminho 3D não
-a usa — a projeção é do shader.
+contato — hero e rodapé. A hero tem UM botão ("Conversar no WhatsApp"); o do
+rodapé é "Tirar um projeto do papel". Não traga para a hero o botão Web3 nem o
+"Trabalhos no ar" de volta sem pedirem: a primeira tela é só para o visitante
+comercial, e quem quiser os serviços tem o menu.
 
 **O painel da faixa de automação é o `AgentDemo`: um celular rodando, em loop,
 um vídeo de 15s** (`src/assets/automacao/agente.mp4` + `agente-poster.webp`) —
@@ -198,36 +171,6 @@ vez de demonstrá-la. Saiu inteiro, com a copy `services.process` e as
 utilidades `onda-corre` e `beam-bead`, que eram só dele. Está no git. Antes da
 rede houve ainda uma sequência de quatro passos com um facho descendo, que é o
 que esta nota descrevia até aqui.
-
-**O botão do Web3 abre um PORTAL antes de navegar**, e ele é o único lugar do
-site com uma piscadela cultural — a referência é o portal do Rick and Morty.
-Cabe ali e em lugar nenhum mais: é o único botão que fala com quem é do meio,
-e o visitante comercial nunca clica nele.
-
-Três coisas que não são estilo:
-
-- **Ele navega na MESMA ABA**, e isso contraria a decisão anterior (`target="_blank"`),
-  a pedido: animação de passagem só faz sentido se a passagem acontece aqui.
-  Ctrl/Cmd/shift/botão do meio continuam indo para aba nova, sem animação, e
-  com `prefers-reduced-motion` o `Portal` nem monta — o link é um link.
-- **Ele navega em 72% da animação, não no fim.** O navegador segura esta
-  página até o destino pintar; os últimos quadros do portal rodam DENTRO desse
-  intervalo, e a espera vira efeito. Por isso o miolo do shader é `#111111`:
-  é o fundo que o outro site pinta no primeiro quadro (medido no HTML dele),
-  então a emenda cai em escuro sobre escuro.
-- **As duas origens são diferentes**, então não existe transição nativa entre
-  os documentos — `@view-transition` só funciona same-origin, e nem domínio
-  próprio resolve (`web3.dominio.com` também é outra origem). A passagem é uma
-  ilusão em duas metades; a segunda, a chegada do outro lado, ainda não existe.
-
-O shader (`portalShaders.ts`) é o primeiro do site a usar o uniform `uB` do
-`LightBeam`, que estava lá sem chamador esperando um efeito dirigido por
-progresso em vez de por tempo. Quem escreve o `uB` é o `Portal.tsx`, que também
-decide a hora de navegar.
-
-**Nada de three.js.** Ele foi considerado e recusado para este losango: ~120 KB
-gzip contra os 77 KB que o site tinha (hoje ~105 KB, quase tudo anime.js), para desenhar um ícone de 18px que o
-casco WebGL2 daqui já desenha de graça.
 
 O ícone do WhatsApp fica só no rodapé: repetido em todo CTA vira textura, e no
 rodapé — último ponto, de quem leu a página inteira — saber o canal ajuda quem
@@ -287,20 +230,25 @@ da outra agora é só o vazio — o fundo atravessa.**
 do site inteiro a pedido. O `sopa-agency`, de onde esta base veio, ainda o tem
 — não o traga de volta ao sincronizar com ele.
 
-**A hero é um CANVAS DE AUTOMAÇÃO: o nome é o nó central e quatro cards de
-resultado ficam plugados nele por cabos com pulsos correndo dentro.** Veio de
-um handoff de design em HTML, recriado componente a componente e com os valores
-exatos dele (cores, curvas, keyframes). O motivo é comercial: a hero anterior
-era nome, dois botões e uma linha, e nada nela dava MOTIVO para rolar. Aqui as
-duas frentes aparecem em dois segundos — dois cards em `sky` (automação) e dois
-em `sage` (landing page), que é como a primeira tela diz que são dois serviços
-sem escrever isso.
+**A hero é LIMPA (09/11/2026): título, uma linha de apoio, um botão e três
+números no pé.** O dono pediu "algo bem clean". Saíram o nome gigante no centro,
+os quatro cards de resultado ligados ao nome por cabos animados, o botão Web3 com
+o portal e o indicador de rolagem — com eles, os componentes `Cables`,
+`EthMark`, `Portal`, os shaders do losango e do portal, e o hook
+`useHeroScroll`. Está tudo no git.
 
-**OS NÚMEROS DOS CARDS SÃO RASCUNHO DO DESIGN e não podem ir ao ar assim.**
-"18h por semana", "142 tarefas hoje", "7 dias", "4,8% de conversão" e o "3
-rodaram enquanto você lia" saíram do protótipo, que diz por escrito que são
-placeholders. Promessa que a primeira tela faz é a que o cliente cobra na
-reunião, e esta faz quatro. A nota está por extenso em `hero.provas`.
+- **O título diz o que é feito e para quem** ("Sites e sistemas para o seu
+  negócio."). O nome não precisa estar na primeira tela: quem chega não o
+  conhece, e ele aparece logo abaixo, na seção 02, onde vende.
+- **Um botão só, o do WhatsApp** (`.cta-whats` no `index.css`): um brilho no
+  azul `sky` atravessa o botão a cada 5s (branco sobre botão claro não
+  aparece) e, no hover, ele sobe, ganha halo e a seta anda. Com movimento
+  reduzido, nada corre.
+- **Os números no pé têm fonte escrita** em `hero.provas`, como antes. Eram
+  quatro; o "5 sistemas" saiu por ser o mais técnico. Promessa que a primeira
+  tela faz é a que o cliente cobra na reunião.
+- **O espaço vazio entre o botão e os números é o desenho**, não sobra. A seção
+  tem `min-h-svh` e os números vão para o pé com `mt-auto`.
 
 **O fundo é da PÁGINA, não da hero** — mora em `components/Fundo.tsx`, uma
 camada `absolute inset-0 -z-10` sob o `<main>`, e todas as seções são
@@ -351,146 +299,12 @@ sai do mesmo lugar de onde as luzes saíram, e o que empastelava o miolo onde o
 nome mora era ter alguma coisa ali.
 
 As camadas, de baixo para cima: o `Fundo` da página (preto, mais o eco abaixo
-da primeira tela) e,
-dentro da hero, cabos (SVG), cards, vinheta e o bloco central. **A vinheta é o que faz os cabos SAÍREM do nome**:
-os quatro terminam por volta de 50% da largura, atrás das letras, e se
-chegassem acesos até lá o desenho leria como linhas passando POR CIMA do nome.
-Ela foi aberta de 34%×38% para 44%×48% e o centro desceu para 52% justamente
-para apagar o tracejado antes das letras e em volta dos botões. O
-`text-shadow` não substitui isso: ele recorta o glifo, mas não escurece o vão
-entre uma letra e outra, que é por onde o tracejado passa. A sombra do nome
-tem três raios pelo mesmo motivo — 26px cola na letra, 70px (o do handoff) é o
-corpo, 130px é o escurecimento largo.
+da primeira tela) e, por cima, as seções, transparentes. A hero não tem camada
+própria: é só texto, um botão e a fileira de números.
 
-Aumentar mais o alcance da vinheta começa a comer os cards nos cantos; é o
-teto desse número.
-
-**Os dois botões são o mesmo do rodapé** (`SpecularButton` com a classe do
-"Tirar um projeto do papel"), e isso contraria o handoff, que os desenha como
-retângulo chapado. Foi decisão do dono, com duas diferenças para o rodapé:
-
-- **fundo transparente**, e não `bg-surface-raised`: sobre as duas luzes do
-  fundo, superfície própria vira um retângulo cinza flutuando na frente do
-  clarão. Quem desenha o botão aqui é a borda e o contorno especular;
-- **`idleGlow` (prop nova do `SpecularButton`, padrão 0)**: o contorno nasce
-  aceso no estado "mouse começando a chegar" em vez de esperar o ponteiro
-  entrar na `proximity`. É piso, não soma — de perto o brilho continua indo a
-  1. No rodapé o piso segue zero: lá o botão chega no fim da leitura e acender
-  na aproximação é o convite; na hero ele é a primeira coisa que se olha, e
-  apagado é um retângulo de borda fina. É também o que o celular passa a ver,
-  onde não há ponteiro e a varredura já rodava sobre brilho zero.
-
-O preço são dois contextos WebGL a mais na primeira tela — quatro com o
-losango e o rodapé; se pesar em celular fraco, o primeiro a virar `<a>` chapado
-é o Web3, que é saída e não CTA.
-
-**Cabos e cards vivem no MESMO palco, e o card não tem posição própria: ele
-pendura na ponta do cabo.** É a correção de um desalinhamento que era
-estrutural — os cabos moravam na grade do SVG (1240×700, escalada por `slice`)
-e os cards em `%` da tela, duas grades que coincidem numa proporção de janela
-e se afastam em todas as outras. O sintoma era o cabo chegando no vazio ao
-lado do card.
-
-**Os fios e o flutuar dos cards correm no MESMO relógio**, e isso não é
-elegância — é o que os mantém grudados. Enquanto o flutuar era um
-`@keyframes` (card subindo e descendo 10px) e o fio nascia num ponto fixo do
-desenho, a ponta descolava do card: animação CSS começa quando o elemento
-monta, o `requestAnimationFrame` conta de outro zero, e os dois se afastam. É
-o mesmo erro que a rede de nós teve entre SMIL e CSS. Hoje o loop do
-`Cables.tsx` calcula a boia uma vez por card e usa o número nos dois lugares —
-escreve o `transform` do card e soma na ponta do fio.
-
-De onde o fio sai é **medido**, não calculado: um `[data-plug]` de tamanho
-zero no CENTRO do card é lido uma vez por resize, já com a rotação e o flutuar
-aplicados. Em trigonometria seria preciso a altura do card, que depende do
-texto.
-
-**O centro, e não o canto** — foram três tentativas. No vértice da caixa o fio
-começava no ar, porque com `rounded-[14px]` a borda pintada curva para dentro
-e o vértice cai a uns 4px de qualquer traço. Recuado 9px a distância mede zero
-e ainda assim lê como fresta: o traço termina em cima da borda de 1px e o
-antialias das duas coisas no mesmo pixel desenha uma linha clara entre elas.
-Do centro não há o que alinhar, e vale em qualquer ângulo, raio de borda e
-altura do flutuar.
-
-**Os cards são VIDRO** (`VIDRO` no `Hero.tsx`: cantos retos, fundo translúcido,
-`backdrop-blur-[22px]`). O trecho do fio sob o card é desfocado pelo vidro e lê
-como luz entrando nele — abaixo de ~14px de blur a linha volta nítida por cima
-do número.
-
-**Nenhum ancestral dos cards pode ter opacidade**, nem `will-change: opacity`:
-no Chromium isso desliga o `backdrop-filter` e o fio atravessa o card nítido.
-Por isso o palco só leva o `transform` do `--hs`, e o fade vai em cada filho (o
-SVG do `Cables` e o `style` de cada card). No celular os fios e a grade moram no
-bloco de texto, então abaixo de 820px o bloco fica com opacidade 1 e sem
-`will-change: opacity`, e o `--hw` vai em cada filho (`FADE_CELULAR` no
-`Hero.tsx`: nome, botões, cada card, subtítulo); o SVG dos fios apaga com
-`--hw` ao quadrado, antes dos cards, para o card translúcido do meio do fade
-quase não deixar o fio passar. Medido num teste isolado; se alguém
-devolver o `opacity` ao palco, o defeito volta em silêncio. Durante o fade de
-saída o próprio card fica translúcido e o fio aparece de leve — é o preço.
-
-Hoje o `PALCO` é uma caixa com a proporção exata do `viewBox`, e daí sai tudo:
-o SVG encaixa nela sem distorcer e uma coordenada do desenho vira porcentagem
-do palco por uma conta só (`ancora`). Cada card recebe essa porcentagem e
-encosta nela pelo canto que olha para o centro (`canto`, com 10px de folga).
-Mexer num cabo move o card junto, de graça.
-
-Dois números mandam nisso e não são estilo:
-
-- **O palco usa `min()`, não `max()`.** Com `max()` ele COBRE a tela como o
-  `slice` do handoff — e numa janela alta (1200×1000) fica meia tela mais
-  largo que a viewport, levando os cards plugados para fora da borda. Com
-  `min()` ele CABE: a cena encolhe e se aproxima do nome, ao preço de margem
-  preta nas laterais em monitor ultralargo.
-- **O palco assume que a seção ocupa a viewport inteira** (os `vw`/`svh` dos
-  tamanhos). É o que o `h-viewport` do pai garante hoje; se a hero ganhar
-  margem um dia, estes viram unidades de container (`cqw`/`cqh`), senão o
-  palco descola da seção e o alinhamento erra de novo — em silêncio.
-
-**Abaixo de 820px o palco some e entra a grade 2×2** (`curto`, na copy), ligada
-ao nome pelos MESMOS fios: `<Cables celular />` mora no bloco de texto e mede
-tudo — o `[data-plug]` no centro de cada card e o `h1` (`[data-no]`) —, sem
-`viewBox`, em px. Cada fio sai do card para fora, sobe pela margem (pelo meio
-cruzaria os botões) e termina dentro de uma linha do nome; a linha de baixo da
-grade faz a curva mais aberta e entra em "Gabriel", sem cruzar a de cima. Mesmo
-loop, mesma boia (×0,3, porque o vão da grade é 10px). O SVG precisa estar no
-MESMO ancestral dos cards para o vidro desfocá-lo. A rota é calibrada pelo
-`CELULAR` do `Cables.tsx` (margem fora da grade, piso de 8px até a beira,
-controles passando das quinas) e pelo `max-[440px]:px-1.5` da grade — medidos
-a 360, 390, 600 e 760px; mexeu num, meça de novo.
-
-Entre 820 e 1100 os cards do palco encolhem com `scale-[0.86]`, a propriedade
-`scale` do Tailwind v4, que COMPÕE com o `transform` escrito pelo loop; um
-`transform: scale()` ali seria apagado no primeiro quadro.
-
-**O hero sai em DOIS TEMPOS.** O `--hw` leva o bloco de texto, o `--hs` leva a
-cena — luzes, fios e cards — depois, e ela SOBE 16vh enquanto apaga. Os dois
-nasceram como conta contra a aresta da cortina; hoje o escalonamento fica por
-profundidade: o texto vai, o fundo o segue, e a hero se desfaz em duas camadas
-em vez de uma chapa só. `FADE` e `CENA` viraram fração de UMA TELA de rolagem e
-**não dependem mais de medida nenhuma fora do `useHeroScroll`**.
-
-**Houve uma faixa de 72px no pé da hero para esfumar o corte da emenda, e ela
-saiu junto com o problema.** Ela era o remendo: com as luzes dentro da hero, o
-pé era cortado a faca e o pixel saltava de rgb(12,15,22) para rgb(0,0,0) de uma
-linha para a outra. Com o fundo na página não há pé para cortar. Fica o
-registro porque a tentação é reintroduzir esse tipo de remendo — se uma emenda
-voltar a aparecer, procure o fundo opaco novo, não o esfumado que falta.
-
-**O nome da hero é `font-display` (Bricolage Grotesque), a mesma do h2 da seção
-02**, em duas linhas — e a quebra é da copy (`hero.wordmark` é um array), não
-do navegador. A ÚLTIMA LETRA da última linha sai no azul do acento, e quem
-fatia é o `Hero.tsx`: um `<span>` no meio de uma string de conteúdo é marcação
-disfarçada de texto. O `WORDMARK_SIZE` é `clamp(44px,8.4vw,96px)`, do design;
-já foi `9.5vw` com a Instrument Serif numa linha só, `7vw` e `6.2vw` com a
-Bricolage. Trocar a fonte do nome é sempre remedir o clamp.
-
-**O que a hero antiga levou embora:** o campo de fios WebGL
-(`threadsShaders.ts`, apagado — o `LightBeam` continua no rodapé e no losango),
-as três camadas do nome (sombra, contorno respirando e o facho) e, com elas, o
-`text-shine`, o `breathe` e os tokens `--color-stroke*` do `index.css`. O nome
-de hoje é uma camada só com sombra preta larga. Está tudo no git.
+**Se uma emenda entre seções voltar a aparecer, procure o fundo opaco novo**,
+não o esfumado que falta. Já houve aqui uma faixa de 72px esfumando o pé da
+hero antiga; era remendo de ter dois fundos, e saiu junto com o problema.
 
 **Ícone de marca é preenchido; o resto é traço.** O `Icon` decide pelo conjunto
 `FILLED` — `whatsapp`, `ethereum`, `github` e `linkedin`. Eram dois e cabiam numa
@@ -587,13 +401,6 @@ claro é reescrever shader, não trocar token.
 
 ## Armadilhas conhecidas
 
-**O corpo do nome no hero é calibrado ao comprimento dele.** O `WORDMARK_SIZE`
-é `clamp(44px, 8.4vw, 96px)`, do handoff, e vale para "Cavalcanti" — a maior das
-duas linhas de `hero.wordmark` — na Bricolage. O número anda com a fonte E com o
-comprimento da linha; o sintoma de descalibragem não é mais vazar da tela, é o
-nome comer a altura de que os botões e a grade 2×2 do celular precisam embaixo.
-Mexeu num dos dois, meça de novo.
-
 **Translate no Tailwind v4 compõe com `transform` inline.** Os utilitários de
 translate usam a propriedade CSS `translate`, que soma ao `transform` em vez de
 substituí-lo. Em elemento posicionado por JS, não use `-translate-x-1/2` — o
@@ -625,9 +432,9 @@ no CSS esconde conteúdo.
   anima por quadro — use opacidade e `filter`.
 
 **O `LightBeam` virou casco genérico, e o feixe é só um dos shaders.** A prop
-`frag` é OBRIGATÓRIO — não há shader padrão. São DOIS na página: o
-`WAVES_FRAG` no rodapé (porte do React Bits, sem `ogl`) e o `ETH_FRAG` no
-losango do botão da hero. Dá para contar os contextos no log do headless.
+`frag` é OBRIGATÓRIO — não há shader padrão. Hoje é UM na página: o
+`WAVES_FRAG` no rodapé (porte do React Bits, sem `ogl`). O `ETH_FRAG` (o
+losango do botão Web3) e o `PORTAL_FRAG` saíram com a hero antiga, em 09/11/2026.
 
 Já existiram outros quatro, guardados "como caminho de volta": o `BEAM_FRAG`
 (feixe do rodapé antigo, que era o valor padrão desta prop), o `NEURO_FRAG`, o
@@ -643,28 +450,9 @@ ali. Não duplique este arquivo para acrescentar um efeito.
 wrapper fixo. Era fixa em `absolute left-1/2 w-screen -translate-x-1/2`, o que
 só servia a quem atravessa a tela — `w-screen` não se desfaz por outra classe,
 porque a ordem das props não decide quem ganha no CSS. As duas faixas de
-largura cheia repetem essas classes no call site; o losango de 18px passa
-`block size-[18px] shrink-0`. A prop `fade` é a duração do fade de entrada:
-1,8s numa faixa é uma coisa grande aparecendo, e num ícone é botão quebrado.
+largura cheia repetem essas classes no call site. A prop `fade` é a duração do
+fade de entrada: 1,8s numa faixa é uma coisa grande aparecendo.
 
 A prop `opening` continua lá, sem ninguém passando — é o que o feixe precisaria
 se voltasse a ser dirigido por scroll, já que um uniform de shader não lê `--var`.
 
-**O `useHeroScroll` publica `--hw` e `--hs` no próprio hero**, e o progresso é
-a fração de UMA TELA de rolagem — a altura do hero, medida uma vez. Ele já
-dirigiu a travessia presa (track de 180svh, 100svh em `sticky`, e os fades
-calculados contra a aresta da cortina); isso saiu inteiro e o hook encolheu.
-
-O `--p` (o card fechando as bordas) e o fade em dois tempos (`--hc` para a
-moldura, `--hw` para o nome) saíram antes, por outro motivo: não há mais card, e
-a composição de hoje é um bloco só.
-
-**O acoplamento entre o `-mt-[80vh]` do `Metodo` e o `FADE` do `useHeroScroll`
-acabou**, e era a armadilha mais cara daqui: três alturas que só funcionavam
-juntas e erravam em silêncio nos dois sentidos — cedo demais deixava meia tela
-de preto parado, tarde demais deixava a cortina cortar o nome ainda aceso.
-
-Sobrou uma medida a conferir, e é de outra natureza: a faixa de 72px no pé do
-hero é calibrada contra a intensidade das duas luzes. Mexeu nas luzes, meça a
-emenda de novo — curto demais e a listra volta, comprido demais e o clarão do
-rodapé apaga. Os dois sintomas continuam silenciosos.
