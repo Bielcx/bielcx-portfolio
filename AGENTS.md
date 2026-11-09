@@ -30,8 +30,9 @@ a mistura dos dois que criou o problema que este repositório resolve.
 
 ### Domínio
 
-Este site atende em **`gabriel.doabridge.com`**, e o web3 em
-`gabrielcavalcanti.vercel.app`.
+Este site atende em **`sites.gabriel.doabridge.com`**, e o web3 em
+`web3.gabriel.doabridge.com`. O `gabriel.doabridge.com` (sem prefixo) é o site
+pessoal desde 09/11/2026: ele é a porta de entrada e leva aos outros dois.
 
 O subdomínio é do domínio da bridge (`doabridge.com`), e foi escolhido por ser
 de graça: o domínio já é do dono e o DNS está na Cloudflare. **O acoplamento é

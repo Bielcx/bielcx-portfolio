@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gabriel.doabridge.com/sitemap.xml
+Sitemap: https://sites.gabriel.doabridge.com/sitemap.xml
