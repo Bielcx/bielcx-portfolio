@@ -43,16 +43,13 @@
      o fundo. Quem os delimita agora é só a borda de 0.08. */
   --color-card: #000000;
 
-  /* A PALETA DA HERO NOVA — o canvas de automação.
-     O `sky` é o azul dos cabos e cards de automação, e é mais claro que o
-     `accent-cool` de propósito: ele pinta traço de 1,5px e texto de 9px sobre
-     preto, onde o `4f9bf0` some. O `sage` é a cor da outra frente (landing), e
-     é o que permite ler de relance que são DOIS serviços e não um. */
+  /* Azul e verde claros, mais claros que os `accent` de baixo de propósito: eles
+     pintam traço fino e texto pequeno sobre preto, onde o `4f9bf0` some. O `sky`
+     é o brilho do botão da hero (`.cta-whats`); os dois também tingem as ondas
+     do rodapé (`wavesShaders.ts`). Nasceram com o canvas de automação da hero
+     antiga, que saiu em 09/11/2026. */
   --color-accent-sky: #a8c7fa;
   --color-accent-sage: #b6c98f;
-  /* superfície e borda dos cards flutuantes da hero */
-  --color-hero-card: #0d0f13;
-  --color-hero-line: #22252b;
 
   /* acentos por card na seção de serviços */
   --color-accent-warm: #f0863c;
@@ -85,31 +82,6 @@
 
 /* Utilitários próprios via `@utility` — assim aceitam variantes (md:, hover:…). */
 
-/* Altura da janela SEM a barra do navegador — a medida pequena, e a única que
-   NÃO muda enquanto se rola.
-   
-   Já foi `dvh`, a medida dinâmica, para bater com o `window.innerHeight` que os
-   hooks leem. O efeito colateral é que no celular o card PRESO cresce quando a
-   barra recolhe: ele é o elemento fixo da tela, e mudar de altura no meio da
-   rolagem empurra o conteúdo — era o "scroll esquisito" no celular.
-   
-   Com `svh` o layout não se mexe, e quem passou a se adaptar foi o JS: os hooks
-   medem o próprio elemento em vez de `window.innerHeight`. Layout estável,
-   conta certa.
-   
-   **Quem descreve esta mesma tela tem de usar a MESMA unidade**: este
-   utilitário e o track de 115svh do `Metodo`. Misturar `vh` com `dvh` foi
-   exatamente o bug. O hero também descrevia — tinha um track de 180svh e o
-   `Metodo` subia por cima com `-mt-[80svh]` —, e os dois saíram junto com a
-   travessia presa; o hero hoje é uma tela e usa este utilitário direto.
-   
-   O `vh` fica de reserva para navegador sem `svh`; o minificador descarta a
-   linha quando todos os alvos do build já suportam a unidade. */
-@utility h-viewport {
-  height: 100vh;
-  height: 100svh;
-}
-
 /* Hachura diagonal dos tiles vazios da grade de stack. */
 @utility bg-hatch {
   background-image: repeating-linear-gradient(
@@ -120,111 +92,71 @@
 }
 
 /**
- * O losango do Ethereum girando no próprio eixo, no botão do portfólio web3.
+ * O botão do WhatsApp na hero: um brilho no azul `sky` atravessa o botão a cada
+ * 5s, e no hover ele sobe, ganha halo e a seta anda. O brilho é azul e não
+ * branco de propósito: branco sobre um botão quase branco não aparece.
  *
- * `rotateY`, e não `rotate`: girar no plano faria um losango dar voltas, que
- * lê como "carregando". Em torno do eixo vertical ele vira de perfil e volta,
- * e é a MOEDA girando — que é o que a pessoa reconhece. A `perspective` mora
- * no pai (o botão), senão a rotação achata e vira só um losango encolhendo.
- *
- * 4s porque o ícone é a única coisa em movimento numa tela parada: mais rápido
- * vira aviso piscando, e o botão não é urgente — é um convite lateral.
- *
- * Infinito e por keyframes: não conta nada sobre a posição da página, só
- * diz que há outro site ali.
+ * Fica ATRÁS do texto (`z-index: -1` dentro do `isolation: isolate`), então a
+ * legenda nunca perde contraste. Com movimento reduzido, nada corre nem desliza.
  */
-@keyframes eth-spin {
-  to {
-    transform: rotateY(360deg);
-  }
+.cta-whats {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s,
+    background-color 0.2s;
 }
-
-@utility eth-spin {
-  animation: eth-spin 4s linear infinite;
-  transform-style: preserve-3d;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
+.cta-whats::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    color-mix(in srgb, var(--color-accent-sky) 75%, transparent) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  animation: cta-brilho 5s ease-in-out 1.2s infinite;
 }
-
-/**
- * Halo do losango do Ethereum, no botão do portfólio web3.
- *
- * O ícone é o único do site com cor própria, e a 18px dentro de um botão de
- * contorno apagado essa cor quase não aparece — ele lê como mais um traço da
- * borda. O halo devolve o destaque sem aumentar o ícone nem clarear o botão,
- * que são as duas coisas que o fariam competir com o CTA ao lado.
- *
- * `drop-shadow` e não `box-shadow`: um recorta a SILHUETA (o alfa do canvas
- * WebGL, os paths do SVG) e o outro desenharia um retângulo brilhante em volta
- * da caixa do ícone. São duas sombras empilhadas porque uma só não faz as duas
- * coisas: a de 3px é o contorno aceso, a de 10px é a luz espalhada.
- *
- * Vale nos TRÊS degraus do `EthMark` — o octaedro raymarcado, o SVG parado e o
- * SVG girando —, porque é filtro sobre o que o elemento desenhou, seja lá o
- * que for.
- */
-@utility eth-glow {
-  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--color-accent-cool) 65%, transparent))
-    drop-shadow(0 0 10px color-mix(in srgb, var(--color-accent-cool) 28%, transparent));
+.cta-whats .cta-seta {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-
-/**
- * AS DUAS ANIMAÇÕES CSS DA HERO, todas contínuas e nenhuma disparada por
- * interação — o canvas de automação tem de parecer LIGADO, não esperando
- * clique. Cada uma traz o seu `prefers-reduced-motion`, como o resto do
- * arquivo: quem pediu menos movimento vê o mesmo quadro, parado.
- *
- * A duração e o atraso de cada peça vêm do call site (`[animation-duration:…]`),
- * e é o que impede os quatro cards de baterem no mesmo compasso — em fase, o
- * painel inteiro pulsa junto e lê como um GIF.
- *
- * Os fios, os pulsos e O FLUTUAR DOS CARDS saíram daqui: viraram conta no loop
- * do `Cables.tsx`. Os dois primeiros porque o que ondula é a geometria, e isso
- * não é animação de propriedade; o terceiro porque a ponta do fio precisa
- * saber onde o card está AGORA — em dois relógios, ela descolava. Foram-se com
- * eles o `cabo-anda` (tracejado), o `pulso-viaja` (`offset-path`) e o `flutua`.
- */
-
-/* O ponto do cabeçalho do card, respirando. */
-@keyframes no-pulsa {
+.cta-whats:hover {
+  transform: translateY(-2px);
+  background-color: #fff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 10px 40px -8px rgba(255, 255, 255, 0.45);
+}
+.cta-whats:hover .cta-seta {
+  transform: translateX(4px);
+}
+.cta-whats:active {
+  transform: translateY(0) scale(0.98);
+}
+.cta-whats:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+@keyframes cta-brilho {
   0%,
-  100% {
-    opacity: 0.35;
-    transform: scale(1);
+  70% {
+    transform: translateX(-120%);
   }
-  50% {
-    opacity: 1;
-    transform: scale(1.35);
+  100% {
+    transform: translateX(120%);
   }
 }
-
-@utility no-pulsa {
-  animation: no-pulsa 2.6s ease-in-out infinite;
-
-  @media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
+  .cta-whats::after {
     animation: none;
   }
-}
-
-/* O indicador de rolagem. */
-@keyframes role-desce {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.25;
-  }
-  50% {
-    transform: translateY(7px);
-    opacity: 0.8;
-  }
-}
-
-@utility role-desce {
-  animation: role-desce 2.4s ease-in-out infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
+  .cta-whats,
+  .cta-whats .cta-seta {
+    transition: none;
   }
 }

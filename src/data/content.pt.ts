@@ -19,7 +19,7 @@
  * prazo ou num "está incluso", confira se ainda é verdade.
  */
 
-import { email, waLink, web3Url } from './contact'
+import { email, waLink } from './contact'
 
 /** Link genérico, para os CTAs que não vêm de um contexto específico. */
 const whatsappUrl = waLink('Oi, Gabriel! Vim pelo seu site e quero conversar sobre um projeto.')
@@ -44,159 +44,69 @@ const nav = {
 
 const hero = {
   /**
-   * O nome, UMA LINHA POR ITEM — a quebra é do design, não do navegador, e é
-   * ela que dá ao nome a silhueta de bloco que os cabos plugam no meio.
+   * A HERO LIMPA (09/11/2026). Saíram o nome gigante, o botão Web3, os cabos e
+   * os quatro cards flutuantes: o dono quis uma primeira tela "bem clean". O
+   * nome não precisa estar aqui — quem chega não conhece o nome, e ele aparece
+   * logo abaixo, na seção 02, onde vende ("você fala direto com quem
+   * constrói"). O Web3 continua no rodapé (`footer.links`). A versão antiga
+   * está no git.
    *
-   * A ÚLTIMA LETRA DA ÚLTIMA LINHA sai no azul do acento (o `i` de
-   * "Cavalcanti"). Quem fatia é o `Hero.tsx`, e não a copy: um `<span>` no
-   * meio de uma string de conteúdo é marcação disfarçada de texto, e o dia em
-   * que o nome mudar ninguém vai lembrar de mexer na tag.
-   *
-   * O `WORDMARK_SIZE` do Hero é calibrado para a MAIOR destas linhas —
-   * trocar por nome mais longo é recalibrar o clamp de lá, senão ele vaza na
-   * tela do celular.
+   * O título responde "serve para mim?" na primeira olhada: diz o que é feito
+   * e para quem. Ele NÃO repete o `h2` da seção 02 nem o título da seção 03
+   * ("Site que vende. Sistema que trabalha.") — cada bloco tem um papel.
    */
-  wordmark: ['Gabriel', 'Cavalcanti'],
+  title: 'Sites e sistemas para o seu negócio.',
   /**
-   * A linha que diz O QUE o site faz, e a única coisa acima da dobra que
-   * responde "serve para mim?".
-   *
-   * **Ela não repete a seção 02 de propósito.** Cada bloco tem um papel: aqui é
-   * O QUE, na seção 02 é COMO ("você fala direto com quem constrói") e na 03 é
-   * o detalhe, nas duas faixas. Já houve aqui um subtítulo que terminava
-   * justamente em "você fala direto com quem constrói" — a MESMA frase do `h2`
-   * de baixo —, e foi removido por isso. Repetir de novo é desfazer a correção.
-   *
-   * A frase cobre as duas faixas da seção 03 numa linha só, e entrega a
-   * automação, que é o serviço mais difícil de explicar: "sistema que faz o
-   * trabalho repetido sozinho" é o que o cliente reconhece, "automação" é o que
-   * ele procuraria no Google.
-   *
-   * No lugar dela morava um carimbo em mono — `// como funciona`, `conversa
-   * vira escopo > escopo vira site` — que saiu junto. Aquilo era `aria-hidden`,
-   * tinha 11px e falava em vocabulário de dev: exatamente o filtro que o
-   * portfólio web3 usa para afastar quem não é do meio, na primeira tela do
-   * site que existe para receber esse público.
+   * A linha de apoio cobre as duas faixas da seção 03 numa frase: o site (com
+   * o prazo, que tem fonte no `provas`) e a automação, dita do jeito que o
+   * cliente reconhece — "trabalho repetido feito sozinho" —, não na palavra
+   * técnica.
    */
-  subtitle: 'Do site ao sistema que faz o trabalho repetido sozinho.',
-  actions: {
-    primary: 'Começar uma conversa',
-    /**
-     * A porta para o outro portfólio. Também existe no rodapé (`footer.links`),
-     * e o rótulo é diferente de propósito: lá, no fim da página, "Web3 /
-     * blockchain" nomeia o assunto por extenso para quem o procura; aqui é só
-     * a palavra, porque quem ela interessa reconhece na hora e quem não é do
-     * meio não precisa parar para ler.
-     *
-     * Era "Portfólio web3" e encolheu a pedido. Quem diz que isto leva para
-     * FORA do site passou a ser a seta do `Hero.tsx`, não mais o rótulo — some
-     * a seta e o botão vira uma seção que não existe.
-     *
-     * Até jan/2026 este link existia só no rodapé, para o visitante comercial
-     * não tropeçar na palavra logo de cara. Subiu para a hero a pedido; se o
-     * site voltar a soar técnico demais na primeira tela, é o primeiro
-     * candidato a descer de volta.
-     */
-    web3: { label: 'Web3', href: web3Url },
-  },
+  subtitle: 'Do site no ar em 2 dias ao trabalho repetido que passa a ser feito sozinho.',
+  /** O único botão da primeira tela. Vai para o WhatsApp (`whatsappUrl`). */
+  cta: 'Conversar no WhatsApp',
   /**
-   * OS QUATRO NÚMEROS DA PRIMEIRA TELA — e cada um tem fonte, porque promessa
-   * que a hero faz é a que o cliente cobra na reunião.
+   * OS NÚMEROS DA PRIMEIRA TELA — e cada um tem fonte, porque promessa que a
+   * hero faz é a que o cliente cobra na reunião. Ao mexer aqui, mexa na fonte
+   * junto: número sem origem escrita volta a ser placeholder na primeira vez
+   * que alguém perguntar de onde saiu.
    *
-   * Vieram do handoff como placeholder ("18h por semana", "142 tarefas hoje",
-   * "7 dias", "4,8% de conversão") e foram TODOS trocados por número com
-   * lastro. A fonte de cada um está no comentário dele. Ao mexer aqui, mexa
-   * na fonte junto — número sem origem escrita volta a ser placeholder na
-   * primeira vez que alguém perguntar de onde saiu.
-   *
-   * `tom` escolhe a cor da frente de trabalho — `sky` é automação, `sage` é
-   * landing page. São duas de cada, de propósito: é assim que a primeira tela
-   * diz que existem DOIS serviços sem precisar escrever isso.
-   *
-   * `curto` é a versão de celular. Abaixo de 820px os cards flutuantes e os
-   * cabos somem (não há margem para eles ao lado do nome) e estes quatro
-   * ganchos viram uma grade 2×2 embaixo dos botões — o mesmo conteúdo, sem a
-   * cena.
+   * Eram quatro, em cards ligados ao nome por cabos. Ficaram três, numa fileira
+   * discreta no pé da tela; o "5 sistemas" saiu por ser o mais técnico.
    */
   provas: [
     {
-      id: 'automacao',
-      tom: 'sky',
-      label: 'Automação',
-      /**
-       * FONTE: o `README.md` do Car10Automation — "reduzindo um processo de
-       * ~10 etapas manuais para apenas revisar documentos, zipar e aprovar via
-       * Telegram". Dez para três, contadas no fluxo escrito lá.
-       *
-       * A legenda NÃO diz "de um cliente", e isso é correção de uma mentira
-       * que estava no ar: a automação é do fluxo de sinistros em que o dono
-       * trabalha, não de um contrato de terceiro. O serviço é o mesmo, a
-       * origem é outra — e "no meu próprio trabalho" é mais forte do que um
-       * cliente anônimo, porque é verificável.
-       */
-      numero: '10 → 3',
-      unidade: 'etapas',
-      legenda: 'o que eu fazia à mão num fluxo de sinistros; o resto o robô faz',
-      /** A fatia que sobrou de trabalho manual: 3 de 10. */
-      barra: 30,
-      curto: { label: 'Automação', valor: '10 → 3' },
-    },
-    {
-      id: 'rodando',
-      tom: 'sky',
-      label: 'Rodando agora',
-      /**
-       * FONTE: a stack do mesmo projeto — WhatsApp (Evolution API), Telegram,
-       * o sistema da seguradora (i4pro, via Playwright), Google Sheets e
-       * Supabase. Cinco, contados no README.
-       */
-      numero: '5 sistemas',
-      unidade: 'sem ninguém digitar',
-      legenda: 'WhatsApp, planilha, banco e dois painéis, conversando entre si',
-      curto: { label: 'Rodando', valor: '5 sistemas' },
-    },
-    {
-      id: 'landing',
-      tom: 'sage',
-      label: 'Landing page',
       /**
        * FONTE: o git dos últimos sites. Dr. Mario Oshima, Luccare e Suga
        * Odontologia foram do primeiro commit ao último no MESMO dia; o Sizr
-       * levou dois. Dois dias é, portanto, conservador de propósito — o
-       * registro diz um, e a folga cobre o briefing e o texto, que não moram
-       * no repositório.
-       *
-       * Projeto maior não entra nesta conta e não deve: o Voha levou 16 dias
-       * e o JCM, 13. A promessa é de LANDING PAGE, e é o que a etiqueta diz.
+       * levou dois. Dois dias é conservador de propósito — o registro diz um,
+       * e a folga cobre o briefing e o texto, que não moram no repositório.
+       * A promessa é de LANDING PAGE: o Voha levou 16 dias e o JCM, 13.
        */
       numero: '2 dias',
-      legenda: 'do briefing ao site no ar — medido nos últimos quatro',
-      curto: { label: 'Landing', valor: '2 dias' },
+      legenda: 'do briefing ao site no ar',
     },
     {
-      id: 'atendimento',
-      tom: 'sage',
-      label: 'Atendimento',
       /**
-       * ESTE CARD SUBSTITUIU O DE CONVERSÃO ("4,8% ↑ de 1,4%"), que era o
-       * único dos quatro sem NENHUMA fonte — nem no repositório, nem em
-       * projeto entregue. Número de conversão inventado é o pior tipo de
-       * promessa: é exatamente o que o cliente mede depois.
-       *
-       * Este é verificável por construção: o bot roda em PM2, atende no
-       * WhatsApp a qualquer hora e escala para uma pessoa quando sai do que
-       * resolve. Se um dia houver número de conversão MEDIDO num cliente, ele
-       * volta para cá — com a fonte escrita, como os outros três.
+       * FONTE: o `README.md` do Car10Automation — "reduzindo um processo de
+       * ~10 etapas manuais para apenas revisar documentos, zipar e aprovar via
+       * Telegram". Dez para três, contadas no fluxo escrito lá. É o fluxo de
+       * sinistros em que o dono trabalha, não um cliente: por isso a legenda
+       * não diz "de um cliente".
+       */
+      numero: '10 → 3',
+      legenda: 'etapas à mão, o resto sozinho',
+    },
+    {
+      /**
+       * FONTE: o bot roda em PM2, atende no WhatsApp a qualquer hora e escala
+       * para uma pessoa quando sai do que resolve. Substituiu um card de
+       * conversão ("4,8%") que não tinha fonte nenhuma.
        */
       numero: '24/7',
-      unidade: 'sem fila',
-      legenda: 'responde na hora e chama uma pessoa quando sai do script',
-      curto: { label: 'Atendimento', valor: '24/7' },
+      legenda: 'atendimento que não para',
     },
   ],
-  /** O indicador de rolagem no pé da tela. É o que a hero inteira existe para
-   *  provocar: a primeira tela dá motivo, este traço diz para onde. */
-  cue: 'Role',
 } as const
 
 /**
@@ -383,13 +293,11 @@ const footer = {
   /**
    * Links externos (href com http) abrem em outra aba.
    *
-   * O "Web3 / blockchain" é a porta para o outro portfólio, e o lugar dele é
-   * aqui embaixo de propósito: este site é a entrada do público comercial, que
-   * não sabe o que a palavra significa e não deve tropeçar nela. Quem sabe,
-   * procura — e acha.
+   * O "Web3 / blockchain" morava aqui e saiu a pedido, em 09/11/2026: este site
+   * não leva mais para o portfólio web3 em lugar nenhum. Quem liga os dois agora
+   * é o site pessoal (gabriel.doabridge.com), que tem uma porta para cada um.
    */
   links: [
-    { label: 'Web3 / blockchain', href: web3Url },
     { label: 'GitHub', href: 'https://github.com/Bielcx' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/gabrielcavalcanti-dev' },
   ],

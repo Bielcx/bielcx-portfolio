@@ -13,9 +13,6 @@ export const whatsapp = '5511960137983'
 /** Canal de quem prefere escrever — vive no rodapé, ao pé do CTA. */
 export const email = 'biel.cavalcanti1@hotmail.com'
 
-/** O portfólio web3, para quem sabe o que é. Ver a nota no `content.pt.ts`. */
-export const web3Url = 'https://web3.gabriel.doabridge.com'
-
 /** Monta um link do WhatsApp com a mensagem já digitada na conversa. */
 export const waLink = (message: string) =>
   `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`
